@@ -144,20 +144,17 @@ project-root/
 │   ├── app.ux                     # 应用入口
 │   ├── manifest.json              # 路由 + 权限声明
 │   │
-│   ├── Home/
-│   │   └── index.ux               # 首页：三大功能入口 + 成长概览
+│   ├── Camera/                        # ① 实时拍摄指导（首页入口）
+│   │   └── index.ux                   # 相机 + 参数面板 + 构图线
 │   │
-│   ├── Camera/
-│   │   └── index.ux               # ① 相机 + 参数面板 + 构图线
+│   ├── Upload/                        # 选图 + 选择分析模式
+│   │   └── index.ux                   # 拍照/相册 → shooting/edit/score
 │   │
-│   ├── Analysis/
-│   │   └── index.ux               # ②③ 雷达图 + 修图建议 + 评分
+│   ├── Result/                        # 分析结果展示
+│   │   └── index.ux                   # 雷达图 + 修图建议 + 评分
 │   │
-│   ├── Growth/
-│   │   └── index.ux               # ③ 等级 + 勋章墙 + 趋势
-│   │
-│   ├── Gallery/
-│   │   └── index.ux               # 历史记录列表
+│   ├── Gallery/                       # 历史记录
+│   │   └── index.ux                   # 本地图片 + 后端 JSON
 │   │
 │   ├── Common/
 │   │   ├── ScoreRadar.ux           # 五维雷达图组件
@@ -185,13 +182,12 @@ project-root/
 ```json
 {
   "router": {
-    "entry": "Home",
+    "entry": "Camera",
     "pages": {
-      "Home":     { "component": "index" },
-      "Camera":   { "component": "index" },
-      "Analysis": { "component": "index" },
-      "Growth":   { "component": "index" },
-      "Gallery":  { "component": "index" }
+      "Camera":  { "component": "index" },
+      "Upload":  { "component": "index" },
+      "Result":  { "component": "index" },
+      "Gallery": { "component": "index" }
     }
   },
   "features": [
@@ -470,10 +466,9 @@ ANALYZE_PROMPT = """你是一位专业摄影后期导师。分析这张照片的
 |------|------|------|----------|
 | POST | `/api/analyze` | 照片分析（三种模式，Camera 页也用 shooting） | ①②③ |
 | GET | `/api/user/info?uid=x` | 获取用户信息 | 成长体系 |
-| POST | `/api/user/checkin` | 每日打卡 | 成长体系 |
+| GET | `/api/user/stats?uid=x` | 评分趋势数据 | 成长体系 |
 | GET | `/api/gallery?uid=x` | 历史分析记录列表 | 记录回看 |
 | GET | `/api/gallery/:id` | 单条分析详情 | 记录回看 |
-| GET | `/api/gallery/stats?uid=x` | 评分趋势 + 统计数据 | Growth 页 |
 
 ### 核心接口 — POST /api/analyze（三种模式）
 
@@ -1143,16 +1138,13 @@ photography-partner/
 │   ├── manifest.json          🟢 前端
 │   ├── app.ux                 🟢 前端
 │   │
-│   ├── 📁 Home/
-│   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
-│   │
 │   ├── 📁 Camera/
 │   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
 │   │
-│   ├── 📁 Analysis/
+│   ├── 📁 Upload/
 │   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
 │   │
-│   ├── 📁 Growth/
+│   ├── 📁 Result/
 │   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
 │   │
 │   ├── 📁 Gallery/
@@ -1242,7 +1234,7 @@ photography-partner/
 |------|-----|----------|--------|
 | 🔴 **传统后端** | 你 | `server/routes/` `server/services/photo_analysis.py` `server/models/` `server/utils/` `server/main.py` `server/config.py` | HTTP → 编排 → 调 AI 函数 → 数据库 → JSON |
 | 🔵 **AI 服务** | 成员 2 | `server/services/deepseek.py` `server/services/scoring.py` `server/services/composition.py` | 4 个纯函数给后端编排层调用，不碰 HTTP/数据库 |
-| 🟢 **快应用前端** | 成员 3 | `src/Home/` `src/Camera/` `src/Analysis/` `src/Growth/` `src/Gallery/` `src/store/` `src/services/api.js` `src/helper/` `src/app.ux` `src/manifest.json` | 页面逻辑、状态管理、API 调用、相机接入 |
+| 🟢 **快应用前端** | 成员 3 | `src/Camera/` `src/Upload/` `src/Result/` `src/Gallery/` `src/store/` `src/services/api.js` `src/helper/` `src/app.ux` `src/manifest.json` | 页面逻辑、状态管理、API 调用、相机接入 |
 | 🟡 **UI + 产品** | 成员 4 | `src/Common/ScoreRadar.ux` `src/Common/CompositionLines.ux` `src/Common/ParamPanel.ux` `src/Common/PhotoCard.ux` `src/Common/LevelBadge.ux` `server/prompts/shooting.txt` `server/prompts/edit.txt` `server/prompts/score.txt` `server/prompts/scene.txt` `server/knowledge/` | 组件 UI + Prompt 撰写 + 测试 + 答辩 |
 
 **页面 ux 文件的协作方式**（🟢 + 🟡）：
@@ -1310,24 +1302,6 @@ server/
   ③ 无记录 → INSERT 新用户 (level=1, exp=0) → 返回
 
 响应: { uid, level, exp, badges, streak, total_analyses, last_checkin }
-```
-
-#### 3. `POST /api/user/checkin`
-
-```
-输入: { uid: string }
-
-处理流程:
-  ① 查 users 表 last_checkin
-  ② 判断:
-     - 今天已打卡 → 返回 { already_checked: true }
-     - 昨天打过 → streak += 1，exp += (5 + streak * 2)
-     - 断签 → streak = 1，exp += 5
-  ③ INSERT checkins 表
-  ④ UPDATE users
-  ⑤ 检查升级
-
-响应: { streak, exp_gained, level_up: false }
 ```
 
 #### 4. `GET /api/gallery?uid=xxx&page=1&size=20`

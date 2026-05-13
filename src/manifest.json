@@ -1,12 +1,11 @@
 {
   "router": {
-    "entry": "Home",
+    "entry": "Camera",
     "pages": {
-      "Home":     { "component": "index" },
-      "Camera":   { "component": "index" },
-      "Analysis": { "component": "index" },
-      "Growth":   { "component": "index" },
-      "Gallery":  { "component": "index" }
+      "Camera":  { "component": "index" },
+      "Upload":  { "component": "index" },
+      "Result":  { "component": "index" },
+      "Gallery": { "component": "index" }
     }
   },
   "display": {

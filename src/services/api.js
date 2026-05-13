@@ -2,7 +2,6 @@ import fetch from '@system.fetch'
 
 const BASE = 'http://YOUR_SERVER_IP:8000/api'
 
-// 通用请求
 async function request(method, path, body) {
   return new Promise((resolve, reject) => {
     fetch.fetch({
@@ -17,18 +16,12 @@ async function request(method, path, body) {
   })
 }
 
-// 上传文件
+// 上传文件（快应用 base64 方案）
 async function upload(path, filePath, extra = {}) {
-  // 快应用文件上传 — 待确认具体 API
-  // 暂用 fetch + base64 方案
+  // TODO: 前端图片压缩 + base64 → POST
 }
 
 // ====== 接口 ======
-
-// 场景检测 (Camera 页)
-export function detectScene(imagePath) {
-  return upload('/scene/detect', imagePath)
-}
 
 // 照片分析（三种模式）
 export function analyzePhoto(imagePath, mode) {
@@ -40,12 +33,12 @@ export function getUserInfo(uid) {
   return request('GET', `/user/info?uid=${uid}`)
 }
 
-// 每日打卡
-export function checkin(uid) {
-  return request('POST', '/user/checkin', { uid })
+// 评分趋势
+export function getUserStats(uid) {
+  return request('GET', `/user/stats?uid=${uid}`)
 }
 
-// 历史列表
+// 历史列表（Gallery 页）
 export function getGallery(uid, page = 1, size = 20) {
   return request('GET', `/gallery?uid=${uid}&page=${page}&size=${size}`)
 }

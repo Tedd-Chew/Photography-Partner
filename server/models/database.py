@@ -1,17 +1,15 @@
 import aiosqlite
 import json
 import uuid
-from datetime import datetime, date
 from config import DB_PATH
-from services.scoring import LEVELS, BADGES, get_level
+from services.scoring import BADGES, get_level
+
+MAX_RECORDS = 30  # 每人最多保留的分析记录数
 
 
 def _open():
-    """打开数据库连接"""
     return aiosqlite.connect(DB_PATH)
 
-
-# ====== 初始化 ======
 
 async def init_db():
     """建表"""
@@ -25,8 +23,6 @@ async def init_db():
                 level INTEGER DEFAULT 1,
                 exp INTEGER DEFAULT 0,
                 badges_json TEXT DEFAULT '[]',
-                streak INTEGER DEFAULT 0,
-                last_checkin TEXT,
                 total_analyses INTEGER DEFAULT 0,
                 created_at TEXT DEFAULT (datetime('now')),
                 updated_at TEXT DEFAULT (datetime('now'))
@@ -38,20 +34,8 @@ async def init_db():
                 uid TEXT NOT NULL,
                 mode TEXT NOT NULL,
                 result_json TEXT,
-                image_path TEXT,
-                thumb_path TEXT,
                 created_at TEXT DEFAULT (datetime('now')),
                 FOREIGN KEY (uid) REFERENCES users(uid)
-            )
-        """)
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS checkins (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                uid TEXT NOT NULL,
-                date TEXT NOT NULL,
-                exp_gained INTEGER DEFAULT 0,
-                FOREIGN KEY (uid) REFERENCES users(uid),
-                UNIQUE(uid, date)
             )
         """)
         await db.commit()
@@ -101,9 +85,9 @@ async def check_badge_unlock(uid: str, result: dict) -> list:
         )
         row = await cursor.fetchone()
         current = set(json.loads(row["badges_json"] or "[]"))
-        user_ctx = {"total_analyses": row["total_analyses"]}
-        new_badges = [name for name, rule in BADGES.items()
-                      if name not in current and rule(user_ctx, result)]
+        ctx = {"total_analyses": row["total_analyses"]}
+        new_badges = [n for n, r in BADGES.items()
+                      if n not in current and r(ctx, result)]
         if new_badges:
             current.update(new_badges)
             await db.execute(
@@ -114,15 +98,10 @@ async def check_badge_unlock(uid: str, result: dict) -> list:
     return new_badges
 
 
-async def do_checkin(uid: str) -> dict:
-    """每日打卡（非刚需，占位）"""
-    return {"streak": 0, "exp_gained": 0, "already_checked": False}
-
-
 # ====== 分析记录 ======
 
 async def save_analysis(uid: str, mode: str, result: dict) -> str:
-    """保存分析记录，返回 ID"""
+    """保存分析记录，FIFO 30 条"""
     record_id = str(uuid.uuid4())
     async with _open() as db:
         await db.execute(
@@ -132,6 +111,11 @@ async def save_analysis(uid: str, mode: str, result: dict) -> str:
         await db.execute(
             "UPDATE users SET total_analyses = total_analyses + 1 WHERE uid = ?",
             (uid,),
+        )
+        await db.execute(
+            "DELETE FROM analyses WHERE uid = ? AND id NOT IN ("
+            "SELECT id FROM analyses WHERE uid = ? ORDER BY created_at DESC LIMIT ?)",
+            (uid, uid, MAX_RECORDS),
         )
         await db.commit()
     return record_id
@@ -148,7 +132,9 @@ async def get_analyses(uid: str, page: int = 1, size: int = 20) -> dict:
             (uid, size, offset),
         )
         items = [dict(r) for r in await cursor.fetchall()]
-        cursor = await db.execute("SELECT COUNT(*) FROM analyses WHERE uid = ?", (uid,))
+        cursor = await db.execute(
+            "SELECT COUNT(*) FROM analyses WHERE uid = ?", (uid,)
+        )
         total = (await cursor.fetchone())[0]
     return {"items": items, "total": total, "page": page}
 
@@ -157,6 +143,28 @@ async def get_analysis_by_id(record_id: str) -> dict | None:
     """单条详情"""
     async with _open() as db:
         db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM analyses WHERE id = ?", (record_id,))
+        cursor = await db.execute(
+            "SELECT * FROM analyses WHERE id = ?", (record_id,)
+        )
         row = await cursor.fetchone()
         return dict(row) if row else None
+
+
+async def get_user_stats(uid: str) -> dict:
+    """用户统计数据（Growth 页用）"""
+    async with _open() as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT result_json, created_at FROM analyses "
+            "WHERE uid = ? AND mode = 'score' ORDER BY created_at DESC LIMIT 7",
+            (uid,),
+        )
+        rows = await cursor.fetchall()
+        scores = []
+        for r in rows:
+            data = json.loads(r["result_json"] or "{}")
+            scores.append({
+                "date": r["created_at"][:10],
+                "overall": data.get("overall", 0),
+            })
+    return {"recent_scores": scores}

@@ -1,16 +1,13 @@
 <script>
 export default {
   data: {
-    mode: 'score',
     result: null,
-    loading: false
+    localUri: '',
+    mode: 'score'
   },
 
-  onInit() {},
-
-  async analyze(mode) {
-    // 选图 → 压缩 → POST /api/analyze
-    // 展示结果
+  onInit() {
+    // 接收 Upload 或 Camera 传来的分析结果
   }
 }
 </script>
@@ -21,7 +18,7 @@ export default {
     <!-- TODO: ScoreRadar 组件 -->
     <!-- TODO: 修图建议列表 -->
     <!-- TODO: 评分展示区 -->
-    <text>Analysis Page</text>
+    <text>Result Page</text>
   </div>
 </template>
 

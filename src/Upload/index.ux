@@ -1,0 +1,48 @@
+<script>
+import media from '@system.media'
+import { analyzePhoto } from '../services/api'
+
+export default {
+  data: {
+    selectedImage: null,
+    mode: 'shooting',
+    loading: false
+  },
+
+  onPickImage() {
+    media.pickImage({
+      success: (data) => {
+        this.selectedImage = data.uri
+      }
+    })
+  },
+
+  onTakePhoto() {
+    media.takePhoto({
+      success: (data) => {
+        this.selectedImage = data.uri
+      }
+    })
+  },
+
+  async onAnalyze() {
+    if (!this.selectedImage) return
+    this.loading = true
+    const result = await analyzePhoto(this.selectedImage, this.mode)
+    this.loading = false
+    // 存本地缓存，跳转 Result 页
+    this.$app.navigateTo('Result', { result, localUri: this.selectedImage })
+  }
+}
+</script>
+
+<template>
+  <div class="page">
+    <!-- TODO: UI 同学实现 -->
+    <text>Upload Page</text>
+  </div>
+</template>
+
+<style>
+  .page { flex-direction: column; }
+</style>
