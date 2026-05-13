@@ -34,6 +34,7 @@ async def init_db():
                 uid TEXT NOT NULL,
                 mode TEXT NOT NULL,
                 result_json TEXT,
+                thumb_url TEXT DEFAULT '',
                 created_at TEXT DEFAULT (datetime('now')),
                 FOREIGN KEY (uid) REFERENCES users(uid)
             )
@@ -100,13 +101,13 @@ async def check_badge_unlock(uid: str, result: dict) -> list:
 
 # ====== 分析记录 ======
 
-async def save_analysis(uid: str, mode: str, result: dict) -> str:
+async def save_analysis(uid: str, mode: str, result: dict, thumb_url: str = "") -> str:
     """保存分析记录，FIFO 30 条"""
     record_id = str(uuid.uuid4())
     async with _open() as db:
         await db.execute(
-            "INSERT INTO analyses (id, uid, mode, result_json) VALUES (?, ?, ?, ?)",
-            (record_id, uid, mode, json.dumps(result, ensure_ascii=False)),
+            "INSERT INTO analyses (id, uid, mode, result_json, thumb_url) VALUES (?, ?, ?, ?, ?)",
+            (record_id, uid, mode, json.dumps(result, ensure_ascii=False), thumb_url),
         )
         await db.execute(
             "UPDATE users SET total_analyses = total_analyses + 1 WHERE uid = ?",
@@ -127,7 +128,7 @@ async def get_analyses(uid: str, page: int = 1, size: int = 20) -> dict:
         db.row_factory = aiosqlite.Row
         offset = (page - 1) * size
         cursor = await db.execute(
-            "SELECT id, mode, result_json, created_at FROM analyses "
+            "SELECT id, mode, result_json, thumb_url, created_at FROM analyses "
             "WHERE uid = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
             (uid, size, offset),
         )
