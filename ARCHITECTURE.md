@@ -83,56 +83,47 @@
 
 ## 数据库设计
 
-### SQLite 表结构（3 张表）
+### SQLite 表结构（2 张表）
 
-用户以**设备 ID** 标识，不需要登录系统。
+用户以**设备 ID** 标识，不需要登录系统。分析记录 FIFO 30 条，缩略图存 `static/` 目录。
 
 ```sql
 -- 用户表
 CREATE TABLE users (
-    uid TEXT PRIMARY KEY,              -- 设备 ID
+    uid TEXT PRIMARY KEY,
     nickname TEXT DEFAULT '',
-    level INTEGER DEFAULT 1,           -- 等级 1-6
-    exp INTEGER DEFAULT 0,             -- 总经验值
-    badges_json TEXT DEFAULT '[]',     -- JSON: ["夜景猎手","构图大师"]
-    streak INTEGER DEFAULT 0,          -- 连续打卡天数
-    last_checkin TEXT,                 -- 最后打卡日期
+    level INTEGER DEFAULT 1,
+    exp INTEGER DEFAULT 0,
+    badges_json TEXT DEFAULT '[]',
     total_analyses INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
--- 分析记录表
+-- 分析记录表（每人最多 30 条）
 CREATE TABLE analyses (
-    id TEXT PRIMARY KEY,               -- UUID
+    id TEXT PRIMARY KEY,
     uid TEXT NOT NULL,
-    overall_score INTEGER,
-    scores_json TEXT,                  -- 五维评分 JSON
-    summary TEXT,                      -- AI 总评文字
-    strengths_json TEXT,
-    weaknesses_json TEXT,
-    suggestions_json TEXT,             -- 修图建议 JSON
-    tutorial_steps_json TEXT,
-    scene_label TEXT,                  -- 场景类型
-    image_path TEXT,                   -- 原图路径
-    thumb_path TEXT,                   -- 缩略图路径
+    mode TEXT NOT NULL,
+    result_json TEXT,
+    thumb_url TEXT DEFAULT '',
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (uid) REFERENCES users(uid)
-);
-
--- 打卡记录表
-CREATE TABLE checkins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    uid TEXT NOT NULL,
-    date TEXT NOT NULL,
-    exp_gained INTEGER DEFAULT 0,
-    FOREIGN KEY (uid) REFERENCES users(uid),
-    UNIQUE(uid, date)
 );
 ```
 
 ---
+## 图片策略
 
+| 角色 | 处理 |
+|------|------|
+| 前端 | 拍照/选图后上传，上传前压缩至 1024px |
+| 后端 | 压缩图存 `static/` → 调 AI → 返回 JSON + thumb_url |
+| Gallery | 直接 `<image src="服务器/static/xxx.jpg">` |
+
+---
+
+## 前端 — 快应用
 ## 前端 — 快应用
 
 ### 目录结构
@@ -980,7 +971,8 @@ server/
 │   └── response.py          # 统一响应格式
 │
 ├── data/                    # SQLite 文件（自动生成）
-└── static/                  # 照片缩略图存储
+├── static/                  # 压缩图存储（Gallery 直接读）
+└── prompts/                 # 3 个 Prompt 模板
 ```
 
 ### requirements.txt
