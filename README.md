@@ -1,5 +1,36 @@
-# Photography-Partner
-一个提高你摄影水平的ai摄影助手
+# 光影参谋 (Photography-Partner)
+
+一站式 AI 摄影构图成长伴侣 | 快应用 | vivo AIGC 创新赛 | 4 人团队
+
+## 技术栈
+
+| 层 | 技术 |
+|----|------|
+| 前端 | 快应用 (Quick App / hap) |
+| 后端 | Python + FastAPI + SQLite |
+| AI | Volc-DeepSeek-V3.2 (vivo API) |
+
+## 快速开始
+
+```bash
+# 后端
+cd server
+pip install -r requirements.txt
+cp config.example.py config.py   # 填入 AppKey
+python main.py                    # → http://localhost:8000
+
+# 前端（需 hap-toolkit）
+npm install -g hap-toolkit
+npm run dev
+```
+
+## 项目文档
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — 完整架构书（技术选型、API、数据库、团队分工）
+- **[CLAUDE.md](./CLAUDE.md)** — Claude Code 使用指引
+
+---
+
 # Git 协作极简规范（4人小团队专用）
 > **一句话核心：先拉再写，写完再拉，分支干活，PR合并**
 > 
