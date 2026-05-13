@@ -1580,3 +1580,133 @@ Phase 2 ────────────────────────
 
 Phase 3-4-5 以此类推...
 ```
+
+---
+
+## 分工解耦：谁通过什么接口跟谁联系
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         四人协作关系图                                │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  🟡 产品                          🟡 产品                           │
+│   prompt 文本 ──────────────────▶ prompts/*.txt                     │
+│                                    │                                │
+│                                    ▼                                │
+│                              🔵 AI 服务                             │
+│   prompts/*.txt ──────────▶ deepseek.py                             │
+│                               shooting_advice(img_b64) → dict       │
+│                               editing_advice(img_b64) → dict        │
+│                               score_photo(img_b64) → dict           │
+│                                    │                                │
+│                                    │ Python 函数调用                  │
+│                                    ▼                                │
+│                              🔴 传统后端                             │
+│  photo_analysis.py ───────── 调 AI 函数 + 调 database               │
+│       │                          │                                  │
+│       │ 编排                      │ 读写                             │
+│       ▼                          ▼                                  │
+│  routes/analyze.py          models/database.py                      │
+│  routes/user.py              get_or_create_user()                   │
+│  routes/gallery.py           save_analysis()                        │
+│       │                      get_analyses()                         │
+│       │ HTTP JSON            update_user_exp()                      │
+│       ▼                      check_badge_unlock()                   │
+│  ┌─────────────┐                                                     │
+│  │  HTTP API   │  ←── 🟢 前端 通过 api.js 调用                       │
+│  │  5 个端点    │      upload('/analyze', file, mode)                │
+│  │             │      request('GET', '/user/info?uid=...')          │
+│  └─────────────┘      request('GET', '/gallery?uid=...')            │
+│         │                                                            │
+│         │ JSON                                                       │
+│         ▼                                                            │
+│  🟢 前端 页面逻辑            🟡 UI 组件                              │
+│   Camera/Upload/            Common/                                  │
+│   Result/Gallery            ScoreRadar / CompositionLines            │
+│       │                      ParamPanel / PhotoCard / LevelBadge     │
+│       │ props                       │                                │
+│       └──────────────────────────────┘                                │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 四条解耦边界
+
+| 边界 | 谁↔谁 | 合约形式 | 具体文件 |
+|------|-------|---------|---------|
+| **① 产品 → AI** | 🟡 ↔ 🔵 | Prompt 文本文件 | `prompts/shooting.txt` `prompts/edit.txt` `prompts/score.txt` |
+| **② AI → 后端** | 🔵 ↔ 🔴 | Python 函数签名 | `deepseek.py` 的 3 个 `async def` 函数 |
+| **③ 后端 → 前端** | 🔴 ↔ 🟢 | HTTP JSON | 5 个 API 端点（见接口清单） |
+| **④ UI → 前端** | 🟡 ↔ 🟢 | 组件 props | `Common/` 下 5 个 `.ux` 组件的 props 定义 |
+
+### 各人只需要知道的接口
+
+**🔴 传统后端（你）只需要知道：**
+
+```python
+# 从 AI 服务拿到的 3 个函数（不用关心内部怎么调 API、prompt 怎么写）
+from services.deepseek import shooting_advice, editing_advice, score_photo
+
+# 使用方式
+result = await shooting_advice(image_base64)  # → dict
+result = await editing_advice(image_base64)   # → dict
+result = await score_photo(image_base64)       # → dict
+
+# 你需要提供给前端的 5 个 HTTP 端点
+POST /api/analyze     # { image, mode, uid } → { result, thumb_url }
+GET  /api/user/info   # ?uid=xxx → { level, exp, badges }
+GET  /api/user/stats  # ?uid=xxx → { recent_scores }
+GET  /api/gallery     # ?uid=xxx&page=1 → { items, total }
+GET  /api/gallery/:id # → 单条详情
+```
+
+**🔵 AI 服务只需要知道：**
+
+```python
+# 需要实现的 3 个函数（不用关心 HTTP、数据库）
+async def shooting_advice(image_base64: str) -> dict: ...
+async def editing_advice(image_base64: str) -> dict: ...
+async def score_photo(image_base64: str) -> dict: ...
+```
+
+**🟢 前端只需要知道：**
+
+```javascript
+// 5 个 API（不用关心后端怎么实现）
+POST /api/analyze     // 上传图片 + mode → 拿结果
+GET  /api/user/info   // 拿用户等级经验
+GET  /api/user/stats  // 拿评分趋势
+GET  /api/gallery     // 拿历史列表（含 thumb_url）
+GET  /api/gallery/:id // 拿单条详情
+
+// 5 个组件的 props（不用关心组件内部样式）
+<score-radar scores="{{scores}}">
+<composition-lines mode="{{gridMode}}" visible="{{true}}">
+<param-panel params="{{params}}" scene="{{scene}}">
+<photo-card item="{{item}}">
+<level-badge level="{{level}}" badges="{{badges}}">
+```
+
+**🟡 UI+产品 只需要知道：**
+
+```html
+<!-- 5 个组件，定义好 props -->
+<!-- UI 写 <template> + <style>，前端写 <script> -->
+
+<!-- ScoreRadar.ux -->     props: { scores: {} }
+<!-- CompositionLines.ux --> props: { mode: '', visible: false }
+<!-- ParamPanel.ux -->      props: { params: {}, scene: '' }
+<!-- PhotoCard.ux -->       props: { item: {} }
+<!-- LevelBadge.ux -->      props: { level: 0, badges: [] }
+```
+
+### 总结：一个人改代码，其他人不受影响
+
+| 改动 | 只影响 |
+|------|--------|
+| 改 Prompt 文案 | 只改 `prompts/*.txt`，🔵 AI 同学不需要改代码 |
+| 换 AI 模型 | 只改 `services/deepseek.py`，🔴 后端和 🟢 前端无感 |
+| 改数据库字段 | 只改 `models/database.py` 和 `routes/` |
+| 改前端页面布局 | 只改 `src/*/index.ux`，后端无感 |
+| 改组件样式 | 只改 `src/Common/*.ux` 的 `<style>`，前端逻辑不受影响 |
