@@ -1124,48 +1124,134 @@ if __name__ == "__main__":
 
 ## 团队分工（4 人）
 
-### 架构分层与人员对应
+### 项目文件归属
 
 ```
-┌──────────────────────────────────────────────────────┐
-│                    快应用前端                          │
-│  ┌──────────────┐  ┌──────────────┐                  │
-│  │  页面逻辑      │  │  UI 组件      │                 │
-│  │  Store/路由   │  │  样式/交互    │                 │
-│  │  API 调用     │  │              │                 │
-│  │  前端同学      │  │  UI 同学      │                │
-│  └──────┬───────┘  └──────────────┘                  │
-│         │              │                              │
-│         │    props     │                              │
-│         └──────┬───────┘                              │
-│                │                                       │
-└────────────────┼───────────────────────────────────────┘
-                 │  HTTP (JSON)
-┌────────────────┼───────────────────────────────────────┐
-│                ▼                Python 后端              │
-│  ┌─────────────────┐  ┌─────────────────┐              │
-│  │  传统后端         │  │  AI 服务         │             │
-│  │  routes/        │  │  services/      │              │
-│  │  models/        │◀─┤  deepseek.py    │              │
-│  │  utils/         │  │  scoring.py     │              │
-│  │  你（后端）       │  │  composition.py │              │
-│  └────────┬────────┘  │  prompts/       │              │
-│           │           │  AI 同学         │              │
-│           │  函数调用   └─────────────────┘              │
-│           ▼                                            │
-│  from services.deepseek import analyze_photo           │
-│  result = await analyze_photo(img_b64)                 │
-└────────────────────────────────────────────────────────┘
+图例:
+  🔴 传统后端（你）      🔵 AI 服务（成员 2）
+  🟢 快应用前端（成员 3）  🟡 UI+产品（成员 4）
+  ⚪ 共享契约（双方对齐即可）
+
+
+photography-partner/
+│
+├── 📄 README.md              🟡 UI+产品
+├── 📄 ARCHITECTURE.md        ⚪ 共享
+├── 📄 CLAUDE.md              ⚪ 共享
+├── 📄 .gitignore             🔴 后端
+│
+├── 📁 sign/debug/            🟢 前端
+│
+├── 📁 src/                   ─── 快应用前端 ───
+│   ├── manifest.json          🟢 前端
+│   ├── app.ux                 🟢 前端
+│   │
+│   ├── 📁 Home/
+│   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
+│   │
+│   ├── 📁 Camera/
+│   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
+│   │
+│   ├── 📁 Analysis/
+│   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
+│   │
+│   ├── 📁 Growth/
+│   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
+│   │
+│   ├── 📁 Gallery/
+│   │   └── index.ux           🟢 前端（逻辑） + 🟡 UI（样式）
+│   │
+│   ├── 📁 Common/             ─── 🟡 UI 同学的主战场 ───
+│   │   ├── ScoreRadar.ux       🟡 UI（模板+样式） + 🟢 前端（数据绑定）
+│   │   ├── CompositionLines.ux 🟡 UI（模板+样式） + 🟢 前端（数据绑定）
+│   │   ├── ParamPanel.ux       🟡 UI（模板+样式） + 🟢 前端（数据绑定）
+│   │   ├── PhotoCard.ux        🟡 UI（模板+样式） + 🟢 前端（数据绑定）
+│   │   └── LevelBadge.ux       🟡 UI（模板+样式） + 🟢 前端（数据绑定）
+│   │
+│   ├── 📁 store/
+│   │   └── index.js            🟢 前端
+│   │
+│   ├── 📁 services/
+│   │   └── api.js              🟢 前端（封装请求）← ⚪ 与 🔴 后端对齐 JSON 格式
+│   │
+│   └── 📁 helper/
+│       ├── image.js            🟢 前端
+│       └── storage.js          🟢 前端
+│
+├── 📁 server/                 ─── Python 后端 ───
+│   ├── main.py                 🔴 后端
+│   ├── config.example.py       🔴 后端
+│   ├── requirements.txt        🔴 后端
+│   │
+│   ├── 📁 routes/              ─── 🔴 传统后端 主战场 ───
+│   │   ├── analyze.py           🔴 后端 ← 调 🔵 AI 服务的函数
+│   │   ├── scene.py             🔴 后端 ← 调 🔵 AI 服务的函数
+│   │   ├── user.py              🔴 后端（纯 CRUD，不调 AI）
+│   │   └── gallery.py           🔴 后端（纯 CRUD，不调 AI）
+│   │
+│   ├── 📁 services/            ─── 🔵 AI 服务 主战场 ───
+│   │   ├── deepseek.py          🔵 AI（3 个分析函数 + 场景检测）
+│   │   ├── scoring.py           🔵 AI（评分计算 + 经验规则 + 勋章判定）
+│   │   └── composition.py       🔵 AI（本地构图检测算法）
+│   │
+│   ├── 📁 prompts/             ─── 🔵 AI + 🟡 产品 协作 ───
+│   │   ├── shooting.txt         🟡 产品（写 Prompt） + 🔵 AI（调参数）
+│   │   ├── edit.txt             🟡 产品（写 Prompt） + 🔵 AI（调参数）
+│   │   ├── score.txt            🟡 产品（写 Prompt） + 🔵 AI（调参数）
+│   │   └── scene.txt            🟡 产品（写 Prompt） + 🔵 AI（调参数）
+│   │
+│   ├── 📁 models/
+│   │   └── database.py          🔴 后端
+│   │
+│   ├── 📁 utils/
+│   │   ├── image.py             🔴 后端
+│   │   └── response.py          🔴 后端
+│   │
+│   ├── 📁 knowledge/           ─── 🟡 产品（摄影知识库，复赛用）───
+│   │   └── photography.json     🟡 产品
+│   │
+│   ├── 📁 data/                 🔴 后端（SQLite 自动生成，不提交）
+│   └── 📁 static/               🔴 后端（图片缩略图）
+```
+
+### 各角色不碰的文件（硬边界）
+
+| 角色 | 绝不修改 | 原因 |
+|------|---------|------|
+| 🔴 后端 | `services/` `prompts/` `src/` | AI 逻辑归 AI 同学；前端归前端 |
+| 🔵 AI | `routes/` `models/` `utils/` `src/` | 只提供函数给后端调用，不管 HTTP 和数据库 |
+| 🟢 前端 | `server/` 全部 | 只调 API，不管后端实现 |
+| 🟡 UI | `server/` `src/store/` `src/services/` | 只写组件样式和 prompt 文本 |
+
+### 协作接口（Contract）
+
+```
+🟢 前端 ←→ 🔴 后端      HTTP JSON（6 个 API 的请求/响应格式）
+                           对齐文件: src/services/api.js ↔ server/routes/*.py
+
+🔴 后端 ←→ 🔵 AI        Python 函数签名
+                           对齐文件: server/services/deepseek.py 里的 4 个 async 函数
+
+🟢 前端 ←→ 🟡 UI       组件 props
+                           对齐文件: src/Common/*.ux 里的 props 定义
+
+🔵 AI  ←→ 🟡 产品      Prompt 模板
+                           对齐文件: server/prompts/*.txt
 ```
 
 ### 四人分工
 
-| 角色 | 谁 | 负责 | 关键文件 |
-|------|-----|------|----------|
-| **传统后端** | 你 | 路由层、数据库 CRUD、图片处理、用户系统、画廊、打卡 | `routes/` `models/` `utils/` `main.py` `config.py` |
-| **AI 服务** | 成员 2 | DeepSeek API 封装、Prompt 工程、评分计算、构图规则引擎 | `services/deepseek.py` `services/scoring.py` `services/composition.py` `prompts/` |
-| **快应用前端** | 成员 3 | 5 页面逻辑、qa-vuex Store、路由配置、API 调用、相机接入 | `src/pages/*` `src/store/` `src/services/api.js` `manifest.json` |
-| **UI + 产品** | 成员 4 | 共享组件库（5 个组件）、页面样式规范、Prompt 迭代测试、端到端测试、答辩材料 | `src/Common/*` `prompts/` 测试脚本 |
+| 角色 | 谁 | 文件范围 | 一句话 |
+|------|-----|----------|--------|
+| 🔴 **传统后端** | 你 | `server/routes/` `server/models/` `server/utils/` `server/main.py` `server/config.py` | 接收 HTTP 请求 → 调 AI 函数 → 操作数据库 → 返回 JSON |
+| 🔵 **AI 服务** | 成员 2 | `server/services/deepseek.py` `server/services/scoring.py` `server/services/composition.py` | 封装 DeepSeek API，提供 4 个 async 函数给后端调用 |
+| 🟢 **快应用前端** | 成员 3 | `src/Home/` `src/Camera/` `src/Analysis/` `src/Growth/` `src/Gallery/` `src/store/` `src/services/api.js` `src/helper/` `src/app.ux` `src/manifest.json` | 页面逻辑、状态管理、API 调用、相机接入 |
+| 🟡 **UI + 产品** | 成员 4 | `src/Common/ScoreRadar.ux` `src/Common/CompositionLines.ux` `src/Common/ParamPanel.ux` `src/Common/PhotoCard.ux` `src/Common/LevelBadge.ux` `server/prompts/shooting.txt` `server/prompts/edit.txt` `server/prompts/score.txt` `server/prompts/scene.txt` `server/knowledge/` | 组件 UI + Prompt 撰写 + 测试 + 答辩 |
+
+**页面 ux 文件的协作方式**（🟢 + 🟡）：
+- 🟡 UI 先写 `<template>` 和 `<style>`
+- 🟢 前端再写 `<script>` 逻辑和数据绑定
+- 不要同时改同一个 ux 文件
 
 ---
 
