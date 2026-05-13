@@ -894,35 +894,52 @@ async def call_vision(prompt: str, image_base64: str, temperature=0.3, max_token
 
 ---
 
-### routes/analyze.py 核心实现
+### routes/analyze.py 核心实现（重构后 — 薄层）
 
 ```python
+# routes/analyze.py — 只负责接收请求、分发到业务层
 from fastapi import APIRouter, UploadFile, Form
-from services.deepseek import shooting_advice, editing_advice, score_photo
-from models.database import save_analysis, update_user_exp, check_badge
-from utils.image import compress_to_base64
-from services.scoring import calculate_exp
+from services.photo_analysis import shooting, edit, score
 
 router = APIRouter(prefix="/api", tags=["analyze"])
+HANDLERS = {"shooting": shooting, "edit": edit, "score": score}
 
 @router.post("/analyze")
-async def analyze(image: UploadFile, mode: str = Form(...)):
-    img_b64 = await compress_to_base64(image)
-    
-    if mode == "shooting":
-        result = await shooting_advice(img_b64)
-    elif mode == "edit":
-        result = await editing_advice(img_b64)
-    elif mode == "score":
-        result = await score_photo(img_b64)
-        # 只有评分才更新成长体系
-        exp_gained = calculate_exp(result["overall"])
-        level_result = await update_user_exp(uid, exp_gained)
-        badge = await check_badge(uid, result)
-        result["exp_gained"] = exp_gained
-        result["badge_unlocked"] = badge
-    else:
+async def analyze(image: UploadFile, mode: str = Form(...), uid: str = Form(...)):
+    if mode not in HANDLERS:
         return {"ok": False, "error": f"未知模式: {mode}"}
+    return {"ok": True, "data": await HANDLERS[mode](uid, image)}
+```
+
+### services/photo_analysis.py 核心实现（业务编排层）
+
+```python
+# services/photo_analysis.py — 编排完整分析流程
+# 压缩图片 → 调 AI → 计算经验 → 更新用户 → 存库 → 返回
+
+async def shooting(uid, image):
+    img_b64 = await compress_to_base64(image)
+    result = await shooting_advice(img_b64)
+    result["id"] = await save_analysis(uid, "shooting", result)
+    return result
+
+async def edit(uid, image):
+    img_b64 = await compress_to_base64(image)
+    result = await editing_advice(img_b64)
+    result["id"] = await save_analysis(uid, "edit", result)
+    return result
+
+async def score(uid, image):
+    img_b64 = await compress_to_base64(image)
+    result = await score_photo(img_b64)
+    exp_gained = EXP_PER_ANALYSIS
+    if result["overall"] >= 90: exp_gained += EXP_PERFECT_SCORE
+    elif result["overall"] >= 80: exp_gained += EXP_HIGH_SCORE
+    result["exp_gained"] = exp_gained
+    result["level_up"] = await update_user_exp(uid, exp_gained)
+    result["badge_unlocked"] = await check_badge_unlock(uid, result)
+    result["id"] = await save_analysis(uid, "score", result)
+    return result
     
     result["id"] = await save_analysis(uid, mode, result)
     result["mode"] = mode
@@ -960,20 +977,21 @@ async def analyze(image: UploadFile, mode: str = Form(...)):
 
 ```
 server/
-├── main.py                 # FastAPI 入口
-├── config.py               # 配置（API Key、数据库路径等）
-├── requirements.txt        # 依赖
+├── main.py                    # FastAPI 入口
+├── config.example.py          # 配置模板
+├── requirements.txt           # 依赖
 │
-├── routes/
-│   ├── analyze.py          # POST /api/analyze（核心）
-│   ├── scene.py            # POST /api/scene/detect
-│   ├── user.py             # 用户相关接口
-│   └── gallery.py          # 历史记录接口
+├── routes/                    # HTTP 层 — 只收请求、调 service、返回
+│   ├── analyze.py             #   15行：收 mode → 调 photo_analysis → 返回
+│   ├── scene.py               #   10行：收 preview → 调 AI → 返回
+│   ├── user.py                #   15行：收 uid → 调 model → 返回
+│   └── gallery.py             #   10行：收 uid → 调 model → 返回
 │
-├── services/
-│   ├── deepseek.py         # DeepSeek Vision API 封装
-│   ├── scoring.py          # 评分计算与标准化
-│   └── composition.py      # 本地构图规则引擎
+├── services/                  # 业务编排 + AI 调用
+│   ├── photo_analysis.py      # ★ 照片分析的完整编排（压缩→AI→存库→经验→返回）
+│   ├── deepseek.py            # DeepSeek Vision API 封装 + 4 个 AI 函数
+│   ├── scoring.py             # 评分规则 + 等级判定 + 勋章规则
+│   └── composition.py         # 本地构图检测
 │
 ├── models/
 │   └── database.py         # SQLite 连接 + 表初始化
@@ -1189,9 +1207,10 @@ photography-partner/
 │   │   ├── user.py              🔴 后端（纯 CRUD，不调 AI）
 │   │   └── gallery.py           🔴 后端（纯 CRUD，不调 AI）
 │   │
-│   ├── 📁 services/            ─── 🔵 AI 服务 主战场 ───
-│   │   ├── deepseek.py          🔵 AI（3 个分析函数 + 场景检测）
-│   │   ├── scoring.py           🔵 AI（评分计算 + 经验规则 + 勋章判定）
+│   ├── 📁 services/            ─── 混合领域 ───
+│   │   ├── photo_analysis.py    🔴 后端（编排：压缩→调AI→存库→经验→返回）
+│   │   ├── deepseek.py          🔵 AI（4 个 AI 函数：shooting/edit/score/scene）
+│   │   ├── scoring.py           🔵 AI（评分规则 + 等级判定 + 勋章规则）
 │   │   └── composition.py       🔵 AI（本地构图检测算法）
 │   │
 │   ├── 📁 prompts/             ─── 🔵 AI + 🟡 产品 协作 ───
@@ -1218,8 +1237,8 @@ photography-partner/
 
 | 角色 | 绝不修改 | 原因 |
 |------|---------|------|
-| 🔴 后端 | `services/` `prompts/` `src/` | AI 逻辑归 AI 同学；前端归前端 |
-| 🔵 AI | `routes/` `models/` `utils/` `src/` | 只提供函数给后端调用，不管 HTTP 和数据库 |
+| 🔴 后端 | `services/deepseek.py` `services/scoring.py` `services/composition.py` `prompts/` `src/` | AI 纯函数归 AI 同学；前端归前端。可以改 `services/photo_analysis.py` |
+| 🔵 AI | `routes/` `models/` `utils/` `services/photo_analysis.py` `src/` | 只提供 deepseek/scoring/composition 里的纯函数，不管 HTTP/数据库/编排 |
 | 🟢 前端 | `server/` 全部 | 只调 API，不管后端实现 |
 | 🟡 UI | `server/` `src/store/` `src/services/` | 只写组件样式和 prompt 文本 |
 
@@ -1229,8 +1248,8 @@ photography-partner/
 🟢 前端 ←→ 🔴 后端      HTTP JSON（6 个 API 的请求/响应格式）
                            对齐文件: src/services/api.js ↔ server/routes/*.py
 
-🔴 后端 ←→ 🔵 AI        Python 函数签名
-                           对齐文件: server/services/deepseek.py 里的 4 个 async 函数
+🔴 后端 ←→ 🔵 AI        Python 函数签名（services/photo_analysis.py 调 services/deepseek.py 的 4 个函数）
+                           对齐文件: services/deepseek.py 的 shooting_advice / editing_advice / score_photo / detect_scene
 
 🟢 前端 ←→ 🟡 UI       组件 props
                            对齐文件: src/Common/*.ux 里的 props 定义
@@ -1243,8 +1262,8 @@ photography-partner/
 
 | 角色 | 谁 | 文件范围 | 一句话 |
 |------|-----|----------|--------|
-| 🔴 **传统后端** | 你 | `server/routes/` `server/models/` `server/utils/` `server/main.py` `server/config.py` | 接收 HTTP 请求 → 调 AI 函数 → 操作数据库 → 返回 JSON |
-| 🔵 **AI 服务** | 成员 2 | `server/services/deepseek.py` `server/services/scoring.py` `server/services/composition.py` | 封装 DeepSeek API，提供 4 个 async 函数给后端调用 |
+| 🔴 **传统后端** | 你 | `server/routes/` `server/services/photo_analysis.py` `server/models/` `server/utils/` `server/main.py` `server/config.py` | HTTP → 编排 → 调 AI 函数 → 数据库 → JSON |
+| 🔵 **AI 服务** | 成员 2 | `server/services/deepseek.py` `server/services/scoring.py` `server/services/composition.py` | 4 个纯函数给后端编排层调用，不碰 HTTP/数据库 |
 | 🟢 **快应用前端** | 成员 3 | `src/Home/` `src/Camera/` `src/Analysis/` `src/Growth/` `src/Gallery/` `src/store/` `src/services/api.js` `src/helper/` `src/app.ux` `src/manifest.json` | 页面逻辑、状态管理、API 调用、相机接入 |
 | 🟡 **UI + 产品** | 成员 4 | `src/Common/ScoreRadar.ux` `src/Common/CompositionLines.ux` `src/Common/ParamPanel.ux` `src/Common/PhotoCard.ux` `src/Common/LevelBadge.ux` `server/prompts/shooting.txt` `server/prompts/edit.txt` `server/prompts/score.txt` `server/prompts/scene.txt` `server/knowledge/` | 组件 UI + Prompt 撰写 + 测试 + 答辩 |
 
