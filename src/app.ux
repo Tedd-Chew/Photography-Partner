@@ -1,0 +1,18 @@
+<script>
+import router from '@system.router'
+
+export default {
+  data: {
+    uid: '',
+    user: null
+  },
+
+  onInit() {
+    // 获取设备 ID，初始化用户
+  },
+
+  navigateTo(page) {
+    router.push({ uri: `/${page}` })
+  }
+}
+</script>

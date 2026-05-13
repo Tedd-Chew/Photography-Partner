@@ -1,0 +1,41 @@
+<script>
+export default {
+  data: {
+    scene: null,
+    gridMode: 'thirds',
+    params: { shutter: null, iso: null, wb: null }
+  },
+
+  onInit() {},
+
+  onReady() {
+    // 首次自动检测场景（仅一次）
+  },
+
+  detectScene() {
+    // POST /api/scene/detect
+  },
+
+  onRefreshParams() {
+    // 手动刷新
+    this.detectScene()
+  },
+
+  onTakePhoto() {
+    // 拍照 → 可跳转 Analysis
+  }
+}
+</script>
+
+<template>
+  <div class="page">
+    <!-- TODO: camera 组件 -->
+    <!-- TODO: 构图参考线组件 -->
+    <!-- TODO: 参数面板 -->
+    <text>Camera Page</text>
+  </div>
+</template>
+
+<style>
+  .page { flex-direction: column; }
+</style>

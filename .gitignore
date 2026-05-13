@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+server/data/
+server/static/*.jpg
+server/static/*.png
+server/config.py
+
+# Sign keys (keep debug, ignore release)
+sign/release/
+
+# Claude Code local config
+.claude/
+
+# PDFs (product docs)
+*.pdf
+
+# Logs
+*.log

@@ -1,0 +1,30 @@
+<script>
+export default {
+  data: {
+    mode: 'score',
+    result: null,
+    loading: false
+  },
+
+  onInit() {},
+
+  async analyze(mode) {
+    // 选图 → 压缩 → POST /api/analyze
+    // 展示结果
+  }
+}
+</script>
+
+<template>
+  <div class="page">
+    <!-- TODO: 模式选择按钮 -->
+    <!-- TODO: ScoreRadar 组件 -->
+    <!-- TODO: 修图建议列表 -->
+    <!-- TODO: 评分展示区 -->
+    <text>Analysis Page</text>
+  </div>
+</template>
+
+<style>
+  .page { flex-direction: column; }
+</style>

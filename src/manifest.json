@@ -1,0 +1,28 @@
+{
+  "router": {
+    "entry": "Home",
+    "pages": {
+      "Home":     { "component": "index" },
+      "Camera":   { "component": "index" },
+      "Analysis": { "component": "index" },
+      "Growth":   { "component": "index" },
+      "Gallery":  { "component": "index" }
+    }
+  },
+  "display": {
+    "titleBarText": "光影参谋",
+    "titleBarBackgroundColor": "#1a1a2e",
+    "backgroundColor": "#0f0f23"
+  },
+  "features": [
+    { "name": "system.media" },
+    { "name": "system.fetch" },
+    { "name": "system.storage" },
+    { "name": "system.device" },
+    { "name": "system.sensor" }
+  ],
+  "permissionDesc": [
+    { "name": "CAMERA", "desc": "用于实时取景拍摄与AI分析" },
+    { "name": "WRITE_EXTERNAL_STORAGE", "desc": "用于保存分析结果图片" }
+  ]
+}

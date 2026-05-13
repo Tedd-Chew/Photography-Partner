@@ -1,0 +1,30 @@
+<script>
+export default {
+  data: {
+    user: null,
+    scoreHistory: []
+  },
+
+  onInit() {
+    // GET /api/user/info
+  },
+
+  onCheckin() {
+    // POST /api/user/checkin
+  }
+}
+</script>
+
+<template>
+  <div class="page">
+    <!-- TODO: 等级进度条 -->
+    <!-- TODO: 勋章墙 -->
+    <!-- TODO: 评分趋势图 -->
+    <!-- TODO: 打卡按钮 -->
+    <text>Growth Page</text>
+  </div>
+</template>
+
+<style>
+  .page { flex-direction: column; }
+</style>
