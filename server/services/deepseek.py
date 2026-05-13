@@ -64,10 +64,3 @@ async def score_photo(image_b64: str) -> dict:
     prompt = _load_prompt("score.txt")
     raw = await _call_vision(prompt, image_b64, max_tokens=1024)
     return _parse_json(raw)
-
-
-async def detect_scene(image_b64: str) -> dict:
-    """场景检测（Camera 页用）"""
-    prompt = _load_prompt("scene.txt")
-    raw = await _call_vision(prompt, image_b64, max_tokens=512)
-    return _parse_json(raw)

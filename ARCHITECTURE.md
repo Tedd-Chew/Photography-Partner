@@ -64,8 +64,8 @@
 │      快应用前端           │ ────────────────────▶ │     Python 后端           │
 │    (Quick App)          │ ◀────────────────────  │   (FastAPI + uvicorn)    │
 │                         │                       │                          │
-│  ① Camera  拍照指导      │                       │  POST /api/scene/detect  │
-│  ② Analysis 修图建议     │ ─ 上传照片 ────────▶ │  POST /api/analyze       │
+│  ① Camera  拍照指导      │ ─ 上传预览帧 ────────▶ │  POST /api/analyze       │
+│  ② Analysis 修图建议     │ ─ 上传照片 ────────▶ │    mode=shooting/edit    │
 │  ③ Growth   成长体系     │                       │  GET  /api/user/info     │
 │     Gallery  历史画廊     │                       │  POST /api/user/checkin  │
 │                         │                       │  GET  /api/gallery       │
@@ -468,8 +468,7 @@ ANALYZE_PROMPT = """你是一位专业摄影后期导师。分析这张照片的
 
 | 方法 | 端点 | 说明 | 关联功能 |
 |------|------|------|----------|
-| POST | `/api/scene/detect` | 场景识别 + 参数推荐 | ① 实时拍摄 |
-| POST | `/api/analyze` | 照片分析（三种模式） | ①②③ |
+| POST | `/api/analyze` | 照片分析（三种模式，Camera 页也用 shooting） | ①②③ |
 | GET | `/api/user/info?uid=x` | 获取用户信息 | 成长体系 |
 | POST | `/api/user/checkin` | 每日打卡 | 成长体系 |
 | GET | `/api/gallery?uid=x` | 历史分析记录列表 | 记录回看 |
@@ -584,25 +583,6 @@ ANALYZE_PROMPT = """你是一位专业摄影后期导师。分析这张照片的
   "badge_unlocked": null
 }
 ```
-
-### POST /api/scene/detect（Camera 页专用）
-
-```
-请求: multipart/form-data
-  image: <file>           # 低分辨率预览帧
-
-响应:
-{
-  "scene": "夜景",
-  "confidence": 0.87,
-  "suggested_params": {
-    "shutter": "1/30",
-    "iso": "800",
-    "wb": "4000K"
-  }
-}
-```
-
 
 
 ## 全流程详解 — 单模型方案（MVP）
@@ -1102,8 +1082,7 @@ if __name__ == "__main__":
 - Camera 页：快应用内置相机接入
 - 构图参考线组件（CSS overlay）
 - 参数推荐面板 UI
-- `POST /api/scene/detect` 实现
-- 场景识别 prompt 调优
+- 场景识别 prompt 调优（Camera 页调用 shooting 模式）
 
 ### Phase 3：功能 ②③ 修图建议 + 评分
 - Analysis 页完整 UI
@@ -1203,13 +1182,12 @@ photography-partner/
 │   │
 │   ├── 📁 routes/              ─── 🔴 传统后端 主战场 ───
 │   │   ├── analyze.py           🔴 后端 ← 调 🔵 AI 服务的函数
-│   │   ├── scene.py             🔴 后端 ← 调 🔵 AI 服务的函数
 │   │   ├── user.py              🔴 后端（纯 CRUD，不调 AI）
 │   │   └── gallery.py           🔴 后端（纯 CRUD，不调 AI）
 │   │
 │   ├── 📁 services/            ─── 混合领域 ───
 │   │   ├── photo_analysis.py    🔴 后端（编排：压缩→调AI→存库→经验→返回）
-│   │   ├── deepseek.py          🔵 AI（4 个 AI 函数：shooting/edit/score/scene）
+│   │   ├── deepseek.py          🔵 AI（3 个 AI 函数：shooting/edit/score）
 │   │   ├── scoring.py           🔵 AI（评分规则 + 等级判定 + 勋章规则）
 │   │   └── composition.py       🔵 AI（本地构图检测算法）
 │   │
@@ -1284,8 +1262,7 @@ server/
 ├── config.py               # 数据库路径、DeepSeek API Key、端口等配置
 │
 ├── routes/                 # ★ 路由层：接收请求 → 调 AI 服务 → 操作数据库 → 返回响应
-│   ├── analyze.py          # POST /api/analyze     核心：接收图片，调 AI，存记录，返结果
-│   ├── scene.py            # POST /api/scene/detect 场景识别 + 参数推荐
+│   ├── analyze.py          # POST /api/analyze（三种模式，Camera 也用 shooting）
 │   ├── user.py             # GET /api/user/info + POST /api/user/checkin
 │   └── gallery.py          # GET /api/gallery + GET /api/gallery/:id
 │
@@ -1299,7 +1276,7 @@ server/
 └── data/                    # SQLite 文件（自动生成，不用手动创建）
 ```
 
-### 你需要实现的 6 个接口
+### 你需要实现的 5 个接口
 
 #### 1. `POST /api/analyze` — 核心（三种模式）
 
@@ -1324,22 +1301,7 @@ server/
 响应: 因 mode 不同而不同（见上文三种模式的合约）
 ```
 
-#### 2. `POST /api/scene/detect`
-
-```
-输入: multipart/form-data { image: File }
-
-你的处理流程:
-  ① 压缩图片（小图即可，功耗低）
-  ② to_base64()
-  ③ 调 AI 同学:  from services.deepseek import detect_scene
-     result = await detect_scene(image_base64)
-  ④ 直接返回，不需要存库
-
-响应: { scene, confidence, suggested_params: { shutter, iso, wb } }
-```
-
-#### 3. `GET /api/user/info?uid=xxx`
+#### 2. `GET /api/user/info?uid=xxx`
 
 ```
 处理流程:
@@ -1350,7 +1312,7 @@ server/
 响应: { uid, level, exp, badges, streak, total_analyses, last_checkin }
 ```
 
-#### 4. `POST /api/user/checkin`
+#### 3. `POST /api/user/checkin`
 
 ```
 输入: { uid: string }
@@ -1368,7 +1330,7 @@ server/
 响应: { streak, exp_gained, level_up: false }
 ```
 
-#### 5. `GET /api/gallery?uid=xxx&page=1&size=20`
+#### 4. `GET /api/gallery?uid=xxx&page=1&size=20`
 
 ```
 处理流程:
@@ -1378,7 +1340,7 @@ server/
 响应: { items: [{ id, overall, scene, thumb_url, created_at }], total, page }
 ```
 
-#### 6. `GET /api/gallery/:id`
+#### 5. `GET /api/gallery/:id`
 
 ```
 处理流程:
@@ -1541,8 +1503,8 @@ src/
 **Camera 页**：
 - 引入 UI 同学的 `CompositionLines` 和 `ParamPanel` 组件
 - 接 Store 的 `camera.scene`、`camera.params`、`camera.gridMode`
-- 首次进入调 `POST /api/scene/detect`（仅一次）
-- 拍照后保存图片 → 调用 `POST /api/analyze` → 跳转 Analysis
+- 首次进入调 `POST /api/analyze` mode=shooting（仅一次）
+- 拍照后保存图片 → 调 mode=score/edit → 跳转 Analysis
 
 **Analysis 页**：
 - 接收上一页传参或 Store 里的 `analysis` 数据
@@ -1565,7 +1527,6 @@ src/
 const BASE = 'http://xxx:8000/api'
 
 export function analyzePhoto(imageFile, sceneType) { ... }   // POST /api/analyze
-export function detectScene(imageFile) { ... }               // POST /api/scene/detect
 export function getUserInfo(uid) { ... }                     // GET /api/user/info
 export function checkin(uid) { ... }                         // POST /api/user/checkin
 export function getGallery(uid, page) { ... }                // GET /api/gallery

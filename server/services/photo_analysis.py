@@ -11,7 +11,7 @@ from config import EXP_PER_ANALYSIS, EXP_HIGH_SCORE, EXP_PERFECT_SCORE
 async def shooting(uid: str, image) -> dict:
     """拍摄指导全流程：压缩 → AI → 存库 → 返回"""
     img_b64 = await compress_to_base64(image)
-    result = await shooting_advice(img_b64)
+    result = await shooting_advice(img_b64)# ai调用
     result["id"] = await save_analysis(uid, "shooting", result)
     result["mode"] = "shooting"
     return result
@@ -20,7 +20,7 @@ async def shooting(uid: str, image) -> dict:
 async def edit(uid: str, image) -> dict:
     """修图建议全流程：压缩 → AI → 存库 → 返回"""
     img_b64 = await compress_to_base64(image)
-    result = await editing_advice(img_b64)
+    result = await editing_advice(img_b64)# ai 调用
     result["id"] = await save_analysis(uid, "edit", result)
     result["mode"] = "edit"
     return result
@@ -29,7 +29,7 @@ async def edit(uid: str, image) -> dict:
 async def score(uid: str, image) -> dict:
     """评分评价全流程：压缩 → AI → 计算经验 → 更新等级 → 查勋章 → 存库 → 返回"""
     img_b64 = await compress_to_base64(image)
-    result = await score_photo(img_b64)
+    result = await score_photo(img_b64)#ai调用
 
     overall = result.get("overall", 0)
     exp_gained = EXP_PER_ANALYSIS
