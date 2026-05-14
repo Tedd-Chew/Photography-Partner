@@ -27,6 +27,7 @@ npm run dev
 ## 项目文档
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — 完整架构书（技术选型、API、数据库、团队分工）
+- **[server/API_CONTRACT.md](./server/API_CONTRACT.md)** — API 接口文档（AI 同学和前端必读）
 - **[CLAUDE.md](./CLAUDE.md)** — Claude Code 使用指引
 
 ---
