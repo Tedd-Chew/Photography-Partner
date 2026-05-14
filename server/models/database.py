@@ -151,21 +151,3 @@ async def get_analysis_by_id(record_id: str) -> dict | None:
         return dict(row) if row else None
 
 
-async def get_user_stats(uid: str) -> dict:
-    """用户统计数据（Growth 页用）"""
-    async with _open() as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute(
-            "SELECT result_json, created_at FROM analyses "
-            "WHERE uid = ? AND mode = 'score' ORDER BY created_at DESC LIMIT 7",
-            (uid,),
-        )
-        rows = await cursor.fetchall()
-        scores = []
-        for r in rows:
-            data = json.loads(r["result_json"] or "{}")
-            scores.append({
-                "date": r["created_at"][:10],
-                "overall": data.get("overall", 0),
-            })
-    return {"recent_scores": scores}

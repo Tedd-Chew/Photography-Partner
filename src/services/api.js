@@ -33,11 +33,6 @@ export function getUserInfo(uid) {
   return request('GET', `/user/info?uid=${uid}`)
 }
 
-// 评分趋势
-export function getUserStats(uid) {
-  return request('GET', `/user/stats?uid=${uid}`)
-}
-
 // 历史列表（Gallery 页）
 export function getGallery(uid, page = 1, size = 20) {
   return request('GET', `/gallery?uid=${uid}&page=${page}&size=${size}`)
