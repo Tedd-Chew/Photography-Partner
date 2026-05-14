@@ -8,7 +8,6 @@ from config import EXP_PER_ANALYSIS, EXP_HIGH_SCORE, EXP_PERFECT_SCORE
 
 
 async def _compress(upload_file) -> tuple[str, str]:
-    """压缩图片，返回 (base64, thumb_url)"""
     return await compress_to_base64(upload_file)
 
 
@@ -22,8 +21,10 @@ async def shooting(uid: str, image) -> dict:
 
 
 async def edit(uid: str, image) -> dict:
+    """修图建议 — AI 返回纯文本"""
     img_b64, thumb_url = await _compress(image)
-    result = await editing_advice(img_b64)
+    advice = await editing_advice(img_b64)  # str
+    result = {"advice": advice}
     result["id"] = await save_analysis(uid, "edit", result, thumb_url)
     result["mode"] = "edit"
     result["thumb_url"] = thumb_url

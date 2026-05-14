@@ -46,7 +46,7 @@ async def _call_vision(prompt: str, image_b64: str, max_tokens=1024) -> str:
 # ====== 三种分析函数（返回 dict，AI 字段已通过 Pydantic 校验） ======
 # id / thumb_url / exp_gained 等由 photo_analysis 层补充
 
-from schemas.response import CameraParams, EditIssue, Scores
+from schemas.response import CameraParams, Scores
 
 
 def _check(data: dict, key: str, model_class):
@@ -68,13 +68,10 @@ async def shooting_advice(image_b64: str) -> dict:
     return data
 
 
-async def editing_advice(image_b64: str) -> dict:
-    """修图建议 → 返回问题列表+分步教程（EditData 核心字段）"""
+async def editing_advice(image_b64: str) -> str:
+    """修图建议 → 返回 AI 纯文本"""
     prompt = _load_prompt("edit.txt")
-    raw = await _call_vision(prompt, image_b64, max_tokens=1024)
-    data = _parse_json(raw)
-    _check(data, "issues", EditIssue)
-    return data
+    return await _call_vision(prompt, image_b64, max_tokens=1024)
 
 
 async def score_photo(image_b64: str) -> dict:

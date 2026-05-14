@@ -44,21 +44,12 @@ class ShootingData(BaseModel):
 # 模式二：修图建议
 # ==============================================
 
-class EditIssue(BaseModel):
-    category: str = Field(description="问题类别：曝光/色彩/白平衡/对比度/饱和度/噪点")
-    severity: str = Field(description="严重程度：high/medium/low")
-    description: str = Field(description="问题描述")
-    suggestion: str = Field(description="修图建议")
-    tutorial_steps: list[str] = Field(description="分步教程，2-3 步")
-
-
 class EditData(BaseModel):
-    """POST /api/analyze mode=edit 返回的 data"""
+    """POST /api/analyze mode=edit 返回的 data — AI 纯文本建议"""
     id: str
     mode: str = "edit"
     thumb_url: str
-    issues: list[EditIssue] = Field(description="问题列表，只列确实存在的缺陷")
-    quick_fix: str = Field(description="一键推荐的滤镜或调整方向")
+    advice: str = Field(description="AI 修图建议纯文本，前端原样展示")
 
 
 # ==============================================
