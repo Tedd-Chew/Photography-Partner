@@ -124,7 +124,6 @@ CREATE TABLE analyses (
 ---
 
 ## 前端 — 快应用
-## 前端 — 快应用
 
 ### 目录结构
 
@@ -937,6 +936,92 @@ async def score(uid, image):
 
 **预计增加延迟** ~1 秒（Embedding + Rerank）。
 
+
+### 数据契约（schemas/response.py）
+
+前后端唯一接口协议。字段名即法律，不得随意变更。Pydantic 强校验。
+
+```python
+# ====== 统一外层 ======
+{ ok: true, data: {...} }     # 成功
+{ ok: false, error: "..." }   # 失败
+
+# ====== mode=shooting — 拍摄指导 ======
+data: {
+  id, mode, thumb_url,
+  scene: str,                     // "夜景人像"
+  camera_params: {
+    shutter: str,                 // "1/30"
+    iso: str,                     // "800"
+    aperture: str,                // "f/2.8"
+    wb: str,                      // "4000K"
+    focus: str                    // "人物面部单点对焦"
+  },
+  composition_tips: [str],        // 2-3 条构图建议
+  lighting_advice: str,           // 用光建议
+  extra_tips: str                 // 其他建议
+}
+
+# ====== mode=edit — 修图建议 ======
+data: {
+  id, mode, thumb_url,
+  issues: [{
+    category: str,                // "曝光/色彩/白平衡/..."
+    severity: str,                // "high/medium/low"
+    description: str,             // 问题描述
+    suggestion: str,              // 修图建议
+    tutorial_steps: [str]         // 2-3 步教程
+  }],
+  quick_fix: str                  // 一键滤镜推荐
+}
+
+# ====== mode=score — 评分评价 ======
+data: {
+  id, mode, thumb_url,
+  scores: {
+    composition: int(0-100),
+    exposure: int(0-100),
+    color: int(0-100),
+    sharpness: int(0-100),
+    creativity: int(0-100)
+  },
+  overall: int(0-100),            // 综合评分
+  rating_label: str,              // "优秀/良好/一般/需改进"
+  summary: str,                   // 总评
+  strengths: [str],               // 优点
+  weaknesses: [str],              // 缺点
+  exp_gained: int,                // 获得经验
+  level_up: { level_up: bool, old_level: int, new_level: int } | null,
+  badge_unlocked: [str] | null    // 新勋章名
+}
+
+# ====== GET /api/user/info — 用户信息 ======
+data: {
+  uid, nickname, level(1-6),
+  exp, badges: [str], total_analyses
+}
+
+# ====== GET /api/gallery — 历史列表 ======
+data: {
+  items: [{ id, mode, thumb_url, result_json, created_at }],
+  total, page
+}
+```
+
+### 数据库存储
+
+所有三种模式的分析结果统一存 `analyses` 表，`result_json` 字段存上述完整 data：
+
+| 字段 | 说明 |
+|------|------|
+| `id` | UUID |
+| `uid` | 设备 ID |
+| `mode` | shooting / edit / score |
+| `result_json` | 上述 data 的 JSON 字符串 |
+| `thumb_url` | /static/xxx.jpg |
+| `created_at` | 自动时间戳 |
+
+---
 
 ### 后端目录结构
 

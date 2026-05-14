@@ -11,8 +11,11 @@ HANDLERS = {"shooting": shooting, "edit": edit, "score": score}
 
 @router.post("/api/analyze")
 async def analyze(image: UploadFile, mode: str = Form(...), uid: str = Form(...)):
-    """三种模式：shooting(拍摄指导) / edit(修图建议) / score(评分评价)"""
+    """
+    照片分析 — 三种模式。
+    成功返回 { ok: true, data: ShootingData | EditData | ScoreData }
+    失败返回 { ok: false, error: string }
+    """
     if mode not in HANDLERS:
         return {"ok": False, "error": f"未知模式: {mode}"}
-    result = await HANDLERS[mode](uid, image)
-    return {"ok": True, "data": result}
+    return {"ok": True, "data": await HANDLERS[mode](uid, image)}
