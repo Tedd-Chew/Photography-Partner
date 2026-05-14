@@ -43,24 +43,44 @@ async def _call_vision(prompt: str, image_b64: str, max_tokens=1024) -> str:
     return response.choices[0].message.content
 
 
-# ====== 三种分析函数 ======
+# ====== 三种分析函数（返回 dict，AI 字段已通过 Pydantic 校验） ======
+# id / thumb_url / exp_gained 等由 photo_analysis 层补充
+
+from schemas.response import CameraParams, EditIssue, Scores
+
+
+def _check(data: dict, key: str, model_class):
+    """校验 data[key] 符合 Pydantic 模型。AI 返回不合法 → 立刻报错。"""
+    if key in data:
+        if isinstance(data[key], list):
+            for item in data[key]:
+                model_class.model_validate(item)
+        else:
+            model_class.model_validate(data[key])
+
 
 async def shooting_advice(image_b64: str) -> dict:
-    """拍摄指导：场景+参数+构图"""
+    """拍摄指导 → 返回快门/ISO/构图等（ShootingData 核心字段）"""
     prompt = _load_prompt("shooting.txt")
     raw = await _call_vision(prompt, image_b64, max_tokens=1024)
-    return _parse_json(raw)
+    data = _parse_json(raw)
+    _check(data, "camera_params", CameraParams)
+    return data
 
 
 async def editing_advice(image_b64: str) -> dict:
-    """修图建议：问题诊断+调色步骤"""
+    """修图建议 → 返回问题列表+分步教程（EditData 核心字段）"""
     prompt = _load_prompt("edit.txt")
     raw = await _call_vision(prompt, image_b64, max_tokens=1024)
-    return _parse_json(raw)
+    data = _parse_json(raw)
+    _check(data, "issues", EditIssue)
+    return data
 
 
 async def score_photo(image_b64: str) -> dict:
-    """评分评价：五维评分+优缺点"""
+    """评分评价 → 返回五维评分+优缺点（ScoreData 核心字段）"""
     prompt = _load_prompt("score.txt")
     raw = await _call_vision(prompt, image_b64, max_tokens=1024)
-    return _parse_json(raw)
+    data = _parse_json(raw)
+    _check(data, "scores", Scores)
+    return data

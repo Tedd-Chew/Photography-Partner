@@ -45,17 +45,24 @@ async def init_db():
 # ====== 用户 ======
 
 async def get_or_create_user(uid: str) -> dict:
-    """获取用户信息，不存在则创建"""
+    """获取用户信息，不存在则创建。返回符合 UserInfoData 结构。"""
     async with _open() as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute("SELECT * FROM users WHERE uid = ?", (uid,))
         row = await cursor.fetchone()
-        if row:
-            return dict(row)
-        await db.execute("INSERT INTO users (uid) VALUES (?)", (uid,))
-        await db.commit()
-        cursor = await db.execute("SELECT * FROM users WHERE uid = ?", (uid,))
-        return dict(await cursor.fetchone())
+        if row is None:
+            await db.execute("INSERT INTO users (uid) VALUES (?)", (uid,))
+            await db.commit()
+            cursor = await db.execute("SELECT * FROM users WHERE uid = ?", (uid,))
+            row = await cursor.fetchone()
+        return {
+            "uid": row["uid"],
+            "nickname": row["nickname"],
+            "level": row["level"],
+            "exp": row["exp"],
+            "badges": json.loads(row["badges_json"] or "[]"),
+            "total_analyses": row["total_analyses"],
+        }
 
 
 async def update_user_exp(uid: str, exp_delta: int) -> dict:
