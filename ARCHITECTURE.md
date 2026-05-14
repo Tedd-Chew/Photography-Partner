@@ -457,7 +457,6 @@ ANALYZE_PROMPT = """你是一位专业摄影后期导师。分析这张照片的
 |------|------|------|----------|
 | POST | `/api/analyze` | 照片分析（三种模式，Camera 页也用 shooting） | ①②③ |
 | GET | `/api/user/info?uid=x` | 获取用户信息 | 成长体系 |
-| GET | `/api/user/stats?uid=x` | 评分趋势数据 | 成长体系 |
 | GET | `/api/gallery?uid=x` | 历史分析记录列表 | 记录回看 |
 | GET | `/api/gallery/:id` | 单条分析详情 | 记录回看 |
 
@@ -1653,10 +1652,9 @@ result = await shooting_advice(image_base64)  # → dict
 result = await editing_advice(image_base64)   # → dict
 result = await score_photo(image_base64)       # → dict
 
-# 你需要提供给前端的 5 个 HTTP 端点
+# 你需要提供给前端的 4 个 HTTP 端点
 POST /api/analyze     # { image, mode, uid } → { result, thumb_url }
 GET  /api/user/info   # ?uid=xxx → { level, exp, badges }
-GET  /api/user/stats  # ?uid=xxx → { recent_scores }
 GET  /api/gallery     # ?uid=xxx&page=1 → { items, total }
 GET  /api/gallery/:id # → 单条详情
 ```
@@ -1673,10 +1671,9 @@ async def score_photo(image_base64: str) -> dict: ...
 **🟢 前端只需要知道：**
 
 ```javascript
-// 5 个 API（不用关心后端怎么实现）
+// 4 个 API（不用关心后端怎么实现）
 POST /api/analyze     // 上传图片 + mode → 拿结果
 GET  /api/user/info   // 拿用户等级经验
-GET  /api/user/stats  // 拿评分趋势
 GET  /api/gallery     // 拿历史列表（含 thumb_url）
 GET  /api/gallery/:id // 拿单条详情
 
