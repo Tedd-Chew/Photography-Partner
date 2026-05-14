@@ -21,9 +21,8 @@ async def shooting(uid: str, image) -> dict:
 
 
 async def edit(uid: str, image) -> dict:
-    """修图建议 — AI 返回纯文本"""
     img_b64, thumb_url = await _compress(image)
-    advice = await editing_advice(img_b64)  # str
+    advice = await editing_advice(img_b64)
     result = {"advice": advice}
     result["id"] = await save_analysis(uid, "edit", result, thumb_url)
     result["mode"] = "edit"
@@ -35,11 +34,11 @@ async def score(uid: str, image) -> dict:
     img_b64, thumb_url = await _compress(image)
     result = await score_photo(img_b64)
 
-    overall = result.get("overall", 0)
+    score = result.get("score", 0)
     exp_gained = EXP_PER_ANALYSIS
-    if overall >= 90:
+    if score >= 90:
         exp_gained += EXP_PERFECT_SCORE
-    elif overall >= 80:
+    elif score >= 80:
         exp_gained += EXP_HIGH_SCORE
 
     level_result = await update_user_exp(uid, exp_gained)

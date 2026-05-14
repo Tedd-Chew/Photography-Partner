@@ -56,14 +56,6 @@ class EditData(BaseModel):
 # 模式三：评分评价
 # ==============================================
 
-class Scores(BaseModel):
-    composition: int = Field(ge=0, le=100, description="构图 0-100")
-    exposure: int = Field(ge=0, le=100, description="曝光 0-100")
-    color: int = Field(ge=0, le=100, description="色彩 0-100")
-    sharpness: int = Field(ge=0, le=100, description="清晰度 0-100")
-    creativity: int = Field(ge=0, le=100, description="创意 0-100")
-
-
 class LevelUpResult(BaseModel):
     level_up: bool
     old_level: int
@@ -75,12 +67,8 @@ class ScoreData(BaseModel):
     id: str
     mode: str = "score"
     thumb_url: str
-    scores: Scores
-    overall: int = Field(ge=0, le=100, description="综合评分 0-100")
-    rating_label: str = Field(description="优秀/良好/一般/需改进")
-    summary: str = Field(description="总体评价")
-    strengths: list[str] = Field(description="优点，2-3 条")
-    weaknesses: list[str] = Field(description="缺点，2-3 条")
+    score: int = Field(ge=0, le=100, description="单纬度评分 0-100")
+    comment: str = Field(description="AI 评价纯文本，前端原样展示")
     exp_gained: int = Field(default=0, description="本次获得的经验值")
     level_up: Optional[LevelUpResult] = Field(default=None, description="升级信息")
     badge_unlocked: Optional[list[str]] = Field(default=None, description="新解锁的勋章名")

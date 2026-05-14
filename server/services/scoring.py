@@ -1,15 +1,6 @@
 # services/scoring.py
-# 评分计算、经验规则、勋章判定
-# AI 同学负责实现
-
-# 五维权重
-WEIGHTS = {
-    "composition": 0.3,
-    "exposure": 0.25,
-    "color": 0.2,
-    "sharpness": 0.15,
-    "creativity": 0.1
-}
+# 评分、等级、勋章规则
+# AI 同学负责维护
 
 # 等级体系
 LEVELS = [
@@ -23,20 +14,13 @@ LEVELS = [
 
 # 勋章规则
 BADGES = {
-    "首战告捷": lambda user, result: result.get("overall", 0) >= 90 and user["total_analyses"] <= 5,
-    "构图大师": lambda user, result: result.get("scores", {}).get("composition", 0) >= 90,
-    "色彩诗人": lambda user, result: result.get("scores", {}).get("color", 0) >= 90,
+    "首战告捷": lambda user, result: result.get("score", 0) >= 90 and user["total_analyses"] <= 5,
+    "高分达人": lambda user, result: result.get("score", 0) >= 85,
+    "光影艺术家": lambda user, result: user["total_analyses"] >= 50,
 }
 
 
-def calculate_overall(scores: dict) -> int:
-    """加权综合分"""
-    total = sum(scores.get(k, 70) * v for k, v in WEIGHTS.items())
-    return round(total)
-
-
 def get_level(exp: int) -> dict:
-    """根据经验值返回等级信息"""
     current = LEVELS[0]
     next_lvl = LEVELS[1] if len(LEVELS) > 1 else None
     for i, lvl in enumerate(LEVELS):
@@ -45,8 +29,3 @@ def get_level(exp: int) -> dict:
             next_lvl = LEVELS[i + 1] if i + 1 < len(LEVELS) else None
     exp_to_next = next_lvl["exp_needed"] - exp if next_lvl else 0
     return {**current, "exp_to_next": exp_to_next, "next_level": next_lvl}
-
-
-def calculate_exp_for_checkin(streak: int) -> int:
-    """打卡经验"""
-    return min(5 + streak * 2, 15)
