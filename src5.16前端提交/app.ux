@@ -1,0 +1,23 @@
+<script>
+import router from '@system.router'
+import { store } from './store/index.js'
+import { getUid } from './helper/storage.js'
+
+export default {
+  data: {
+    uid: '',
+    user: null
+  },
+
+  onInit() {
+    getUid().then((uid) => {
+      this.uid = uid
+      store.setUser({ uid })
+    })
+  },
+
+  navigateTo(page) {
+    router.push({ uri: `/${page}` })
+  }
+}
+</script>
