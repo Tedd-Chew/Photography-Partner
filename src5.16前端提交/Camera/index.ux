@@ -1,0 +1,249 @@
+<script>
+import router from '@system.router'
+import { store } from '../store/index.js'
+
+export default {
+  data: {
+    scene: null,
+    gridMode: 'thirds',
+    params: { shutter: null, iso: null, wb: null },
+    gridModes: {
+      off: '关闭',
+      thirds: '三分法',
+      golden: '黄金分割',
+      crosshair: '十字线'
+    }
+  },
+
+  onInit() {
+    const camera = store.state.camera
+    this.gridMode = camera.gridMode
+  },
+
+  onReady() {
+  },
+
+  onRefreshParams() {
+    const scenes = ['夜景', '人像', '风景', '美食', '室内']
+    this.scene = scenes[Math.floor(Math.random() * scenes.length)]
+  },
+
+  switchGrid(mode) {
+    this.gridMode = mode
+    store.setCamera({ gridMode: mode })
+  },
+
+  onTakePhoto() {
+    router.push({ uri: '/Upload' })
+  },
+
+  goBack() {
+    router.back()
+  }
+}
+</script>
+
+<template>
+  <div class="camera-page">
+    <div class="header">
+      <div class="back-btn" onclick="goBack">
+        <text>←</text>
+      </div>
+      <text class="scene-label">场景: {{scene || '自动检测'}}</text>
+      <div class="refresh-btn" onclick="onRefreshParams">
+        <text>🔄</text>
+      </div>
+    </div>
+
+    <div class="preview-area">
+      <text class="preview-placeholder">📷</text>
+      <text class="preview-hint">相机预览区域</text>
+      <text class="preview-hint-sub">（需真机调试）</text>
+    </div>
+
+    <div class="param-section">
+      <text class="section-label">推荐参数</text>
+      <div class="params-grid">
+        <div class="param-item">
+          <text class="param-label">快门</text>
+          <text class="param-val">--</text>
+        </div>
+        <div class="param-item">
+          <text class="param-label">ISO</text>
+          <text class="param-val">--</text>
+        </div>
+        <div class="param-item">
+          <text class="param-label">白平衡</text>
+          <text class="param-val">--</text>
+        </div>
+        <div class="param-item">
+          <text class="param-label">曝光补偿</text>
+          <text class="param-val">--</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-control">
+      <text class="control-label">构图线: {{gridModes[gridMode]}}</text>
+      <div class="grid-btns">
+        <div for="(k, v) in gridModes" class="grid-btn {{gridMode === k ? 'active' : ''}}" onclick="{{switchGrid(k)}}">
+          <text>{{v}}</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="btn-shoot" onclick="onTakePhoto">
+        <text>📸 拍照</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .camera-page {
+    flex-direction: column;
+    background-color: #000;
+    min-height: 100vh;
+  }
+
+  .header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #111;
+  }
+
+  .back-btn text {
+    font-size: 20px;
+    color: #fff;
+  }
+
+  .scene-label {
+    font-size: 15px;
+    color: #ffd700;
+  }
+
+  .refresh-btn text {
+    font-size: 20px;
+  }
+
+  .preview-area {
+    height: 400px;
+    justify-content: center;
+    align-items: center;
+    background-color: #0a0a0a;
+    flex-direction: column;
+  }
+
+  .preview-placeholder {
+    font-size: 72px;
+  }
+
+  .preview-hint {
+    font-size: 18px;
+    color: #888;
+    margin-top: 12px;
+  }
+
+  .preview-hint-sub {
+    font-size: 13px;
+    color: #555;
+    margin-top: 4px;
+  }
+
+  .param-section {
+    flex-direction: column;
+    padding: 15px;
+    background-color: #111;
+  }
+
+  .section-label {
+    font-size: 14px;
+    color: #ffd700;
+    margin-bottom: 10px;
+  }
+
+  .params-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .param-item {
+    flex-direction: column;
+    width: 48%;
+    margin: 4px 1%;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+  }
+
+  .param-label {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .param-val {
+    font-size: 16px;
+    color: #ccc;
+    margin-top: 4px;
+  }
+
+  .grid-control {
+    flex-direction: column;
+    padding: 12px 15px;
+    background-color: #111;
+    border-top: 1px solid #222;
+  }
+
+  .control-label {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .grid-btns {
+    flex-direction: row;
+  }
+
+  .grid-btn {
+    padding: 6px 14px;
+    margin-right: 8px;
+    border-radius: 6px;
+    background-color: #222;
+  }
+
+  .grid-btn.active {
+    background-color: #ffd700;
+  }
+
+  .grid-btn text {
+    font-size: 12px;
+    color: #fff;
+  }
+
+  .grid-btn.active text {
+    color: #000;
+  }
+
+  .action-bar {
+    justify-content: center;
+    padding: 20px;
+    margin-top: auto;
+  }
+
+  .btn-shoot {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    background-color: #fff;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid #ffd700;
+  }
+
+  .btn-shoot text {
+    font-size: 14px;
+  }
+</style>

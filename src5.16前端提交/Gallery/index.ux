@@ -1,0 +1,250 @@
+<script>
+import router from '@system.router'
+import { store } from '../store/index.js'
+import { getGallery, getGalleryDetail } from '../services/api.js'
+
+export default {
+  data: {
+    items: [],
+    page: 1,
+    total: 0,
+    loading: true
+  },
+
+  async onInit() {
+    this.loadHistory()
+  },
+
+  async loadHistory() {
+    this.loading = true
+    try {
+      const res = await getGallery()
+      if (res.ok) {
+        this.items = res.data.items || []
+        this.total = res.data.total || 0
+        store.setHistory(this.items)
+      }
+    } catch (e) {
+      console.log('加载历史失败:', e)
+    } finally {
+      this.loading = false
+    }
+  },
+
+  getCardLabel(item) {
+    if (item.mode === 'shooting') return '📷 拍摄指导'
+    if (item.mode === 'edit') return '🔧 修图建议'
+    return '⭐ 评分评价'
+  },
+
+  getCardScore(item) {
+    if (item.result_json && item.result_json.score != null) {
+      return item.result_json.score + '分'
+    }
+    return ''
+  },
+
+  getCardScene(item) {
+    if (item.result_json && item.result_json.scene) {
+      return item.result_json.scene
+    }
+    return ''
+  },
+
+  getCardSummary(item) {
+    var rj = item.result_json
+    if (!rj) return ''
+    if (rj.comment) return rj.comment.slice(0, 50) + '...'
+    if (rj.advice) return rj.advice.slice(0, 50) + '...'
+    if (rj.camera_params) return rj.scene || ''
+    return ''
+  },
+
+  async goToDetail(id) {
+    try {
+      const res = await getGalleryDetail(id)
+      if (res.ok) {
+        store.setAnalysis(res.data)
+        router.push({ uri: '/Result' })
+      }
+    } catch (e) {
+      this.showToast('加载详情失败')
+    }
+  },
+
+  goBack() {
+    router.back()
+  },
+
+  showToast(msg) {
+    try {
+      const prompt = require('@system.prompt')
+      prompt.showToast({ message: msg, duration: 1 })
+    } catch (e) {
+      console.log(msg)
+    }
+  }
+}
+</script>
+
+<template>
+  <div class="gallery-page">
+    <div class="header">
+      <div class="back-btn" onclick="goBack">
+        <text>← 返回</text>
+      </div>
+      <text class="header-title">历史记录</text>
+      <div class="header-right"></div>
+    </div>
+
+    <div if="{{loading}}" class="loading-area">
+      <progress type="circular"></progress>
+      <text class="loading-text">加载中...</text>
+    </div>
+
+    <div if="{{!loading && items.length === 0}}" class="empty-area">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无分析记录</text>
+      <text class="empty-hint">去分析一张照片吧</text>
+    </div>
+
+    <list class="gallery-list">
+      <list-item for="item in items" class="card" onclick="goToDetail(item.id)">
+        <div class="card-left">
+          <text class="card-mode">{{getCardLabel(item)}}</text>
+          <text if="{{getCardScene(item)}}" class="card-scene">{{getCardScene(item)}}</text>
+          <text if="{{getCardSummary(item)}}" class="card-summary">{{getCardSummary(item)}}</text>
+          <text class="card-date">{{item.created_at}}</text>
+        </div>
+        <div class="card-right">
+          <text if="{{getCardScore(item)}}" class="card-score">{{getCardScore(item)}}</text>
+          <text class="card-arrow">›</text>
+        </div>
+      </list-item>
+    </list>
+  </div>
+</template>
+
+<style>
+  .gallery-page {
+    flex-direction: column;
+    background-color: #0f0f23;
+    min-height: 100vh;
+  }
+
+  .header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #1a1a2e;
+  }
+
+  .back-btn text {
+    font-size: 15px;
+    color: #ffd700;
+  }
+
+  .header-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .header-right {
+    width: 60px;
+  }
+
+  .loading-area {
+    flex-direction: column;
+    align-items: center;
+    padding: 60px;
+  }
+
+  .loading-text {
+    font-size: 14px;
+    color: #888;
+    margin-top: 12px;
+  }
+
+  .empty-area {
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 20px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+  }
+
+  .empty-text {
+    font-size: 16px;
+    color: #888;
+    margin-top: 12px;
+  }
+
+  .empty-hint {
+    font-size: 13px;
+    color: #555;
+    margin-top: 6px;
+  }
+
+  .gallery-list {
+    flex: 1;
+  }
+
+  .card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #1a1a2e;
+  }
+
+  .card-left {
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-mode {
+    font-size: 15px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .card-scene {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 2px;
+  }
+
+  .card-summary {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    lines: 1;
+    text-overflow: ellipsis;
+  }
+
+  .card-date {
+    font-size: 11px;
+    color: #555;
+  }
+
+  .card-right {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .card-score {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffd700;
+    margin-right: 6px;
+  }
+
+  .card-arrow {
+    font-size: 22px;
+    color: #555;
+  }
+</style>

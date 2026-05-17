@@ -1,0 +1,478 @@
+<script>
+import router from '@system.router'
+import { store } from '../store/index.js'
+
+export default {
+  data: {
+    result: null,
+    localUri: ''
+  },
+
+  onInit() {
+    const analysis = store.state.analysis
+    if (!analysis) {
+      router.push({ uri: '/Upload' })
+      return
+    }
+
+    this.result = analysis
+    this.localUri = store.state.currentImage || ''
+  },
+
+  getScoreLabel(score) {
+    if (score >= 90) return '优秀'
+    if (score >= 80) return '良好'
+    if (score >= 60) return '一般'
+    return '需改进'
+  },
+
+  getScoreColor(score) {
+    if (score >= 90) return '#4caf50'
+    if (score >= 80) return '#ffd700'
+    if (score >= 60) return '#ff9800'
+    return '#f44336'
+  },
+
+  goBack() {
+    router.back()
+  },
+
+  goToUpload() {
+    store.clearAnalysis()
+    router.push({ uri: '/Upload' })
+  },
+
+  goToGallery() {
+    router.push({ uri: '/Gallery' })
+  },
+
+  goToGrowth() {
+    router.push({ uri: '/Growth' })
+  }
+}
+</script>
+
+<template>
+  <div class="result-page">
+    <div class="header">
+      <div class="back-btn" onclick="goBack">
+        <text>← 返回</text>
+      </div>
+      <text class="header-title">
+        {{result.mode === 'shooting' ? '拍摄指导' : result.mode === 'edit' ? '修图建议' : '评分评价'}}
+      </text>
+      <div class="header-right"></div>
+    </div>
+
+    <div if="{{localUri}}" class="thumb-section">
+      <image class="thumb-img" src="{{localUri}}"></image>
+    </div>
+
+    <div if="{{result.mode === 'score'}}" class="score-section">
+      <div class="score-circle">
+        <text class="score-num" style="color: {{getScoreColor(result.score)}}">{{result.score}}</text>
+        <text class="score-unit">分</text>
+      </div>
+      <div class="score-label-box">
+        <text class="score-label" style="color: {{getScoreColor(result.score)}}">{{getScoreLabel(result.score)}}</text>
+      </div>
+
+      <div class="comment-box">
+        <text class="section-label">AI 评价</text>
+        <text class="comment-text">{{result.comment}}</text>
+      </div>
+
+      <div if="{{result.exp_gained}}" class="exp-box">
+        <text class="exp-text">🎉 经验 +{{result.exp_gained}}</text>
+      </div>
+
+      <div if="{{result.level_up}}" class="level-up-box">
+        <text class="level-up-text">🎊 升级！Lv.{{result.level_up.old_level}} → Lv.{{result.level_up.new_level}}</text>
+      </div>
+
+      <div if="{{result.badge_unlocked && result.badge_unlocked.length}}" class="badge-box">
+        <text class="badge-label">🏅 新勋章解锁</text>
+        <div for="b in result.badge_unlocked" class="badge-item">
+          <text class="badge-name">{{b}}</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{result.mode === 'edit'}}" class="edit-section">
+      <text class="section-label">AI 修图建议</text>
+      <div class="advice-card">
+        <text class="advice-text">{{result.advice}}</text>
+      </div>
+      <div class="tip-box">
+        <text class="tip-text">💡 按照建议在手机修图 App 中逐步调整即可</text>
+      </div>
+    </div>
+
+    <div if="{{result.mode === 'shooting'}}" class="shooting-section">
+      <div class="scene-box">
+        <text class="inline-label">场景识别</text>
+        <text class="scene-value">{{result.scene}}</text>
+      </div>
+
+      <text class="section-label">推荐参数</text>
+      <div class="params-grid">
+        <div class="param-item">
+          <text class="param-label">快门速度</text>
+          <text class="param-val">{{result.camera_params.shutter}}</text>
+        </div>
+        <div class="param-item">
+          <text class="param-label">ISO 感光度</text>
+          <text class="param-val">{{result.camera_params.iso}}</text>
+        </div>
+        <div class="param-item">
+          <text class="param-label">光圈</text>
+          <text class="param-val">{{result.camera_params.aperture}}</text>
+        </div>
+        <div class="param-item">
+          <text class="param-label">白平衡</text>
+          <text class="param-val">{{result.camera_params.wb}}</text>
+        </div>
+        <div class="param-item full-width">
+          <text class="param-label">对焦点</text>
+          <text class="param-val">{{result.camera_params.focus}}</text>
+        </div>
+      </div>
+
+      <text class="section-label">构图建议</text>
+      <div for="tip in result.composition_tips" class="bullet-item">
+        <text class="bullet">●</text>
+        <text class="bullet-text">{{tip}}</text>
+      </div>
+
+      <text class="section-label">用光建议</text>
+      <text class="advice-block">{{result.lighting_advice}}</text>
+
+      <text class="section-label">额外提示</text>
+      <text class="advice-block">{{result.extra_tips}}</text>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="bottom-btn" onclick="goToUpload">
+        <text>继续分析</text>
+      </div>
+      <div class="bottom-btn" onclick="goToGallery">
+        <text>历史记录</text>
+      </div>
+      <div class="bottom-btn primary" onclick="goToGrowth">
+        <text>成长体系</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .result-page {
+    flex-direction: column;
+    padding-bottom: 30px;
+    background-color: #0f0f23;
+    min-height: 100vh;
+  }
+
+  .header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #1a1a2e;
+  }
+
+  .back-btn text {
+    font-size: 15px;
+    color: #ffd700;
+  }
+
+  .header-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .header-right {
+    width: 60px;
+  }
+
+  .thumb-section {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .thumb-img {
+    width: 250px;
+    height: 250px;
+    border-radius: 12px;
+  }
+
+  .score-section {
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .score-circle {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .score-num {
+    font-size: 72px;
+    font-weight: bold;
+  }
+
+  .score-unit {
+    font-size: 22px;
+    color: #aaa;
+    margin-bottom: 12px;
+    margin-left: 4px;
+  }
+
+  .score-label-box {
+    margin-bottom: 24px;
+    padding: 6px 20px;
+    border-radius: 16px;
+    background-color: #1a1a2e;
+  }
+
+  .score-label {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .comment-box {
+    flex-direction: column;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: #1a1a2e;
+    width: 100%;
+  }
+
+  .comment-text {
+    font-size: 15px;
+    color: #ccc;
+    line-height: 24px;
+    margin-top: 8px;
+  }
+
+  .exp-box {
+    padding: 14px 30px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #2a2a1e;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .exp-text {
+    font-size: 17px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .level-up-box {
+    padding: 14px 30px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #1e2a1e;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .level-up-text {
+    font-size: 16px;
+    color: #4caf50;
+    font-weight: bold;
+  }
+
+  .badge-box {
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #1a1a2e;
+    border: 1px solid #ffd700;
+    width: 100%;
+  }
+
+  .badge-label {
+    font-size: 14px;
+    color: #ffd700;
+    margin-bottom: 8px;
+  }
+
+  .badge-item {
+    padding: 4px 14px;
+    margin: 2px 0;
+    border-radius: 4px;
+    background-color: #2a2a1e;
+  }
+
+  .badge-name {
+    font-size: 15px;
+    color: #fff;
+  }
+
+  .section-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffd700;
+    margin-bottom: 10px;
+  }
+
+  .edit-section {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+
+  .advice-card {
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #1a1a2e;
+    margin-bottom: 16px;
+  }
+
+  .advice-text {
+    font-size: 15px;
+    color: #ccc;
+    line-height: 26px;
+  }
+
+  .tip-box {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #2a2a1e;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tip-text {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .shooting-section {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+
+  .scene-box {
+    flex-direction: row;
+    align-items: center;
+    padding: 14px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    background-color: #1a1a2e;
+  }
+
+  .inline-label {
+    font-size: 14px;
+    color: #888;
+    margin-right: 12px;
+  }
+
+  .scene-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .params-grid {
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-bottom: 18px;
+  }
+
+  .param-item {
+    flex-direction: column;
+    width: 48%;
+    padding: 12px;
+    margin: 4px 1%;
+    border-radius: 8px;
+    background-color: #1a1a2e;
+  }
+
+  .param-item.full-width {
+    width: 98%;
+  }
+
+  .param-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .param-val {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .bullet-item {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .bullet {
+    font-size: 14px;
+    color: #ffd700;
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
+  }
+
+  .bullet-text {
+    font-size: 14px;
+    color: #bbb;
+    line-height: 22px;
+    flex: 1;
+  }
+
+  .advice-block {
+    font-size: 14px;
+    color: #ccc;
+    line-height: 22px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #1a1a2e;
+  }
+
+  .bottom-bar {
+    flex-direction: row;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .bottom-btn {
+    padding: 12px 24px;
+    margin: 0 10px;
+    border-radius: 8px;
+    background-color: #2a2a4a;
+  }
+
+  .bottom-btn text {
+    font-size: 15px;
+    color: #ccc;
+  }
+
+  .bottom-btn.primary {
+    background-color: #ffd700;
+  }
+
+  .bottom-btn.primary text {
+    color: #1a1a1a;
+    font-weight: bold;
+  }
+</style>
