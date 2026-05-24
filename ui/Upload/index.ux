@@ -1,0 +1,375 @@
+<script>
+import router from '@system.router'
+import media from '@system.media'
+import { store } from '../store/index.js'
+import { analyzePhoto } from '../services/api.js'
+import { compressImage } from '../helper/image.js'
+import { saveToHistoryCache } from '../helper/storage.js'
+
+export default {
+  data: {
+    selectedImage: null,
+    mode: 'score',
+    loading: false
+  },
+
+  onInit() {
+    store.clearAnalysis()
+  },
+
+  onPickImage() {
+    const self = this
+    media.pickImage({
+      success: function (data) {
+        self.selectedImage = data.uri
+      },
+      fail: function (err) {
+        console.log('选择图片失败:', err)
+      }
+    })
+  },
+
+  onTakePhoto() {
+    const self = this
+    media.takePhoto({
+      success: function (data) {
+        self.selectedImage = data.uri
+      },
+      fail: function (err) {
+        console.log('拍照失败:', err)
+      }
+    })
+  },
+
+  onSelectMode(mode) {
+    this.mode = mode
+    store.setAnalysisMode(mode)
+  },
+
+  onResetImage() {
+    store.clearAnalysis()
+    this.selectedImage = null
+  },
+
+  navigateTo(page) {
+    router.push({ uri: '/' + page })
+  },
+
+  async onAnalyze() {
+    if (!this.selectedImage) return
+
+    this.loading = true
+    store.setLoading(true)
+
+    try {
+      const compressedUri = await compressImage(this.selectedImage)
+      const result = await analyzePhoto(compressedUri, this.mode)
+
+      if (result.ok) {
+        store.setAnalysis(result.data)
+        store.setCurrentImage(this.selectedImage)
+
+        saveToHistoryCache({
+          id: result.data.id,
+          mode: this.mode,
+          score: result.data.score || null,
+          scene: result.data.scene || null,
+          comment: result.data.comment || result.data.advice || null,
+          created_at: new Date().toISOString()
+        })
+
+        router.push({ uri: '/Result' })
+      } else {
+        this.showToast(result.error || '分析失败，请重试')
+      }
+    } catch (e) {
+      this.showToast('分析失败: ' + (e.message || '网络异常'))
+    } finally {
+      this.loading = false
+      store.setLoading(false)
+    }
+  },
+
+  showToast(msg) {
+    try {
+      const prompt = require('@system.prompt')
+      prompt.showToast({ message: msg, duration: 1 })
+    } catch (e) {
+      console.log(msg)
+    }
+  }
+}
+</script>
+
+<template>
+  <div class="upload-page">
+    <div class="header">
+      <text class="title">光影参谋</text>
+      <text class="subtitle">AI 摄影构图成长伴侣</text>
+    </div>
+
+    <div if="{{!selectedImage}}" class="select-area">
+      <div class="select-card" onclick="onPickImage">
+        <image class="select-icon" src="/Common/icons/album.png"></image>
+        <text class="select-label">从相册选择</text>
+      </div>
+      <div class="select-card" onclick="onTakePhoto">
+        <image class="select-icon" src="/Common/icons/camera.png"></image>
+        <text class="select-label">拍摄照片</text>
+      </div>
+    </div>
+
+    <div if="{{selectedImage}}" class="preview-area">
+      <image class="preview-img" src="{{selectedImage}}"></image>
+
+      <div class="mode-selector">
+        <text class="mode-title">选择分析模式</text>
+        <div class="mode-list">
+          <div class="mode-item {{mode === 'shooting' ? 'active' : ''}}" onclick="onSelectMode('shooting')">
+            <text class="mode-icon">📷</text>
+            <text class="mode-name">拍摄指导</text>
+            <text class="mode-desc">这个场景怎么拍？</text>
+          </div>
+          <div class="mode-item {{mode === 'edit' ? 'active' : ''}}" onclick="onSelectMode('edit')">
+            <text class="mode-icon">🔧</text>
+            <text class="mode-name">修图建议</text>
+            <text class="mode-desc">怎么后期调色修图？</text>
+          </div>
+          <div class="mode-item {{mode === 'score' ? 'active' : ''}}" onclick="onSelectMode('score')">
+            <text class="mode-icon">⭐</text>
+            <text class="mode-name">评分评价</text>
+            <text class="mode-desc">这张照片打几分？</text>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="btn-reselect" onclick="onResetImage">
+          <text>重选照片</text>
+        </div>
+        <div class="btn-analyze" onclick="onAnalyze">
+          <text>开始分析</text>
+        </div>
+      </div>
+    </div>
+
+    <div if="{{loading}}" class="loading-overlay">
+      <div class="loading-box">
+        <progress type="circular"></progress>
+        <text class="loading-text">AI 正在分析中...</text>
+        <text class="loading-hint">预计需要 2-3 秒</text>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-item" onclick="navigateTo('Gallery')">
+        <text>📋 历史</text>
+      </div>
+      <div class="nav-item" onclick="navigateTo('Camera')">
+        <text>📸 实拍</text>
+      </div>
+      <div class="nav-item" onclick="navigateTo('Growth')">
+        <text>🌟 成长</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .upload-page {
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    background-color: #0f0f23;
+    min-height: 100vh;
+  }
+
+  .header {
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  .title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #888;
+    margin-top: 8px;
+  }
+
+  .select-area {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .select-card {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 260px;
+    height: 200px;
+    margin: 0 15px;
+    border-radius: 16px;
+    background-color: #1a1a2e;
+    border: 2px solid #2a2a4a;
+  }
+
+  .select-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+  }
+
+  .select-label {
+    font-size: 20px;
+    color: #ccc;
+  }
+
+  .preview-area {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .preview-img {
+    width: 300px;
+    height: 300px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .mode-selector {
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .mode-title {
+    font-size: 18px;
+    color: #aaa;
+    margin-bottom: 12px;
+    margin-left: 5px;
+  }
+
+  .mode-list {
+    flex-direction: column;
+  }
+
+  .mode-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background-color: #1a1a2e;
+    border: 2px solid #2a2a4a;
+  }
+
+  .mode-item.active {
+    border-color: #ffd700;
+    background-color: #2a2a1e;
+  }
+
+  .mode-icon {
+    font-size: 28px;
+    margin-right: 12px;
+  }
+
+  .mode-name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #fff;
+    margin-right: 10px;
+  }
+
+  .mode-desc {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .action-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .btn-reselect {
+    padding: 14px 30px;
+    border-radius: 8px;
+    background-color: #2a2a4a;
+  }
+
+  .btn-reselect text {
+    font-size: 16px;
+    color: #aaa;
+  }
+
+  .btn-analyze {
+    padding: 14px 40px;
+    border-radius: 8px;
+    background-color: #ffd700;
+  }
+
+  .btn-analyze text {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a1a1a;
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+
+  .loading-box {
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 50px;
+    border-radius: 16px;
+    background-color: #1a1a2e;
+  }
+
+  .loading-text {
+    font-size: 18px;
+    color: #ffd700;
+    margin-top: 20px;
+  }
+
+  .loading-hint {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+  }
+
+  .nav-bar {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 40px;
+  }
+
+  .nav-item {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 8px;
+    background-color: #1a1a2e;
+  }
+
+  .nav-item text {
+    font-size: 14px;
+    color: #aaa;
+  }
+</style>

@@ -1,0 +1,175 @@
+<script>
+export default {
+  props: {
+    level: {
+      default: 1
+    },
+    exp: {
+      default: 0
+    },
+    showProgress: {
+      default: true
+    },
+    size: {
+      default: 'normal'
+    }
+  },
+
+  computed: {
+    levelTitle: function () {
+      const titles = {
+        1: '摄影新手',
+        2: '摄影学徒',
+        3: '摄影达人',
+        4: '摄影专家',
+        5: '摄影大师',
+        6: '光影艺术家'
+      }
+      return titles[this.level] || '摄影新手'
+    },
+
+    levelColor: function () {
+      const colors = {
+        1: '#9e9e9e',
+        2: '#81c784',
+        3: '#4fc3f7',
+        4: '#ba68c8',
+        5: '#ffd700',
+        6: '#ff6d00'
+      }
+      return colors[this.level] || '#9e9e9e'
+    },
+
+    levelIcon: function () {
+      const icons = {
+        1: '🌱',
+        2: '🌿',
+        3: '🌳',
+        4: '💎',
+        5: '👑',
+        6: '🌟'
+      }
+      return icons[this.level] || '🌱'
+    },
+
+    expPercent: function () {
+      const thresholds = { 1: 100, 2: 100, 3: 200, 4: 300, 5: 400, 6: 600 }
+      const bases = { 1: 0, 2: 100, 3: 200, 4: 400, 5: 700, 6: 1100 }
+      const base = bases[this.level] || 0
+      const need = thresholds[this.level] || 100
+      return Math.min(100, Math.round(((this.exp - base) / need) * 100))
+    },
+
+    nextLevelExp: function () {
+      const thresholds = { 1: 100, 2: 200, 3: 400, 4: 700, 5: 1100, 6: 1600 }
+      return thresholds[this.level] || 1600
+    },
+
+    containerClass: function () {
+      return 'badge-container badge-' + this.size
+    }
+  }
+}
+</script>
+
+<template>
+  <div class="{{containerClass}}">
+    <div class="badge-core" style="border-color: {{levelColor}};">
+      <text class="badge-icon">{{levelIcon}}</text>
+      <text class="badge-level" style="color: {{levelColor}};">Lv.{{level}}</text>
+      <text class="badge-title">{{levelTitle}}</text>
+    </div>
+
+    <div if="{{showProgress}}" class="badge-progress">
+      <div class="progress-track">
+        <div class="progress-fill" style="width: {{expPercent}}%; background-color: {{levelColor}};"></div>
+      </div>
+      <text class="progress-text">{{exp}} / {{nextLevelExp}}</text>
+    </div>
+  </div>
+</template>
+
+<style>
+  .badge-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .badge-normal .badge-core {
+    padding: 20px 30px;
+  }
+
+  .badge-normal .badge-icon {
+    font-size: 40px;
+  }
+
+  .badge-normal .badge-level {
+    font-size: 28px;
+  }
+
+  .badge-normal .badge-title {
+    font-size: 15px;
+  }
+
+  .badge-small .badge-core {
+    padding: 10px 16px;
+  }
+
+  .badge-small .badge-icon {
+    font-size: 24px;
+  }
+
+  .badge-small .badge-level {
+    font-size: 18px;
+  }
+
+  .badge-small .badge-title {
+    font-size: 12px;
+  }
+
+  .badge-core {
+    flex-direction: column;
+    align-items: center;
+    border-radius: 16px;
+    border-width: 2px;
+    background-color: rgba(26, 26, 46, 0.8);
+  }
+
+  .badge-icon {
+    margin-bottom: 6px;
+  }
+
+  .badge-level {
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .badge-title {
+    color: #ccc;
+  }
+
+  .badge-progress {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .progress-track {
+    width: 80%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: #2a2a3e;
+  }
+
+  .progress-fill {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .progress-text {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+  }
+</style>

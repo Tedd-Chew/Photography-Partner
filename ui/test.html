@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>光影参谋 — UI 测试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#0a0a14;color:#ccc;max-width:420px;margin:0 auto;min-height:100vh;overflow-x:hidden}
+
+/* ===== Tabs ===== */
+.tabs{display:flex;background:#1a1a2e;position:sticky;top:0;z-index:100}
+.tab{flex:1;text-align:center;padding:12px 4px;font-size:12px;color:#666;border-bottom:2px solid transparent;cursor:pointer;transition:.2s}
+.tab.active{color:#ffd700;border-bottom-color:#ffd700;font-weight:bold}
+
+/* ===== Header ===== */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#1a1a2e}
+.header-back{color:#ffd700;font-size:15px;cursor:pointer}
+.header-title{font-size:17px;font-weight:bold;color:#fff}
+
+/* ===== Common ===== */
+.page{padding-bottom:20px}
+.section-label{font-size:15px;font-weight:bold;color:#ffd700;margin-bottom:10px}
+
+/* ===== LevelBadge ===== */
+.badge-core{text-align:center;padding:20px 30px;border-radius:16px;border:2px solid #555;background:rgba(26,26,46,0.8);display:inline-block}
+.badge-icon{font-size:40px;display:block;margin-bottom:6px}
+.badge-lv{font-size:28px;font-weight:bold;display:block;margin-bottom:4px}
+.badge-title{font-size:15px;color:#ccc}
+.badge-progress{margin-top:10px}
+.progress-track{width:80%;height:6px;border-radius:3px;background:#2a2a3e;margin:0 auto}
+.progress-fill{height:6px;border-radius:3px;transition:width .3s}
+.progress-text{font-size:11px;color:#666;text-align:center;margin-top:4px}
+
+/* ===== ScoreRadar ===== */
+.radar{padding:16px;margin:0 20px;border-radius:12px;background:#1a1a2e}
+.radar-title{font-size:15px;font-weight:bold;color:#fff;margin-bottom:14px}
+.dim-row{margin-bottom:10px}
+.dim-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.dim-label{font-size:13px;color:#aaa}
+.dim-score{font-size:14px;font-weight:bold}
+.dim-weight{font-size:11px;color:#555}
+.bar-track{height:8px;border-radius:4px;background:#2a2a3e}
+.bar-fill{height:8px;border-radius:4px;transition:width .3s}
+.legend{display:flex;flex-wrap:wrap;margin-top:10px;gap:8px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#666}
+.legend-dot{width:8px;height:8px;border-radius:4px}
+
+/* ===== ParamPanel ===== */
+.param-panel{padding:16px;margin:0 20px 12px;border-radius:12px;background:linear-gradient(135deg,#1a1a2e,#222244)}
+.scene-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:14px;background:rgba(255,215,0,0.15);margin-bottom:12px}
+.scene-tag .scene-text{font-size:13px;color:#ffd700;font-weight:bold}
+.params-grid{display:flex;flex-wrap:wrap}
+.param-item{width:33.33%;text-align:center;padding:10px 4px}
+.param-icon{font-size:20px}
+.param-label{font-size:11px;color:#888;margin:4px 0}
+.param-val{font-size:13px;color:#666;font-weight:bold}
+.param-val.active{color:#ffd700}
+
+/* ===== PhotoCard ===== */
+.photo-card{display:flex;padding:14px 16px;margin:0 20px 8px;border-radius:12px;background:#1a1a2e;cursor:pointer}
+.photo-card .card-body{flex:1}
+.card-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.card-mode{font-size:13px;font-weight:bold}
+.card-score{font-size:15px;font-weight:bold;color:#ffd700}
+.card-scene{font-size:12px;color:#888}
+.card-summary{font-size:12px;color:#666;line-height:18px}
+.card-footer{display:flex;justify-content:space-between;margin-top:6px}
+.card-date{font-size:11px;color:#555}
+.card-arrow{font-size:18px;color:#555}
+.mode-shooting{color:#4d96ff}.mode-edit{color:#c084fc}.mode-score{color:#ffd700}
+
+/* ===== CompositionLines ===== */
+.preview-area{position:relative;height:320px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.preview-area .placeholder{font-size:60px;opacity:.3}
+.composition-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.comp-line-h{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,0.35)}
+.comp-line-v{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.35)}
+
+/* ===== Camera Page ===== */
+.grid-control{padding:12px 15px;background:#111;border-top:1px solid #222}
+.control-label{font-size:13px;color:#888;margin-bottom:8px}
+.grid-btns{display:flex;gap:6px}
+.grid-btn{padding:6px 14px;border-radius:6px;background:#222;font-size:12px;color:#fff;cursor:pointer}
+.grid-btn.active{background:#ffd700;color:#000}
+.action-bar{text-align:center;padding:20px}
+.btn-shoot{display:inline-block;width:70px;height:70px;line-height:70px;border-radius:50%;background:#fff;border:4px solid #ffd700;font-size:14px;color:#333;cursor:pointer}
+
+/* ===== Upload Page ===== */
+.upload-header{text-align:center;padding:30px 20px}
+.upload-title{font-size:32px;font-weight:bold;color:#ffd700}
+.upload-subtitle{font-size:15px;color:#888;margin-top:8px}
+.select-cards{display:flex;justify-content:center;gap:20px;padding:20px}
+.select-card{width:46%;text-align:center;padding:30px 20px;border-radius:16px;background:#1a1a2e;border:2px solid #2a2a4a;cursor:pointer}
+.select-card .icon{font-size:40px;margin-bottom:10px}
+.select-card .label{font-size:16px;color:#ccc}
+.mode-selector{padding:0 20px;margin-top:16px}
+.mode-list{display:flex;gap:8px;margin-top:10px}
+.mode-item{flex:1;text-align:center;padding:14px 6px;border-radius:10px;background:#1a1a2e;border:2px solid #2a2a4a;cursor:pointer}
+.mode-item.active{border-color:#ffd700;background:#2a2a1e}
+.mode-item .mi-icon{font-size:22px;display:block;margin-bottom:4px}
+.mode-item .mi-name{font-size:13px;font-weight:bold;color:#ccc}
+.mode-item.active .mi-name{color:#ffd700}
+.mode-item .mi-desc{font-size:11px;color:#666}
+.btn-analyze{display:block;margin:20px auto;padding:14px 60px;border-radius:10px;background:#ffd700;color:#1a1a2e;font-size:16px;font-weight:bold;border:none;cursor:pointer}
+
+/* ===== Result Page ===== */
+.score-circle-wrap{text-align:center;margin:16px 0}
+.score-big{font-size:64px;font-weight:bold}
+.score-unit{font-size:20px;color:#aaa;margin-left:4px}
+.score-badge{padding:4px 20px;border-radius:14px;background:#1a1a2e;font-size:16px;font-weight:bold;display:inline-block;margin-bottom:20px}
+.comment-box{margin:0 20px 16px;padding:14px;border-radius:10px;background:#1a1a2e;line-height:22px}
+.exp-box{margin:0 20px 10px;padding:12px;border-radius:8px;background:#2a2a1e;text-align:center;font-size:16px;font-weight:bold;color:#ffd700}
+.level-up-box{margin:0 20px 10px;padding:12px;border-radius:8px;background:#1e2a1e;text-align:center;font-size:15px;color:#4caf50}
+.badge-unlock{margin:0 20px 10px;padding:14px;border-radius:8px;background:#1a1a2e;border:1px solid #ffd700;text-align:center}
+.badge-unlock .blabel{font-size:14px;color:#ffd700;margin-bottom:6px}
+.advice-card{margin:0 20px 16px;padding:18px;border-radius:12px;background:#1a1a2e;line-height:24px}
+.tip-box{margin:0 20px 16px;padding:12px;border-radius:8px;background:#2a2a1e;text-align:center;font-size:13px;color:#888}
+.shooting-section{margin:0 20px}
+.scene-box{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:#1a1a2e;margin-bottom:16px}
+.scene-value{font-size:18px;font-weight:bold;color:#ffd700}
+.bullet-item{display:flex;gap:8px;padding:8px 0;font-size:14px;color:#ccc}
+.advice-block{padding:10px 0;font-size:14px;color:#ccc;line-height:22px}
+.info-label{color:#888;font-size:13px}
+
+/* ===== Gallery ===== */
+.empty-state{text-align:center;padding:80px 20px}
+.empty-icon{font-size:48px}
+.empty-text{font-size:16px;color:#888;margin-top:12px}
+.empty-hint{font-size:13px;color:#555;margin-top:6px}
+
+/* ===== Growth ===== */
+.growth-content{padding:20px}
+.level-card-wrap{text-align:center;padding:24px 20px;margin-bottom:20px;border-radius:16px;background:linear-gradient(135deg,#1a1a2e,#2a2a4a)}
+.badge-section{margin-bottom:20px}
+.badge-list{display:flex;flex-wrap:wrap;gap:8px}
+.badge-tag{padding:8px 16px;border-radius:20px;background:#1a1a2e;border:1px solid #ffd700;font-size:14px;color:#fff}
+.stats-grid{display:flex;justify-content:space-around;gap:10px}
+.stat-item{flex:1;text-align:center;padding:14px 8px;border-radius:10px;background:#1a1a2e}
+.stat-num{font-size:26px;font-weight:bold;color:#ffd700}
+.stat-label{font-size:12px;color:#888;margin-top:4px}
+
+/* ===== Bottom bar ===== */
+.bottom-bar{display:flex;justify-content:center;gap:10px;padding:16px 20px}
+.bottom-btn{padding:10px 24px;border-radius:8px;background:#2a2a4a;font-size:14px;color:#ccc;cursor:pointer}
+.bottom-btn.primary{background:#ffd700;color:#1a1a2e;font-weight:bold}
+
+/* ===== NavBar ===== */
+.nav-bar{display:flex;justify-content:space-around;padding:12px 0;background:#1a1a2e;margin-top:auto}
+.nav-item{text-align:center;font-size:13px;color:#888;cursor:pointer}
+.nav-item:hover{color:#ffd700}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-page="upload">选图</div>
+  <div class="tab" data-page="camera">相机</div>
+  <div class="tab" data-page="result-score">评分</div>
+  <div class="tab" data-page="result-shooting">拍摄</div>
+  <div class="tab" data-page="gallery">画廊</div>
+  <div class="tab" data-page="growth">成长</div>
+</div>
+
+<div id="pages"></div>
+
+<script>
+// ============ Mock Data (mirrors api.js) ============
+const MOCK_USER = {
+  uid:'demo_user_001',nickname:'摄影爱好者',level:3,exp:420,
+  badges:['高分达人'],total_analyses:23
+}
+
+const MOCK_SCORE = {
+  mode:'score',score:78,
+  scores:{composition:85,exposure:72,color:80,sharpness:90,creativity:65},
+  comment:'这张照片整体不错！构图把人物放在三分线位置很舒服。可以改进的是背景稍微过曝了，下次试试降低曝光补偿。色温可以往暖色调方向微调，让肤色更自然。',
+  exp_gained:25,level_up:null,badge_unlocked:['首战告捷']
+}
+
+const MOCK_EDIT = {
+  mode:'edit',
+  advice:'这张照片可以先调一下色温，往暖色偏一点约 5500K，让肤色看起来更自然。然后亮度面板把曝光 +0.3，阴影 +15 提亮暗部。清晰度这块不用动，拍得挺锐的。最后可以加一点自然饱和度 +8，画面会更生动。整体来说基础底子不错，两三步就能调出感觉。'
+}
+
+const MOCK_SHOOTING = {
+  mode:'shooting',scene:'夜景人像',
+  camera_params:{shutter:'1/30',iso:'800',aperture:'f/2.8',wb:'4000K',focus:'人物面部单点对焦'},
+  composition_tips:['人物置于画面右侧三分线，左侧留出城市灯光背景','利用路边栏杆作为引导线，将视线引向人物'],
+  lighting_advice:'利用街道暖色灯光作为主光源，避免头顶路灯直射导致面部过曝',
+  extra_tips:'建议使用三脚架，夜间慢速快门避免手抖'
+}
+
+const MOCK_GALLERY = [
+  {id:'g1',mode:'score',thumb_url:'',result_json:{score:78,comment:MOCK_SCORE.comment},created_at:'2026-05-14 10:30'},
+  {id:'g2',mode:'edit',thumb_url:'',result_json:{advice:MOCK_EDIT.advice},created_at:'2026-05-13 18:20'},
+  {id:'g3',mode:'shooting',thumb_url:'',result_json:{scene:'夜景人像'},created_at:'2026-05-12 21:00'}
+]
+
+// ============ Helper ============
+function h(tag,attrs,children){
+  const el=document.createElement(tag)
+  if(attrs)for(const[k,v]of Object.entries(attrs)){
+    if(k==='className')el.className=v
+    else if(k.startsWith('on'))el.addEventListener(k.slice(2),v)
+    else el.setAttribute(k,v)
+  }
+  if(children!==undefined){
+    if(Array.isArray(children))children.forEach(c=>el.append(typeof c==='string'?document.createTextNode(c):c))
+    else el.append(typeof children==='string'?document.createTextNode(children):children)
+  }
+  return el
+}
+const $=s=>document.querySelector(s)
+const $$=s=>document.querySelectorAll(s)
+
+function getScoreColor(s){
+  if(s>=90)return'#4caf50';if(s>=80)return'#8bc34a'
+  if(s>=70)return'#ffd700';if(s>=60)return'#ff9800';return'#f44336'
+}
+function getScoreLabel(s){
+  if(s>=90)return'优秀';if(s>=80)return'良好'
+  if(s>=70)return'中等';if(s>=60)return'一般';return'需改进'
+}
+function getLevelTitle(lv){
+  return['摄影新手','摄影学徒','摄影达人','摄影专家','摄影大师','光影艺术家'][lv-1]||'摄影新手'
+}
+function getLevelColor(lv){
+  return['#9e9e9e','#81c784','#4fc3f7','#ba68c8','#ffd700','#ff6d00'][lv-1]||'#9e9e9e'
+}
+function getLevelIcon(lv){
+  return['🌱','🌿','🌳','💎','👑','🌟'][lv-1]||'🌱'
+}
+function getExpPercent(exp,level){
+  const bases={1:0,2:100,3:200,4:400,5:700,6:1100}
+  const needs={1:100,2:100,3:200,4:300,5:400,6:600}
+  return Math.min(100,Math.round(((exp-(bases[level]||0))/(needs[level]||100))*100))
+}
+function getNextExp(level){
+  return {1:100,2:200,3:400,4:700,5:1100,6:1600}[level]||1600
+}
+
+// ============ Components ============
+
+function renderLevelBadge(level,exp){
+  const color=getLevelColor(level)
+  return h('div',{className:'badge-core',style:`border-color:${color}`},[
+    h('span',{className:'badge-icon'},getLevelIcon(level)),
+    h('span',{className:'badge-lv',style:`color:${color}`},'Lv.'+level),
+    h('span',{className:'badge-title'},getLevelTitle(level)),
+    h('div',{className:'badge-progress'},[
+      h('div',{className:'progress-track'},
+        h('div',{className:'progress-fill',style:`width:${getExpPercent(exp,level)}%;background:${color}`})),
+      h('div',{className:'progress-text'},exp+' / '+getNextExp(level))
+    ])
+  ])
+}
+
+function renderScoreRadar(scores){
+  const dims=[
+    {key:'composition',label:'构图',weight:30,color:'#ff6b6b'},
+    {key:'exposure',label:'曝光',weight:25,color:'#ffd93d'},
+    {key:'color',label:'色彩',weight:20,color:'#6bcb77'},
+    {key:'sharpness',label:'清晰度',weight:15,color:'#4d96ff'},
+    {key:'creativity',label:'创意',weight:10,color:'#c084fc'}
+  ]
+  const rows=dims.map(d=>{
+    const v=scores[d.key]||0
+    return h('div',{className:'dim-row'},[
+      h('div',{className:'dim-header'},[
+        h('span',{className:'dim-label'},d.label),
+        h('span',{className:'dim-weight'},d.weight+'%'),
+        h('span',{className:'dim-score',style:`color:${getScoreColor(v)}`},v)
+      ]),
+      h('div',{className:'bar-track'},
+        h('div',{className:'bar-fill',style:`width:${v}%;background:${d.color}`}))
+    ])
+  })
+  const legend=dims.map(d=>h('div',{className:'legend-item'},[
+    h('div',{className:'legend-dot',style:`background:${d.color}`}),
+    h('span',{},d.label+' '+d.weight+'%')
+  ]))
+  return h('div',{className:'radar'},[
+    h('div',{className:'radar-title'},'五维评分'),
+    ...rows,
+    h('div',{className:'legend'},legend)
+  ])
+}
+
+function renderParamPanel(params,scene){
+  const hasParams=params&&params.shutter
+  const items=[
+    {label:'快门速度',value:hasParams?params.shutter:'--',icon:'⏱'},
+    {label:'ISO 感光度',value:hasParams?params.iso:'--',icon:'📊'},
+    {label:'光圈',value:hasParams?params.aperture:'--',icon:'🔆'},
+    {label:'白平衡',value:hasParams?params.wb:'--',icon:'🎨'},
+    {label:'对焦点',value:hasParams?params.focus:'--',icon:'🎯'}
+  ]
+  const grid=items.map(it=>h('div',{className:'param-item'},[
+    h('div',{className:'param-icon'},it.icon),
+    h('div',{className:'param-label'},it.label),
+    h('div',{className:'param-val'+(hasParams?' active':'')},it.value)
+  ]))
+  const children=[h('div',{className:'panel-title',style:'font-size:15px;font-weight:bold;color:#fff;margin-bottom:12px'},'推荐参数'),h('div',{className:'params-grid'},grid)]
+  if(scene)children.unshift(h('div',{className:'scene-tag'},
+    h('span',{className:'scene-text'},'📍 '+scene)))
+  return h('div',{className:'param-panel'},children)
+}
+
+function renderPhotoCard(item){
+  const rj=item.result_json||{}
+  const modeMap={shooting:'📷 拍摄指导',edit:'🔧 修图建议',score:'⭐ 评分评价'}
+  const clsMap={shooting:'mode-shooting',edit:'mode-edit',score:'mode-score'}
+  let summary=''
+  if(rj.comment)summary=rj.comment.slice(0,40)+(rj.comment.length>40?'...':'')
+  else if(rj.advice)summary=rj.advice.slice(0,40)+(rj.advice.length>40?'...':'')
+  else if(rj.scene)summary=rj.scene
+  return h('div',{className:'photo-card'},[
+    h('div',{className:'card-body'},[
+      h('div',{className:'card-header'},[
+        h('span',{className:'card-mode '+clsMap[item.mode]},modeMap[item.mode]||item.mode),
+        rj.score!=null?h('span',{className:'card-score'},rj.score+'分'):''
+      ]),
+      rj.scene?h('div',{className:'card-scene'},rj.scene):'',
+      summary?h('div',{className:'card-summary'},summary):'',
+      h('div',{className:'card-footer'},[
+        h('span',{className:'card-date'},item.created_at),
+        h('span',{className:'card-arrow'},'›')
+      ])
+    ])
+  ])
+}
+
+// ============ State ============
+let gridMode='thirds',currentScene=null
+
+// ============ Pages ============
+function renderUpload(){
+  return h('div',{className:'page'},[
+    h('div',{className:'upload-header'},[
+      h('div',{className:'upload-title'},'光影参谋'),
+      h('div',{className:'upload-subtitle'},'AI 摄影构图成长伴侣')
+    ]),
+    h('div',{className:'select-cards'},[
+      h('div',{className:'select-card'},[h('div',{className:'icon'},'🖼️'),h('div',{className:'label'},'从相册选择')]),
+      h('div',{className:'select-card'},[h('div',{className:'icon'},'📸'),h('div',{className:'label'},'拍摄照片')])
+    ]),
+    h('div',{className:'mode-selector'},[
+      h('div',{className:'section-label'},'选择分析模式'),
+      h('div',{className:'mode-list'},[
+        h('div',{className:'mode-item',onclick:()=>switchToPage('result-shooting')},[h('span',{className:'mi-icon'},'📷'),h('span',{className:'mi-name'},'拍摄指导'),h('span',{className:'mi-desc'},'这个场景怎么拍？')]),
+        h('div',{className:'mode-item',onclick:()=>{}},                     [h('span',{className:'mi-icon'},'🔧'),h('span',{className:'mi-name'},'修图建议'),h('span',{className:'mi-desc'},'怎么后期调色修图？')]),
+        h('div',{className:'mode-item active',onclick:()=>switchToPage('result-score')},[h('span',{className:'mi-icon'},'⭐'),h('span',{className:'mi-name'},'评分评价'),h('span',{className:'mi-desc'},'这张照片打几分？')])
+      ])
+    ]),
+    h('div',{style:'text-align:center;margin-top:20px'},
+      h('button',{className:'btn-analyze',onclick:()=>switchToPage('result-score')},'开始分析 (Mock)')),
+    h('div',{className:'nav-bar'},[
+      h('div',{className:'nav-item',onclick:()=>switchToPage('gallery')},'📋 历史'),
+      h('div',{className:'nav-item',onclick:()=>switchToPage('camera')},'📸 实拍'),
+      h('div',{className:'nav-item',onclick:()=>switchToPage('growth')},'🌟 成长')
+    ])
+  ])
+}
+
+function renderCamera(){
+  return h('div',{className:'page',style:'background:#000'},[
+    h('div',{className:'header',style:'background:#111'},[
+      h('span',{className:'header-back',onclick:()=>switchToPage('upload')},'←'),
+      h('span',{style:'font-size:14px;color:#ffd700'},'场景: '+(currentScene||'自动检测')),
+      h('span',{style:'cursor:pointer',onclick:()=>{currentScene=['夜景','人像','风景','美食','室内'][Math.floor(Math.random()*5)];refreshPage()}},'🔄')
+    ]),
+    h('div',{className:'preview-area'},[
+      h('span',{className:'placeholder'},'📷'),
+      h('div',{className:'composition-overlay',id:'compOverlay'})
+    ]),
+    renderParamPanel(null,currentScene),
+    h('div',{className:'grid-control'},[
+      h('div',{className:'control-label'},'构图线: '+({off:'关闭',thirds:'三分法',golden:'黄金分割',crosshair:'十字线'}[gridMode])),
+      h('div',{className:'grid-btns'},['off','thirds','golden','crosshair'].map(m=>
+        h('div',{className:'grid-btn'+(m===gridMode?' active':''),onclick:()=>{gridMode=m;updateCompLines();refreshPage()}},[['关闭','三分法','黄金分割','十字线'][['off','thirds','golden','crosshair'].indexOf(m)]])
+      ))
+    ]),
+    h('div',{className:'action-bar'},h('div',{className:'btn-shoot',onclick:()=>switchToPage('upload')},'📸')),
+    h('div',{className:'nav-bar'},[
+      h('div',{className:'nav-item',onclick:()=>switchToPage('gallery')},'📋 历史'),
+      h('div',{className:'nav-item',onclick:()=>switchToPage('upload')},'🖼️ 选图'),
+      h('div',{className:'nav-item',onclick:()=>switchToPage('growth')},'🌟 成长')
+    ])
+  ])
+}
+
+function updateCompLines(){
+  setTimeout(()=>{
+    const ov=$('#compOverlay');if(!ov)return;ov.innerHTML=''
+    if(gridMode==='off')return
+    const lines=[]
+    if(gridMode==='thirds'){
+      lines.push('<div class="comp-line-h" style="top:33.33%"></div>','<div class="comp-line-h" style="top:66.66%"></div>','<div class="comp-line-v" style="left:33.33%"></div>','<div class="comp-line-v" style="left:66.66%"></div>')
+    }else if(gridMode==='golden'){
+      lines.push('<div class="comp-line-h" style="top:38.2%"></div>','<div class="comp-line-h" style="top:61.8%"></div>','<div class="comp-line-v" style="left:38.2%"></div>','<div class="comp-line-v" style="left:61.8%"></div>')
+    }else if(gridMode==='crosshair'){
+      lines.push('<div class="comp-line-h" style="top:50%;background:rgba(255,255,255,0.45)"></div>','<div class="comp-line-v" style="left:50%;background:rgba(255,255,255,0.45)"></div>')
+    }
+    ov.innerHTML=lines.join('')
+  },50)
+}
+
+function renderResultScore(){
+  const d=MOCK_SCORE
+  return h('div',{className:'page'},[
+    h('div',{className:'header'},[
+      h('span',{className:'header-back',onclick:()=>switchToPage('upload')},'← 返回'),
+      h('span',{className:'header-title'},'评分评价'),
+      h('span')
+    ]),
+    h('div',{className:'score-circle-wrap'},[
+      h('span',{className:'score-big',style:`color:${getScoreColor(d.score)}`},d.score),
+      h('span',{className:'score-unit'},'分')
+    ]),
+    h('div',{style:'text-align:center;margin-bottom:20px'},
+      h('span',{className:'score-badge',style:`color:${getScoreColor(d.score)}`},getScoreLabel(d.score))),
+    renderScoreRadar(d.scores),
+    h('div',{className:'comment-box',style:'margin-top:16px'},[
+      h('div',{className:'section-label'},'AI 评价'),
+      h('div',{style:'font-size:14px;line-height:22px;margin-top:6px;color:#ccc'},d.comment)
+    ]),
+    d.exp_gained?h('div',{className:'exp-box'},'🎉 经验 +'+d.exp_gained):'',
+    d.level_up?h('div',{className:'level-up-box'},'🎊 升级！Lv.'+d.level_up.old_level+' → Lv.'+d.level_up.new_level):'',
+    d.badge_unlocked&&d.badge_unlocked.length?h('div',{className:'badge-unlock'},[
+      h('div',{className:'blabel'},'🏅 新勋章解锁'),
+      ...d.badge_unlocked.map(b=>h('div',{style:'padding:4px 14px;border-radius:4px;background:#2a2a1e;margin:2px;display:inline-block;font-size:14px;color:#fff'},b))
+    ]):'',
+    h('div',{className:'bottom-bar'},[
+      h('div',{className:'bottom-btn',onclick:()=>switchToPage('upload')},'继续分析'),
+      h('div',{className:'bottom-btn',onclick:()=>switchToPage('gallery')},'历史记录'),
+      h('div',{className:'bottom-btn primary',onclick:()=>switchToPage('growth')},'成长体系')
+    ])
+  ])
+}
+
+function renderResultShooting(){
+  const d=MOCK_SHOOTING
+  return h('div',{className:'page'},[
+    h('div',{className:'header'},[
+      h('span',{className:'header-back',onclick:()=>switchToPage('upload')},'← 返回'),
+      h('span',{className:'header-title'},'拍摄指导'),
+      h('span')
+    ]),
+    h('div',{className:'shooting-section'},[
+      h('div',{className:'scene-box'},[h('span',{className:'info-label'},'场景识别: '),h('span',{className:'scene-value'},d.scene)]),
+      h('div',{className:'section-label'},'推荐参数'),
+      renderParamPanel(d.camera_params,d.scene),
+      h('div',{className:'section-label',style:'margin-top:16px'},'构图建议'),
+      ...(d.composition_tips||[]).map(t=>h('div',{className:'bullet-item'},[h('span',{},'●'),h('span',{className:'bullet-text'},t)])),
+      h('div',{className:'section-label',style:'margin-top:16px'},'用光建议'),
+      h('div',{className:'advice-block'},d.lighting_advice),
+      h('div',{className:'section-label',style:'margin-top:16px'},'额外提示'),
+      h('div',{className:'advice-block'},d.extra_tips)
+    ]),
+    h('div',{className:'bottom-bar'},[
+      h('div',{className:'bottom-btn',onclick:()=>switchToPage('upload')},'继续分析'),
+      h('div',{className:'bottom-btn',onclick:()=>switchToPage('gallery')},'历史记录'),
+      h('div',{className:'bottom-btn primary',onclick:()=>switchToPage('growth')},'成长体系')
+    ])
+  ])
+}
+
+function renderGallery(){
+  return h('div',{className:'page'},[
+    h('div',{className:'header'},[
+      h('span',{className:'header-back',onclick:()=>switchToPage('upload')},'← 返回'),
+      h('span',{className:'header-title'},'历史记录'),
+      h('span')
+    ]),
+    MOCK_GALLERY.length===0
+      ?h('div',{className:'empty-state'},[h('div',{className:'empty-icon'},'📭'),h('div',{className:'empty-text'},'暂无分析记录'),h('div',{className:'empty-hint'},'去分析一张照片吧')])
+      :h('div',{style:'margin-top:10px'},MOCK_GALLERY.map(item=>renderPhotoCard(item))),
+    h('div',{className:'nav-bar'},[
+      h('div',{className:'nav-item',onclick:()=>switchToPage('upload')},'🖼️ 选图'),
+      h('div',{className:'nav-item',onclick:()=>switchToPage('camera')},'📸 实拍'),
+      h('div',{className:'nav-item',onclick:()=>switchToPage('growth')},'🌟 成长')
+    ])
+  ])
+}
+
+function renderGrowth(){
+  const u=MOCK_USER
+  return h('div',{className:'page'},[
+    h('div',{className:'header'},[
+      h('span',{className:'header-back',onclick:()=>switchToPage('upload')},'← 返回'),
+      h('span',{className:'header-title'},'我的成长'),
+      h('span')
+    ]),
+    h('div',{className:'growth-content'},[
+      h('div',{className:'level-card-wrap'},renderLevelBadge(u.level,u.exp)),
+      h('div',{className:'badge-section'},[
+        h('div',{className:'section-label'},'🏅 勋章 ('+u.badges.length+'/3)'),
+        u.badges.length?h('div',{className:'badge-list'},u.badges.map(b=>h('div',{className:'badge-tag'},b)))
+        :h('div',{style:'font-size:13px;color:#666'},'还没有获得勋章，快去分析照片吧')
+      ]),
+      h('div',{},[h('div',{className:'section-label'},'📊 统计'),
+        h('div',{className:'stats-grid'},[
+          h('div',{className:'stat-item'},[h('div',{className:'stat-num'},u.total_analyses),h('div',{className:'stat-label'},'累计分析')]),
+          h('div',{className:'stat-item'},[h('div',{className:'stat-num'},u.level),h('div',{className:'stat-label'},'当前等级')]),
+          h('div',{className:'stat-item'},[h('div',{className:'stat-num'},u.badges.length),h('div',{className:'stat-label'},'获得勋章')])
+        ])
+      ])
+    ]),
+    h('div',{className:'bottom-bar'},h('div',{className:'bottom-btn primary',onclick:()=>switchToPage('upload')},'返回'))
+  ])
+}
+
+// ============ Router ============
+const pages={
+  'upload':renderUpload,
+  'camera':renderCamera,
+  'result-score':renderResultScore,
+  'result-shooting':renderResultShooting,
+  'gallery':renderGallery,
+  'growth':renderGrowth
+}
+
+let currentPage='upload'
+function switchToPage(name){
+  currentPage=name
+  refreshPage()
+  $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.page===name))
+}
+
+function refreshPage(){
+  const container=$('#pages')
+  container.innerHTML=''
+  if(pages[currentPage])container.appendChild(pages[currentPage]())
+  if(currentPage==='camera')updateCompLines()
+}
+
+// ============ Init ============
+$$('.tab').forEach(tab=>{tab.addEventListener('click',()=>switchToPage(tab.dataset.page))})
+refreshPage()
+</script>
+</body>
+</html>

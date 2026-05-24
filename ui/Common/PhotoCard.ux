@@ -1,0 +1,200 @@
+<script>
+export default {
+  props: {
+    item: {
+      default: null
+    }
+  },
+
+  computed: {
+    modeLabel: function () {
+      const item = this.item
+      if (!item) return ''
+      const modeMap = {
+        shooting: '📷 拍摄指导',
+        edit: '🔧 修图建议',
+        score: '⭐ 评分评价'
+      }
+      return modeMap[item.mode] || item.mode
+    },
+
+    modeClass: function () {
+      const item = this.item
+      if (!item) return ''
+      const classMap = {
+        shooting: 'mode-shooting',
+        edit: 'mode-edit',
+        score: 'mode-score'
+      }
+      return classMap[item.mode] || ''
+    },
+
+    scoreText: function () {
+      const item = this.item
+      if (!item) return ''
+      const rj = item.result_json
+      if (rj && rj.score != null) {
+        return rj.score + '分'
+      }
+      return ''
+    },
+
+    sceneText: function () {
+      const item = this.item
+      if (!item) return ''
+      const rj = item.result_json
+      if (rj && rj.scene) {
+        return rj.scene
+      }
+      return ''
+    },
+
+    summaryText: function () {
+      const item = this.item
+      if (!item) return ''
+      const rj = item.result_json
+      if (!rj) return ''
+      if (rj.comment) {
+        const text = rj.comment.length > 40 ? rj.comment.slice(0, 40) + '...' : rj.comment
+        return text
+      }
+      if (rj.advice) {
+        const text = rj.advice.length > 40 ? rj.advice.slice(0, 40) + '...' : rj.advice
+        return text
+      }
+      if (rj.scene) return rj.scene
+      return ''
+    },
+
+    dateText: function () {
+      const item = this.item
+      if (!item) return ''
+      return item.created_at || ''
+    },
+
+    thumbSrc: function () {
+      const item = this.item
+      if (!item) return ''
+      return item.thumb_url || ''
+    }
+  },
+
+  onClick() {
+    this.$emit('click', { id: this.item ? this.item.id : '' })
+  }
+}
+</script>
+
+<template>
+  <div if="{{item}}" class="photo-card" onclick="onClick">
+    <div if="{{thumbSrc}}" class="card-thumb">
+      <image class="thumb-img" src="{{thumbSrc}}"></image>
+    </div>
+
+    <div class="card-body">
+      <div class="card-header">
+        <text class="card-mode {{modeClass}}">{{modeLabel}}</text>
+        <text if="{{scoreText}}" class="card-score">{{scoreText}}</text>
+      </div>
+
+      <text if="{{sceneText}}" class="card-scene">{{sceneText}}</text>
+      <text if="{{summaryText}}" class="card-summary">{{summaryText}}</text>
+
+      <div class="card-footer">
+        <text class="card-date">{{dateText}}</text>
+        <text class="card-arrow">›</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .photo-card {
+    flex-direction: row;
+    padding: 14px 16px;
+    margin: 0 20px 10px 20px;
+    border-radius: 12px;
+    background-color: #1a1a2e;
+    align-items: center;
+  }
+
+  .card-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    background-color: #2a2a3e;
+    margin-right: 12px;
+    overflow: hidden;
+  }
+
+  .thumb-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+  }
+
+  .card-body {
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .card-mode {
+    font-size: 13px;
+    font-weight: bold;
+    color: #ccc;
+  }
+
+  .mode-shooting {
+    color: #4d96ff;
+  }
+
+  .mode-edit {
+    color: #c084fc;
+  }
+
+  .mode-score {
+    color: #ffd700;
+  }
+
+  .card-score {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .card-scene {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .card-summary {
+    font-size: 12px;
+    color: #666;
+    line-height: 18px;
+  }
+
+  .card-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .card-date {
+    font-size: 11px;
+    color: #555;
+  }
+
+  .card-arrow {
+    font-size: 18px;
+    color: #555;
+  }
+</style>
