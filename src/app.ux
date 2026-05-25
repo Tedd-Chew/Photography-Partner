@@ -1,5 +1,7 @@
 <script>
 import router from '@system.router'
+import { store } from './store/index.js'
+import { getUid } from './helper/storage.js'
 
 export default {
   data: {
@@ -8,7 +10,10 @@ export default {
   },
 
   onInit() {
-    // 获取设备 ID，初始化用户
+    getUid().then((uid) => {
+      this.uid = uid
+      store.setUser({ uid })
+    })
   },
 
   navigateTo(page) {
