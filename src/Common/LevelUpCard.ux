@@ -1,15 +1,25 @@
-<!--
-  升级提示卡片 — 绿底
-  占位符: {oldLevel} {newLevel} 替换为 Lv.2 → Lv.3
-  占位符: {oldName} {newName} = 称号
--->
 <template>
-  <div class="level-up-card">
+  <div class="level-up-card" if="{{show}}">
     <text class="level-up-icon">🎉</text>
     <text class="level-up-text">升级了！</text>
-    <text class="level-up-detail">摄影学徒 → 摄影达人</text>
+    <text class="level-up-detail">{{oldName}} → {{newName}}</text>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    oldName: { default: '' },
+    newName: { default: '' }
+  },
+
+  computed: {
+    show() {
+      return !!(this.oldName && this.newName)
+    }
+  }
+}
+</script>
 
 <style>
   .level-up-card {

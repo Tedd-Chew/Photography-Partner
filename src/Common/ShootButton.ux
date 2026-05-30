@@ -1,14 +1,18 @@
-<!--
-  圆形拍照按钮
-  位于相机页底部居中
--->
 <template>
   <div class="action-bar">
-    <div class="btn-shoot">
+    <div class="btn-shoot" onclick="onClick">
       <text class="shoot-icon">📸</text>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  onClick() {
+    this.$emit('click')
+  }
+}
+</script>
 
 <style>
   .action-bar {

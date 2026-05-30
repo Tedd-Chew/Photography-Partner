@@ -1,14 +1,18 @@
-<!--
-  勋章解锁提示卡片 — 金色动画背景
-  占位符: {badgeName} = 勋章名
--->
 <template>
-  <div class="badge-unlock-card">
+  <div class="badge-unlock-card" if="{{name}}">
     <text class="badge-unlock-icon">🏅</text>
     <text class="badge-unlock-text">新勋章解锁！</text>
-    <text class="badge-unlock-name">首战告捷</text>
+    <text class="badge-unlock-name">{{name}}</text>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    name: { default: '' }
+  }
+}
+</script>
 
 <style>
   .badge-unlock-card {

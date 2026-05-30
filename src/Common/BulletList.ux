@@ -1,30 +1,25 @@
-<!--
-  要点列表 — 用于构图建议、优缺点等列表展示
-  数据由前端通过 for 循环传入
-  占位符: {icon} = 列表图标（📐 💡 ✅ ⚡ …）
-  占位符: {title} = 列表标题
-  占位符: {items} = 数组 [{ text: "..." }]
--->
 <template>
   <div class="bullet-section">
     <div class="bullet-header">
-      <text class="bullet-icon">📐</text>
-      <text class="bullet-title">构图建议</text>
+      <text class="bullet-icon">{{icon}}</text>
+      <text class="bullet-title">{{title}}</text>
     </div>
-    <div class="bullet-item">
+    <div class="bullet-item" for="text in items">
       <text class="bullet-marker">•</text>
-      <text class="bullet-text">人物置于画面右侧三分线</text>
-    </div>
-    <div class="bullet-item">
-      <text class="bullet-marker">•</text>
-      <text class="bullet-text">利用路边栏杆作引导线</text>
-    </div>
-    <div class="bullet-item">
-      <text class="bullet-marker">•</text>
-      <text class="bullet-text">左侧留白，让画面呼吸</text>
+      <text class="bullet-text">{{text}}</text>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    icon: { default: '📐' },
+    title: { default: '' },
+    items: { default: () => [] }
+  }
+}
+</script>
 
 <style>
   .bullet-section {

@@ -1,14 +1,17 @@
-<!--
-  场景标签 — 小 badge 样式
-  占位符: {sceneName} = 场景名（夜景人像/风景/美食…）
-  占位符: {color} = 标签色，默认 ff9800
--->
 <template>
   <div class="scene-tag">
     <text class="scene-dot">●</text>
-    <text class="scene-name">夜景人像</text>
+    <text class="scene-name">{{name}}</text>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    name: { default: '' }
+  }
+}
+</script>
 
 <style>
   .scene-tag {

@@ -1,9 +1,9 @@
 {
   "router": {
-    "entry": "Upload",
+    "entry": "Camera",
     "pages": {
-      "Upload":  { "component": "index" },
       "Camera":  { "component": "index" },
+      "Upload":  { "component": "index" },
       "Result":  { "component": "index" },
       "Gallery": { "component": "index" },
       "Growth":  { "component": "index" }
@@ -14,11 +14,6 @@
     "titleBarBackgroundColor": "#1a1a2e",
     "backgroundColor": "#0f0f23"
   },
-  "package": "com.photography.partner",
-  "name": "光影参谋",
-  "versionName": "1.0.0",
-  "versionCode": 1,
-  "minPlatformVersion": 1050,
   "features": [
     { "name": "system.media" },
     { "name": "system.fetch" },

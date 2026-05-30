@@ -1,13 +1,17 @@
-<!--
-  经验获得提示卡片 — 暗金底色
-  占位符: {exp} = +25
--->
 <template>
   <div class="exp-gain-card">
     <text class="exp-icon">✨</text>
-    <text class="exp-text">本次获得 +25 经验</text>
+    <text class="exp-text">本次获得 +{{exp}} 经验</text>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    exp: { default: 0 }
+  }
+}
+</script>
 
 <style>
   .exp-gain-card {

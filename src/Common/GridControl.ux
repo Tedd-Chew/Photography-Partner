@@ -1,26 +1,41 @@
-<!--
-  构图线切换按钮组 — 4 种模式
-  前端自己加 onclick + active 状态切换
--->
 <template>
   <div class="grid-control">
-    <text class="control-label">构图线: 三分法</text>
+    <text class="control-label">构图线: {{label}}</text>
     <div class="grid-btns">
-      <div class="grid-btn">
+      <div class="grid-btn {{value === 'off' ? 'active' : ''}}" onclick="onChange('off')">
         <text>关闭</text>
       </div>
-      <div class="grid-btn active">
+      <div class="grid-btn {{value === 'thirds' ? 'active' : ''}}" onclick="onChange('thirds')">
         <text>三分法</text>
       </div>
-      <div class="grid-btn">
+      <div class="grid-btn {{value === 'golden' ? 'active' : ''}}" onclick="onChange('golden')">
         <text>黄金分割</text>
       </div>
-      <div class="grid-btn">
+      <div class="grid-btn {{value === 'crosshair' ? 'active' : ''}}" onclick="onChange('crosshair')">
         <text>十字线</text>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    value: { default: 'thirds' }
+  },
+
+  computed: {
+    label() {
+      const map = { off: '关闭', thirds: '三分法', golden: '黄金分割', crosshair: '十字线' }
+      return map[this.value] || '三分法'
+    }
+  },
+
+  onChange(mode) {
+    this.$emit('change', mode)
+  }
+}
+</script>
 
 <style>
   .grid-control {

@@ -1,0 +1,85 @@
+<template>
+  <div class="stats-panel">
+    <div class="stats-header">
+      <text class="stats-icon">📊</text>
+      <text class="stats-title">统计</text>
+    </div>
+
+    <div class="stats-row" for="row in rows">
+      <div class="stat-item" for="s in row">
+        <text class="stat-num">{{s.value}}</text>
+        <text class="stat-label">{{s.label}}</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    rows: {
+      default: () => [
+        [
+          { value: 0, label: '累计分析' },
+          { value: 0, label: '平均分' },
+          { value: 0, label: '获得勋章' }
+        ],
+        [
+          { value: 0, label: '最高分' },
+          { value: 0, label: '总经验' },
+          { value: 0, label: '连续打卡' }
+        ]
+      ]
+    }
+  }
+}
+</script>
+
+<style>
+  .stats-panel {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 20px 20px 20px;
+  }
+
+  .stats-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .stats-icon {
+    font-size: 16px;
+    margin-right: 6px;
+  }
+
+  .stats-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #cccccc;
+  }
+
+  .stats-row {
+    flex-direction: row;
+    margin-bottom: 14px;
+  }
+
+  .stat-item {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-num {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #888888;
+  }
+</style>

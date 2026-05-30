@@ -1,18 +1,20 @@
-<!--
-  AI 评价纯文本卡片
-  占位符: {comment} = AI 评价文本（前端传入）
--->
 <template>
   <div class="advice-card">
     <div class="advice-header">
       <text class="advice-icon">🤖</text>
       <text class="advice-title">AI 评价</text>
     </div>
-    <text class="advice-body">
-      这张照片整体不错！构图把人物放在三分线位置很舒服。可以改进的是背景稍微过曝了，下次试试降低曝光补偿。
-    </text>
+    <text class="advice-body">{{comment}}</text>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    comment: { default: '' }
+  }
+}
+</script>
 
 <style>
   .advice-card {
