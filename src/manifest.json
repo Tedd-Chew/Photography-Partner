@@ -5,7 +5,8 @@
       "Camera":  { "component": "index" },
       "Upload":  { "component": "index" },
       "Result":  { "component": "index" },
-      "Gallery": { "component": "index" }
+      "Gallery": { "component": "index" },
+      "Growth":  { "component": "index" }
     }
   },
   "display": {

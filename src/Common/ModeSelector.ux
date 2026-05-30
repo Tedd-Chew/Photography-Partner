@@ -1,0 +1,96 @@
+<template>
+  <div class="mode-selector">
+    <div class="mode-option {{value === 'shooting' ? 'mode-selected' : ''}}" onclick="onChange('shooting')">
+      <text class="mode-icon">📷</text>
+      <text class="{{value === 'shooting' ? 'mode-name-selected' : 'mode-name'}}">拍摄指导</text>
+      <text class="{{value === 'shooting' ? 'mode-desc-selected' : 'mode-desc'}}">推荐相机参数</text>
+    </div>
+
+    <div class="mode-divider"></div>
+
+    <div class="mode-option {{value === 'edit' ? 'mode-selected' : ''}}" onclick="onChange('edit')">
+      <text class="mode-icon">🔧</text>
+      <text class="{{value === 'edit' ? 'mode-name-selected' : 'mode-name'}}">修图建议</text>
+      <text class="{{value === 'edit' ? 'mode-desc-selected' : 'mode-desc'}}">后期调色指导</text>
+    </div>
+
+    <div class="mode-divider"></div>
+
+    <div class="mode-option {{value === 'score' ? 'mode-selected' : ''}}" onclick="onChange('score')">
+      <text class="mode-icon">⭐</text>
+      <text class="{{value === 'score' ? 'mode-name-selected' : 'mode-name'}}">评分评价</text>
+      <text class="{{value === 'score' ? 'mode-desc-selected' : 'mode-desc'}}">五维打分反馈</text>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    value: { default: 'score' }
+  },
+
+  onChange(mode) {
+    this.$emit('change', mode)
+  }
+}
+</script>
+
+<style>
+  .mode-selector {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    margin: 0 20px;
+  }
+
+  .mode-option {
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 8px 0;
+    border-bottom-width: 2px;
+    border-bottom-color: transparent;
+  }
+
+  .mode-option.mode-selected {
+    border-bottom-color: #ffd700;
+  }
+
+  .mode-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .mode-name {
+    font-size: 13px;
+    color: #888888;
+    margin-bottom: 2px;
+  }
+
+  .mode-name-selected {
+    font-size: 13px;
+    color: #ffd700;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+
+  .mode-desc {
+    font-size: 11px;
+    color: #555555;
+  }
+
+  .mode-desc-selected {
+    font-size: 11px;
+    color: #888888;
+  }
+
+  .mode-divider {
+    width: 1px;
+    height: 40px;
+    background-color: #2a2a3e;
+  }
+</style>

@@ -1,0 +1,44 @@
+<template>
+  <div class="badge-unlock-card" if="{{name}}">
+    <text class="badge-unlock-icon">🏅</text>
+    <text class="badge-unlock-text">新勋章解锁！</text>
+    <text class="badge-unlock-name">{{name}}</text>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    name: { default: '' }
+  }
+}
+</script>
+
+<style>
+  .badge-unlock-card {
+    flex-direction: column;
+    align-items: center;
+    background-color: #2a2a1e;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    padding: 16px;
+    margin: 8px 20px;
+  }
+
+  .badge-unlock-icon {
+    font-size: 36px;
+    margin-bottom: 6px;
+  }
+
+  .badge-unlock-text {
+    font-size: 16px;
+    color: #ffd700;
+    font-weight: bold;
+  }
+
+  .badge-unlock-name {
+    font-size: 20px;
+    color: #ffd700;
+    margin-top: 4px;
+  }
+</style>

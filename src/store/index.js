@@ -1,15 +1,62 @@
-// 全局状态管理
+import { getCache, saveCache } from '../helper/storage'
+
 export const store = {
   state: {
     user: {
       uid: '',
+      nickname: '',
       level: 1,
       exp: 0,
-      badges: []
+      badges: [],
+      totalAnalyses: 0
     },
-    // 当前分析结果（Result 页用）
+
+    camera: {
+      scene: null,
+      gridMode: 'thirds',
+      params: { shutter: null, iso: null, aperture: null, wb: null, focus: null }
+    },
+
     analysis: null,
-    // 分析历史缓存（Gallery 页用，本地存满再从后端拉）
+
     history: []
+  },
+
+  setUser(data) {
+    Object.assign(this.state.user, data)
+    saveCache('user', this.state.user)
+  },
+
+  setCameraParams(scene, params) {
+    this.state.camera.scene = scene
+    this.state.camera.params = params
+  },
+
+  setAnalysis(data) {
+    this.state.analysis = data
+    if (data.exp_gained) {
+      this.state.user.exp += data.exp_gained
+    }
+    if (data.level_up && data.level_up.new_level) {
+      this.state.user.level = data.level_up.new_level
+    }
+    if (data.badge_unlocked && data.badge_unlocked.length) {
+      const badges = this.state.user.badges
+      for (let i = 0; i < data.badge_unlocked.length; i++) {
+        if (badges.indexOf(data.badge_unlocked[i]) === -1) {
+          badges.push(data.badge_unlocked[i])
+        }
+      }
+    }
+    this.state.user.totalAnalyses += 1
+    saveCache('user', this.state.user)
+  },
+
+  setHistory(list) {
+    this.state.history = list
+  },
+
+  clearAnalysis() {
+    this.state.analysis = null
   }
 }

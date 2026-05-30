@@ -1,41 +1,90 @@
+<import name="top-bar" src="../Common/TopBar.ux"></import>
+<import name="camera-box" src="../Common/CameraBox.ux"></import>
+<import name="scene-tag" src="../Common/SceneTag.ux"></import>
+<import name="grid-control" src="../Common/GridControl.ux"></import>
+<import name="shoot-button" src="../Common/ShootButton.ux"></import>
+<import name="param-panel" src="../Common/ParamPanel.ux"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+    <top-bar title="拍摄指导"></top-bar>
+
+    <camera-box grid-mode="{{gridMode}}"></camera-box>
+
+    <div if="{{scene}}" class="scene-wrap">
+      <scene-tag name="{{scene}}"></scene-tag>
+    </div>
+
+    <grid-control value="{{gridMode}}" @change="onGridChange"></grid-control>
+
+    <param-panel params="{{params}}" scene="{{scene}}"></param-panel>
+
+    <shoot-button @click="onTakePhoto"></shoot-button>
+
+    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+  </div>
+</template>
+
 <script>
+import { store } from '../store/index'
+import { analyzePhoto } from '../services/api'
+
+const SCENE_PRESETS = {
+  '夜景': { shutter: '1/50', iso: '1600', aperture: 'f/2.8', wb: '4000K', focus: '画面中心对焦' },
+  '人像': { shutter: '1/250', iso: '200', aperture: 'f/2.8', wb: '5500K', focus: '人物面部单点对焦' },
+  '风景': { shutter: '1/125', iso: '100', aperture: 'f/8', wb: '5500K', focus: '全域对焦' },
+  '街拍': { shutter: '1/500', iso: '400', aperture: 'f/5.6', wb: '5500K', focus: '中央重点对焦' }
+}
+
 export default {
   data: {
     scene: null,
     gridMode: 'thirds',
-    params: { shutter: null, iso: null, wb: null }
+    params: { shutter: null, iso: null, aperture: null, wb: null, focus: null },
+    navTabs: [
+      { icon: '📋', label: '历史' },
+      { icon: '🖼️', label: '选图' },
+      { icon: '🌟', label: '成长' }
+    ]
   },
-
-  onInit() {},
 
   onReady() {
-    // 首次自动检测场景（仅一次）
-  },
-
-  detectScene() {
-    // POST /api/scene/detect
-  },
-
-  onRefreshParams() {
-    // 手动刷新
     this.detectScene()
   },
 
+  async detectScene() {
+    this.scene = '夜景'
+    const preset = SCENE_PRESETS['夜景']
+    if (preset) {
+      this.params = Object.assign({}, preset)
+    }
+    store.setCameraParams(this.scene, this.params)
+  },
+
+  onRefreshParams() {
+    this.detectScene()
+  },
+
+  onGridChange(mode) {
+    this.gridMode = mode
+    store.state.camera.gridMode = mode
+  },
+
   onTakePhoto() {
-    // 拍照 → 可跳转 Analysis
+    this.$app.navigateTo('Upload')
   }
 }
 </script>
 
-<template>
-  <div class="page">
-    <!-- TODO: camera 组件 -->
-    <!-- TODO: 构图参考线组件 -->
-    <!-- TODO: 参数面板 -->
-    <text>Camera Page</text>
-  </div>
-</template>
-
 <style>
-  .page { flex-direction: column; }
+  .page {
+    flex-direction: column;
+    flex: 1;
+    background-color: #0f0f23;
+  }
+
+  .scene-wrap {
+    padding: 8px 20px;
+  }
 </style>

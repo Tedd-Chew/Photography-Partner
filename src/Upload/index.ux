@@ -1,12 +1,49 @@
+<import name="top-bar" src="../Common/TopBar.ux"></import>
+<import name="image-picker" src="../Common/ImagePicker.ux"></import>
+<import name="mode-selector" src="../Common/ModeSelector.ux"></import>
+<import name="loading-overlay" src="../Common/LoadingOverlay.ux"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+    <top-bar title="选择分析模式"></top-bar>
+
+    <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
+
+    <mode-selector value="{{mode}}" @change="onModeChange"></mode-selector>
+
+    <div if="{{selectedImage}}" class="preview-wrap">
+      <text class="preview-label">已选择照片</text>
+      <image class="preview-img" src="{{selectedImage}}"></image>
+    </div>
+
+    <div class="analyze-wrap">
+      <div class="analyze-btn {{selectedImage ? '' : 'disabled'}}" onclick="onAnalyze">
+        <text class="analyze-btn-text">开始分析</text>
+      </div>
+    </div>
+
+    <loading-overlay show="{{loading}}"></loading-overlay>
+
+    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+  </div>
+</template>
+
 <script>
 import media from '@system.media'
 import { analyzePhoto } from '../services/api'
+import { store } from '../store/index'
 
 export default {
   data: {
     selectedImage: null,
     mode: 'shooting',
-    loading: false
+    loading: false,
+    navTabs: [
+      { icon: '📋', label: '历史' },
+      { icon: '🖼️', label: '选图' },
+      { icon: '🌟', label: '成长' }
+    ]
   },
 
   onPickImage() {
@@ -25,24 +62,70 @@ export default {
     })
   },
 
+  onModeChange(mode) {
+    this.mode = mode
+  },
+
   async onAnalyze() {
     if (!this.selectedImage) return
     this.loading = true
-    const result = await analyzePhoto(this.selectedImage, this.mode)
-    this.loading = false
-    // 存本地缓存，跳转 Result 页
-    this.$app.navigateTo('Result', { result, localUri: this.selectedImage })
+    try {
+      const result = await analyzePhoto(this.selectedImage, this.mode)
+      store.setAnalysis(result)
+      this.loading = false
+      this.$app.navigateTo('Result', { result, localUri: this.selectedImage })
+    } catch (e) {
+      this.loading = false
+    }
   }
 }
 </script>
 
-<template>
-  <div class="page">
-    <!-- TODO: UI 同学实现 -->
-    <text>Upload Page</text>
-  </div>
-</template>
-
 <style>
-  .page { flex-direction: column; }
+  .page {
+    flex-direction: column;
+    flex: 1;
+    background-color: #0f0f23;
+  }
+
+  .preview-wrap {
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 20px;
+  }
+
+  .preview-label {
+    font-size: 13px;
+    color: #888888;
+    margin-bottom: 8px;
+  }
+
+  .preview-img {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    background-color: #1a1a2e;
+  }
+
+  .analyze-wrap {
+    padding: 16px 20px;
+  }
+
+  .analyze-btn {
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    background-color: #ffd700;
+  }
+
+  .analyze-btn.disabled {
+    background-color: #555555;
+  }
+
+  .analyze-btn-text {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000000;
+  }
 </style>

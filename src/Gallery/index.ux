@@ -1,24 +1,98 @@
+<import name="top-bar" src="../Common/TopBar.ux"></import>
+<import name="photo-card" src="../Common/PhotoCard.ux"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+    <top-bar title="历史记录"></top-bar>
+
+    <scroll class="content">
+      <div if="{{!items.length}}" class="empty-state">
+        <text class="empty-icon">📭</text>
+        <text class="empty-text">还没有分析记录</text>
+        <text class="empty-hint">去选图页面开始第一次分析吧</text>
+      </div>
+
+      <photo-card
+        for="item in items"
+        item="{{item}}"
+        @click="onCardClick">
+      </photo-card>
+    </scroll>
+
+    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+  </div>
+</template>
+
 <script>
+import { store } from '../store/index'
+import { getGallery, getGalleryDetail } from '../services/api'
+
 export default {
   data: {
     items: [],
     page: 1,
-    total: 0
+    total: 0,
+    navTabs: [
+      { icon: '📋', label: '历史' },
+      { icon: '🖼️', label: '选图' },
+      { icon: '🌟', label: '成长' }
+    ]
   },
 
-  onInit() {
-    // GET /api/gallery
+  async onInit() {
+    await this.loadGallery()
+  },
+
+  async loadGallery() {
+    const uid = store.state.user.uid
+    if (!uid) return
+    try {
+      const data = await getGallery(uid, this.page, 20)
+      this.items = data.items || []
+      this.total = data.total || 0
+      store.setHistory(this.items)
+    } catch (e) {}
+  },
+
+  onCardClick(item) {
+    this.$app.navigateTo('Result')
   }
 }
 </script>
 
-<template>
-  <div class="page">
-    <!-- TODO: PhotoCard 列表 -->
-    <text>Gallery Page</text>
-  </div>
-</template>
-
 <style>
-  .page { flex-direction: column; }
+  .page {
+    flex-direction: column;
+    flex: 1;
+    background-color: #0f0f23;
+  }
+
+  .content {
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .empty-state {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .empty-text {
+    font-size: 16px;
+    color: #888888;
+    margin-bottom: 4px;
+  }
+
+  .empty-hint {
+    font-size: 13px;
+    color: #555555;
+  }
 </style>

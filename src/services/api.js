@@ -1,8 +1,9 @@
 import fetch from '@system.fetch'
+import { compressImage, toBase64 } from '../helper/image'
 
 const BASE = 'http://YOUR_SERVER_IP:8000/api'
 
-async function request(method, path, body) {
+function request(method, path, body) {
   return new Promise((resolve, reject) => {
     fetch.fetch({
       url: BASE + path,
@@ -10,35 +11,76 @@ async function request(method, path, body) {
       header: { 'Content-Type': 'application/json' },
       data: body ? JSON.stringify(body) : '',
       responseType: 'json',
-      success: (res) => resolve(res.data),
+      success: (res) => {
+        const d = res.data
+        if (d && d.ok) {
+          resolve(d.data)
+        } else {
+          reject({ error: (d && d.error) || '请求失败' })
+        }
+      },
       fail: (err, code) => reject({ err, code })
     })
   })
 }
 
-// 上传文件（快应用 base64 方案）
 async function upload(path, filePath, extra = {}) {
-  // TODO: 前端图片压缩 + base64 → POST
+  const compressed = compressImage(filePath, 1024, 0.8)
+  const base64 = toBase64(compressed)
+
+  const boundary = '----PhotographyPartner' + Date.now()
+  const bodyParts = []
+  bodyParts.push('--' + boundary)
+  bodyParts.push('Content-Disposition: form-data; name="image"; filename="photo.jpg"')
+  bodyParts.push('Content-Type: image/jpeg')
+  bodyParts.push('')
+  bodyParts.push(base64)
+
+  const keys = Object.keys(extra)
+  for (let i = 0; i < keys.length; i++) {
+    bodyParts.push('--' + boundary)
+    bodyParts.push('Content-Disposition: form-data; name="' + keys[i] + '"')
+    bodyParts.push('')
+    bodyParts.push(String(extra[keys[i]]))
+  }
+  bodyParts.push('--' + boundary + '--')
+
+  const body = bodyParts.join('\r\n')
+
+  return new Promise((resolve, reject) => {
+    fetch.fetch({
+      url: BASE + path,
+      method: 'POST',
+      header: { 'Content-Type': 'multipart/form-data; boundary=' + boundary },
+      data: body,
+      responseType: 'json',
+      success: (res) => {
+        const d = res.data
+        if (d && d.ok) {
+          resolve(d.data)
+        } else {
+          reject({ error: (d && d.error) || '上传失败' })
+        }
+      },
+      fail: (err, code) => reject({ err, code })
+    })
+  })
 }
 
-// ====== 接口 ======
-
-// 照片分析（三种模式）
 export function analyzePhoto(imagePath, mode) {
   return upload('/analyze', imagePath, { mode })
 }
 
-// 用户信息
 export function getUserInfo(uid) {
-  return request('GET', `/user/info?uid=${uid}`)
+  return request('GET', '/user/info?uid=' + uid)
 }
 
-// 历史列表（Gallery 页）
-export function getGallery(uid, page = 1, size = 20) {
-  return request('GET', `/gallery?uid=${uid}&page=${page}&size=${size}`)
+export function getGallery(uid, page, size) {
+  page = page || 1
+  size = size || 20
+  return request('GET', '/gallery?uid=' + uid + '&page=' + page + '&size=' + size)
 }
 
-// 历史详情
 export function getGalleryDetail(id) {
-  return request('GET', `/gallery/${id}`)
+  return request('GET', '/gallery/' + id)
 }

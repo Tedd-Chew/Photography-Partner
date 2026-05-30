@@ -1,0 +1,49 @@
+<template>
+  <div class="advice-card">
+    <div class="advice-header">
+      <text class="advice-icon">🤖</text>
+      <text class="advice-title">AI 评价</text>
+    </div>
+    <text class="advice-body">{{comment}}</text>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    comment: { default: '' }
+  }
+}
+</script>
+
+<style>
+  .advice-card {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 20px;
+  }
+
+  .advice-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .advice-icon {
+    font-size: 16px;
+    margin-right: 6px;
+  }
+
+  .advice-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #cccccc;
+  }
+
+  .advice-body {
+    font-size: 15px;
+    color: #cccccc;
+    line-height: 24px;
+  }
+</style>

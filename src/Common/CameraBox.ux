@@ -1,0 +1,97 @@
+<template>
+  <div class="preview-area">
+    <div class="camera-placeholder">
+      <text class="placeholder-icon">📷</text>
+      <text class="placeholder-text">相机预览区域</text>
+      <text class="placeholder-hint">（需真机调试）</text>
+    </div>
+
+    <div class="composition-overlay" if="{{gridMode === 'thirds'}}">
+      <div class="h-line" style="top: 33.33%;"></div>
+      <div class="h-line" style="top: 66.66%;"></div>
+      <div class="v-line" style="left: 33.33%;"></div>
+      <div class="v-line" style="left: 66.66%;"></div>
+    </div>
+
+    <div class="composition-overlay" if="{{gridMode === 'golden'}}">
+      <div class="h-line" style="top: 38.2%;"></div>
+      <div class="h-line" style="top: 61.8%;"></div>
+      <div class="v-line" style="left: 38.2%;"></div>
+      <div class="v-line" style="left: 61.8%;"></div>
+    </div>
+
+    <div class="composition-overlay" if="{{gridMode === 'crosshair'}}">
+      <div class="h-line cross-line" style="top: 50%;"></div>
+      <div class="v-line cross-line" style="left: 50%;"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    gridMode: { default: 'thirds' }
+  }
+}
+</script>
+
+<style>
+  .preview-area {
+    position: relative;
+    height: 400px;
+    justify-content: center;
+    align-items: center;
+    background-color: #0a0a0a;
+    flex-direction: column;
+  }
+
+  .camera-placeholder {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .placeholder-icon {
+    font-size: 72px;
+  }
+
+  .placeholder-text {
+    font-size: 18px;
+    color: #888888;
+    margin-top: 12px;
+  }
+
+  .placeholder-hint {
+    font-size: 13px;
+    color: #555555;
+    margin-top: 4px;
+  }
+
+  .composition-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+
+  .h-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .v-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .cross-line {
+    background-color: rgba(255, 255, 255, 0.45);
+  }
+</style>

@@ -1,27 +1,147 @@
+<import name="top-bar" src="../Common/TopBar.ux"></import>
+<import name="score-circle" src="../Common/ScoreCircle.ux"></import>
+<import name="score-radar" src="../Common/ScoreRadar.ux"></import>
+<import name="advice-card" src="../Common/AdviceCard.ux"></import>
+<import name="issue-card" src="../Common/IssueCard.ux"></import>
+<import name="bullet-list" src="../Common/BulletList.ux"></import>
+<import name="param-panel" src="../Common/ParamPanel.ux"></import>
+<import name="exp-gain-card" src="../Common/ExpGainCard.ux"></import>
+<import name="level-up-card" src="../Common/LevelUpCard.ux"></import>
+<import name="badge-unlock-card" src="../Common/BadgeUnlockCard.ux"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+    <top-bar title="分析结果"></top-bar>
+
+    <scroll class="content">
+
+      <score-circle score="{{analysis.score || 0}}"></score-circle>
+
+      <score-radar if="{{mode === 'score'}}" scores="{{analysis.scores || {}}}"></score-radar>
+
+      <advice-card if="{{mode === 'edit'}}" comment="{{analysis.advice}}"></advice-card>
+
+      <advice-card if="{{mode === 'score'}}" comment="{{analysis.comment}}"></advice-card>
+
+      <param-panel if="{{mode === 'shooting'}}" params="{{analysis.camera_params || {}}}" scene="{{analysis.scene}}"></param-panel>
+
+      <bullet-list
+        if="{{analysis.composition_tips && analysis.composition_tips.length}}"
+        icon="📐"
+        title="构图建议"
+        items="{{analysis.composition_tips}}">
+      </bullet-list>
+
+      <div for="issue in analysis.issues" if="{{analysis.issues}}">
+        <issue-card item="{{issue}}"></issue-card>
+      </div>
+
+      <div if="{{analysis.lighting_advice && mode === 'shooting'}}" class="lighting-section">
+        <text class="lighting-label">💡 用光建议</text>
+        <text class="lighting-text">{{analysis.lighting_advice}}</text>
+      </div>
+
+      <div if="{{analysis.extra_tips && mode === 'shooting'}}" class="extra-section">
+        <text class="lighting-label">📝 额外建议</text>
+        <text class="lighting-text">{{analysis.extra_tips}}</text>
+      </div>
+
+      <exp-gain-card exp="{{analysis.exp_gained || 0}}"></exp-gain-card>
+
+      <level-up-card
+        if="{{levelUp}}"
+        old-name="{{oldLevelName}}"
+        new-name="{{newLevelName}}">
+      </level-up-card>
+
+      <badge-unlock-card
+        if="{{analysis.badge_unlocked && analysis.badge_unlocked.length}}"
+        name="{{analysis.badge_unlocked[0]}}">
+      </badge-unlock-card>
+
+    </scroll>
+
+    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+  </div>
+</template>
+
 <script>
+import { store } from '../store/index'
+
+const LEVEL_NAMES = ['', '摄影新手', '摄影学徒', '摄影达人', '摄影专家', '摄影大师', '光影艺术家']
+
 export default {
   data: {
-    result: null,
-    localUri: '',
-    mode: 'score'
+    mode: 'score',
+    analysis: {},
+    navTabs: [
+      { icon: '📋', label: '历史' },
+      { icon: '🖼️', label: '选图' },
+      { icon: '🌟', label: '成长' }
+    ]
+  },
+
+  computed: {
+    levelUp() {
+      const lu = this.analysis.level_up
+      return lu && lu.level_up
+    },
+    oldLevelName() {
+      const lu = this.analysis.level_up
+      return lu ? LEVEL_NAMES[lu.old_level] || '' : ''
+    },
+    newLevelName() {
+      const lu = this.analysis.level_up
+      return lu ? LEVEL_NAMES[lu.new_level] || '' : ''
+    }
   },
 
   onInit() {
-    // 接收 Upload 或 Camera 传来的分析结果
+    if (store.state.analysis) {
+      this.analysis = store.state.analysis
+      this.mode = store.state.analysis.mode || 'score'
+    }
   }
 }
 </script>
 
-<template>
-  <div class="page">
-    <!-- TODO: 模式选择按钮 -->
-    <!-- TODO: ScoreRadar 组件 -->
-    <!-- TODO: 修图建议列表 -->
-    <!-- TODO: 评分展示区 -->
-    <text>Result Page</text>
-  </div>
-</template>
-
 <style>
-  .page { flex-direction: column; }
+  .page {
+    flex-direction: column;
+    flex: 1;
+    background-color: #0f0f23;
+  }
+
+  .content {
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .lighting-section {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 20px;
+  }
+
+  .lighting-label {
+    font-size: 16px;
+    color: #cccccc;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .lighting-text {
+    font-size: 14px;
+    color: #cccccc;
+    line-height: 22px;
+  }
+
+  .extra-section {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 20px;
+  }
 </style>
