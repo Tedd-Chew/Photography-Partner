@@ -1,0 +1,33 @@
+<!--
+  经验获得提示卡片 — 暗金底色
+  占位符: {exp} = +25
+-->
+<template>
+  <div class="exp-gain-card">
+    <text class="exp-icon">✨</text>
+    <text class="exp-text">本次获得 +25 经验</text>
+  </div>
+</template>
+
+<style>
+  .exp-gain-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a2a1e;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 8px 20px;
+  }
+
+  .exp-icon {
+    font-size: 16px;
+    margin-right: 8px;
+  }
+
+  .exp-text {
+    font-size: 15px;
+    color: #ffd700;
+    font-weight: bold;
+  }
+</style>

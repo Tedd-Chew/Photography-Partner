@@ -1,0 +1,60 @@
+<!--
+  评分大字 — 超大分数 + 评价标签 + 副文本
+  占位符: {score} = 72px 大字
+  占位符: {color} = 根据分数动态: >=80 金 / >=60 橙 / <60 红
+  占位符: {suffixText} = 如 "/100 分"
+-->
+<template>
+  <div class="score-hero">
+    <div class="score-circle">
+      <text class="score-number">85</text>
+    </div>
+    <text class="score-suffix">/100 分</text>
+    <div class="score-tag">
+      <text class="score-tag-text">良好</text>
+    </div>
+  </div>
+</template>
+
+<style>
+  .score-hero {
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0 16px 0;
+  }
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 70px;
+    background-color: #1a1a2e;
+    border: 5px solid #ffd700;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .score-number {
+    font-size: 72px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .score-suffix {
+    font-size: 15px;
+    color: #888888;
+    margin-top: 8px;
+  }
+
+  .score-tag {
+    margin-top: 8px;
+    padding: 4px 16px;
+    border-radius: 12px;
+    background-color: rgba(255, 215, 0, 0.15);
+  }
+
+  .score-tag-text {
+    font-size: 15px;
+    color: #ffd700;
+    font-weight: bold;
+  }
+</style>

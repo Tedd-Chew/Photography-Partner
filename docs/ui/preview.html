@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>光影参谋 UI 组件预览</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0a0a1a;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  padding-bottom:60px;
+}
+h2{
+  font-size:22px;color:#ffd700;padding:20px 20px 12px;
+  border-bottom:2px solid #1a1a2e;margin-bottom:0;
+}
+h3{
+  font-size:16px;color:#888;padding:16px 20px 8px;
+}
+.page-wrap{
+  max-width:420px;margin:0 auto;
+  background:#0f0f23;min-height:100vh;
+  border-left:1px solid #1a1a2e;border-right:1px solid #1a1a2e;
+}
+
+/* ===== 通用 ===== */
+.row{display:flex;flex-direction:row}
+.col{display:flex;flex-direction:column}
+.aic{align-items:center}
+.jcc{justify-content:center}
+.rel{position:relative}
+.abs{position:absolute}
+.flex1{flex:1}
+.fw{flex-wrap:wrap}
+.w100{width:100%}
+
+/* ===== TopBar ===== */
+.top-bar{flex-direction:row;align-items:center;justify-content:space-between;padding:16px 20px;background-color:#1a1a2e}
+.top-bar .back-btn-text{font-size:15px;color:#ffd700}
+.top-bar .title{font-size:18px;font-weight:bold;color:#fff}
+.top-bar .spacer{width:60px}
+
+/* ===== BottomNav ===== */
+.bottom-nav{flex-direction:row;justify-content:space-around;padding:12px 0;background-color:#1a1a2e}
+.bottom-nav .nav-item{flex-direction:column;align-items:center}
+.bottom-nav .nav-icon{font-size:20px;margin-bottom:2px}
+.bottom-nav .nav-label{font-size:13px;color:#888}
+
+/* ===== CameraBox ===== */
+.preview-area{position:relative;height:340px;justify-content:center;align-items:center;background-color:#0a0a0a;flex-direction:column}
+.camera-placeholder{flex-direction:column;align-items:center}
+.placeholder-icon{font-size:72px}
+.placeholder-text{font-size:18px;color:#888;margin-top:12px}
+.placeholder-hint{font-size:13px;color:#555;margin-top:4px}
+.composition-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.composition-overlay .h-line{position:absolute;left:0;right:0;height:1px;background-color:rgba(255,255,255,.35)}
+.composition-overlay .v-line{position:absolute;top:0;bottom:0;width:1px;background-color:rgba(255,255,255,.35)}
+
+/* ===== ShootButton ===== */
+.action-bar{justify-content:center;padding:16px 20px;background:#0a0a0a}
+.btn-shoot{width:72px;height:72px;border-radius:36px;background-color:#fff;justify-content:center;align-items:center;border:4px solid #ffd700}
+.shoot-icon{font-size:18px}
+
+/* ===== GridControl ===== */
+.grid-control{flex-direction:column;padding:12px 15px;background-color:#111;border-top:1px solid #222}
+.control-label{font-size:13px;color:#888;margin-bottom:8px}
+.grid-btns{flex-direction:row}
+.grid-btn{padding:6px 14px;margin-right:8px;border-radius:6px;background-color:#222;font-size:12px;color:#fff;border:none;cursor:pointer}
+.grid-btn.active{background-color:#ffd700;color:#000}
+
+/* ===== ParamPanel ===== */
+.param-panel{background-color:#1a1a2e;border-radius:12px;padding:16px;margin:10px 16px}
+.panel-header{flex-direction:row;align-items:center;margin-bottom:12px}
+.panel-icon{font-size:16px;margin-right:6px}
+.panel-title{font-size:16px;font-weight:bold;color:#ffd700}
+.param-grid{flex-wrap:wrap}
+.param-item{width:50%;flex-direction:column;padding:8px 0}
+.param-item.param-full{width:100%}
+.param-label{font-size:12px;color:#888;margin-bottom:3px}
+.param-value{font-size:15px;color:#fff;font-weight:bold}
+
+/* ===== ScoreCircle ===== */
+.score-hero{flex-direction:column;align-items:center;padding:24px 0 16px}
+.score-circle{width:130px;height:130px;border-radius:65px;background-color:#1a1a2e;border:5px solid #ffd700;justify-content:center;align-items:center;margin:0 auto}
+.score-number{font-size:64px;font-weight:bold;color:#ffd700;text-align:center}
+.score-suffix{font-size:15px;color:#888;margin-top:8px;text-align:center}
+.score-tag-wrap{margin-top:8px;padding:4px 16px;border-radius:12px;background-color:rgba(255,215,0,.15);display:inline-block}
+.score-tag-text{font-size:15px;color:#ffd700;font-weight:bold}
+
+/* ===== ScoreRadar ===== */
+.radar-chart{background-color:#1a1a2e;border-radius:12px;padding:16px;margin:10px 16px}
+.radar-title{flex-direction:row;align-items:center;margin-bottom:14px}
+.section-icon{font-size:16px;margin-right:6px}
+.section-label{font-size:16px;font-weight:bold;color:#ccc}
+.dim-row{flex-direction:row;align-items:center;margin-bottom:10px}
+.dim-name{width:56px;font-size:14px;color:#ccc}
+.bar-track{flex:1;height:8px;border-radius:4px;background-color:#2a2a3e;margin-left:8px;margin-right:8px}
+.bar-fill{height:8px;border-radius:4px}
+.dim-score-num{width:28px;font-size:14px;color:#fff;font-weight:bold;text-align:right}
+.dim-weight{width:36px;font-size:12px;color:#666;text-align:right;margin-left:4px}
+
+/* ===== AdviceCard ===== */
+.advice-card{background-color:#1a1a2e;border-radius:12px;padding:16px;margin:10px 16px}
+.advice-header{flex-direction:row;align-items:center;margin-bottom:10px}
+.advice-icon{font-size:16px;margin-right:6px}
+.advice-title{font-size:16px;font-weight:bold;color:#ccc}
+.advice-body{font-size:15px;color:#ccc;line-height:24px}
+
+/* ===== IssueCard ===== */
+.issue-card{background-color:#1a1a2e;border-radius:12px;padding:14px 16px;margin:6px 16px;border-left:3px solid #f44336}
+.issue-card.issue-medium{border-left-color:#ff9800}
+.issue-card.issue-low{border-left-color:#4caf50}
+.issue-header{flex-direction:row;align-items:center;margin-bottom:8px}
+.severity-tag{padding:2px 8px;border-radius:4px;margin-right:8px;font-size:12px;font-weight:bold}
+.severity-tag.sev-high{background-color:rgba(244,67,54,.2);color:#f44336}
+.severity-tag.sev-medium{background-color:rgba(255,152,0,.2);color:#ff9800}
+.severity-tag.sev-low{background-color:rgba(76,175,80,.2);color:#4caf50}
+.issue-category{font-size:15px;color:#fff;font-weight:bold}
+.issue-desc{font-size:14px;color:#ccc;margin-bottom:6px}
+.issue-suggestion{flex-direction:row}
+.suggestion-label{font-size:13px;color:#888}
+.suggestion-text{font-size:13px;color:#4d96ff;flex:1}
+
+/* ===== BulletList ===== */
+.bullet-section{background-color:#1a1a2e;border-radius:12px;padding:16px;margin:8px 16px}
+.bullet-header{flex-direction:row;align-items:center;margin-bottom:10px}
+.bullet-icon{font-size:16px;margin-right:6px}
+.bullet-title{font-size:16px;font-weight:bold;color:#ccc}
+.bullet-item{flex-direction:row;align-items:flex-start;margin-bottom:8px}
+.bullet-marker{font-size:14px;color:#ffd700;margin-right:8px;margin-top:2px;flex-shrink:0}
+.bullet-text{font-size:14px;color:#ccc;flex:1;line-height:22px}
+
+/* ===== SceneTag ===== */
+.scene-tag-wrap{flex-direction:row;align-items:center;padding:4px 12px;border-radius:12px;background-color:rgba(255,152,0,.15);border:1px solid rgba(255,152,0,.3);display:inline-flex}
+.scene-dot{font-size:10px;color:#ff9800;margin-right:5px}
+.scene-name{font-size:13px;color:#ff9800;font-weight:bold}
+
+/* ===== ExpGainCard ===== */
+.exp-gain-card{flex-direction:row;align-items:center;justify-content:center;background-color:#2a2a1e;border-radius:12px;padding:14px;margin:8px 16px}
+.exp-icon{font-size:16px;margin-right:8px}
+.exp-text{font-size:15px;color:#ffd700;font-weight:bold}
+
+/* ===== LevelUpCard ===== */
+.level-up-card{flex-direction:column;align-items:center;background-color:#1e2a1e;border-radius:12px;padding:16px;margin:8px 16px}
+.level-up-icon{font-size:28px;margin-bottom:6px}
+.level-up-text{font-size:18px;color:#4caf50;font-weight:bold}
+.level-up-detail{font-size:13px;color:#81c784;margin-top:4px}
+
+/* ===== BadgeUnlockCard ===== */
+.badge-unlock-card{flex-direction:column;align-items:center;background-color:#2a2a1e;border-radius:12px;border:1px solid rgba(255,215,0,.3);padding:16px;margin:8px 16px}
+.badge-unlock-icon{font-size:36px;margin-bottom:6px}
+.badge-unlock-text{font-size:16px;color:#ffd700;font-weight:bold}
+.badge-unlock-name{font-size:20px;color:#ffd700;margin-top:4px}
+
+/* ===== ModeSelector ===== */
+.mode-selector{flex-direction:row;justify-content:space-around;align-items:center;padding:12px 0;background-color:#1a1a2e;border-radius:12px;margin:0 16px}
+.mode-option{flex-direction:column;align-items:center;flex:1;padding:8px 0;border-bottom:2px solid transparent}
+.mode-option.mode-selected{border-bottom-color:#ffd700}
+.mode-icon{font-size:24px;margin-bottom:4px}
+.mode-name{font-size:13px;color:#888;margin-bottom:2px}
+.mode-name-selected{font-size:13px;color:#ffd700;font-weight:bold;margin-bottom:2px}
+.mode-desc{font-size:11px;color:#555}
+.mode-desc-selected{font-size:11px;color:#888}
+.mode-divider{width:1px;height:40px;background-color:#2a2a3e}
+
+/* ===== ImagePicker ===== */
+.picker-entry{flex-direction:column;align-items:center;padding:24px 16px}
+.picker-btn{flex-direction:row;align-items:center;justify-content:center;width:100%;max-width:300px;margin-bottom:12px;padding:18px;border-radius:12px;background-color:#1a1a2e;border:1px solid #2a2a3e}
+.picker-icon-text{font-size:24px;margin-right:12px}
+.picker-label{font-size:16px;color:#fff;font-weight:bold}
+
+/* ===== PhotoCard ===== */
+.photo-card{flex-direction:row;align-items:center;background-color:#1a1a2e;border-radius:12px;padding:12px;margin:6px 16px}
+.card-image{width:56px;height:56px;border-radius:8px;margin-right:12px;flex-shrink:0}
+.card-thumb-bg{width:56px;height:56px;border-radius:8px;background-color:#2a2a3e;justify-content:center;align-items:center}
+.card-thumb-icon{font-size:24px}
+.card-body{flex:1;flex-direction:column;min-width:0}
+.card-tags{flex-direction:row;margin-bottom:6px}
+.card-mode-tag{padding:2px 8px;border-radius:4px;margin-right:6px;display:inline-block;font-size:11px}
+.card-mode-tag.mode-shooting{background-color:rgba(77,150,255,.15);color:#4d96ff}
+.card-mode-tag.mode-edit{background-color:rgba(192,132,252,.15);color:#c084fc}
+.card-mode-tag.mode-score{background-color:rgba(255,215,0,.15);color:#ffd700}
+.card-summary{font-size:14px;color:#ccc;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-time{font-size:11px;color:#555}
+.card-arrow{padding:4px;font-size:16px;color:#888;flex-shrink:0}
+
+/* ===== LevelBadge ===== */
+.level-badge-wrap{flex-direction:row;align-items:center;background-color:#1a1a2e;border-radius:12px;padding:16px;margin:10px 16px}
+.badge-circle{width:64px;height:64px;border-radius:32px;border:4px solid #4fc3f7;background-color:rgba(79,195,247,.1);justify-content:center;align-items:center;flex-direction:column;margin-right:16px;flex-shrink:0}
+.badge-lv-label{font-size:12px;color:#4fc3f7}
+.badge-lv-num{font-size:24px;font-weight:bold;color:#4fc3f7}
+.level-info{flex:1;flex-direction:column}
+.level-name{font-size:18px;font-weight:bold;color:#fff;margin-bottom:8px}
+.exp-bar-track{height:6px;border-radius:3px;background-color:#2a2a3e;margin-bottom:4px}
+.exp-bar-fill{height:6px;border-radius:3px;background-color:#4fc3f7}
+.exp-bar-text{font-size:12px;color:#888}
+
+/* ===== BadgeTag ===== */
+.badge-tag{flex-direction:row;align-items:center;padding:6px 12px;border-radius:20px;background-color:#2a2a1e;border:1px solid rgba(255,215,0,.25);margin-right:8px;margin-bottom:8px;display:inline-flex}
+.badge-tag-icon{font-size:14px;margin-right:4px}
+.badge-tag-name{font-size:13px;color:#ffd700}
+
+/* ===== StatsPanel ===== */
+.stats-panel{background-color:#1a1a2e;border-radius:12px;padding:16px;margin:8px 16px 20px}
+.stats-header{flex-direction:row;align-items:center;margin-bottom:14px}
+.stats-icon{font-size:16px;margin-right:6px}
+.stats-title{font-size:16px;font-weight:bold;color:#ccc}
+.stats-row{flex-direction:row;margin-bottom:14px}
+.stat-item{flex:1;flex-direction:column;align-items:center;text-align:center}
+.stat-num{font-size:24px;font-weight:bold;color:#ffd700;margin-bottom:2px}
+.stat-label{font-size:12px;color:#888}
+
+/* ===== LoadingOverlay ===== */
+.loading-bg{background-color:rgba(10,10,26,.92);flex-direction:column;justify-content:center;align-items:center;padding:60px 20px;margin:10px 16px;border-radius:12px}
+.loading-spinner{font-size:48px;margin-bottom:16px}
+.loading-text{font-size:18px;color:#ffd700;font-weight:bold;margin-bottom:8px}
+.loading-hint-text{font-size:13px;color:#888}
+
+/* ===== 设计规范速查 ===== */
+.ref-table{width:calc(100% - 32px);margin:10px 16px;border-collapse:collapse}
+.ref-table td,.ref-table th{padding:6px 10px;font-size:13px;border-bottom:1px solid #1a1a2e;text-align:left}
+.ref-table th{color:#888;font-weight:normal}
+.ref-table .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+.section-divider{height:1px;background:#1a1a2e;margin:16px 0}
+.tag-row{flex-direction:row;flex-wrap:wrap;padding:0 16px 8px}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+<!-- =============================================== -->
+<h2>📱 Camera 页</h2>
+
+<h3>TopBar</h3>
+<div class="top-bar">
+  <div class="back-btn-text">← 返回</div>
+  <div class="title">拍摄指导</div>
+  <div class="spacer"></div>
+</div>
+
+<h3>CameraBox + SceneTag</h3>
+<div class="preview-area">
+  <div class="camera-placeholder">
+    <div class="placeholder-icon">📷</div>
+    <div class="placeholder-text">相机预览区域</div>
+    <div class="placeholder-hint">（需真机调试）</div>
+  </div>
+  <div class="composition-overlay">
+    <div class="h-line" style="top:33.33%"></div>
+    <div class="h-line" style="top:66.66%"></div>
+    <div class="v-line" style="left:33.33%"></div>
+    <div class="v-line" style="left:66.66%"></div>
+  </div>
+  <div class="abs" style="top:12px;left:12px">
+    <div class="scene-tag-wrap">
+      <div class="scene-dot">●</div>
+      <div class="scene-name">夜景人像</div>
+    </div>
+  </div>
+</div>
+
+<h3>GridControl</h3>
+<div class="grid-control">
+  <div class="control-label">构图线: 三分法</div>
+  <div class="grid-btns">
+    <div class="grid-btn">关闭</div>
+    <div class="grid-btn active">三分法</div>
+    <div class="grid-btn">黄金分割</div>
+    <div class="grid-btn">十字线</div>
+  </div>
+</div>
+
+<h3>ShootButton</h3>
+<div class="action-bar">
+  <div class="btn-shoot"><div class="shoot-icon">📸</div></div>
+</div>
+
+<h3>ParamPanel</h3>
+<div class="param-panel">
+  <div class="panel-header">
+    <div class="panel-icon">📷</div>
+    <div class="panel-title">建议参数</div>
+  </div>
+  <div class="param-grid row fw">
+    <div class="param-item"><div class="param-label">快门速度</div><div class="param-value">1/30s</div></div>
+    <div class="param-item"><div class="param-label">ISO 感光度</div><div class="param-value">800</div></div>
+    <div class="param-item"><div class="param-label">光圈</div><div class="param-value">f/2.8</div></div>
+    <div class="param-item"><div class="param-label">白平衡</div><div class="param-value">4000K</div></div>
+    <div class="param-item param-full"><div class="param-label">对焦建议</div><div class="param-value">人物面部单点对焦</div></div>
+  </div>
+</div>
+
+<!-- =============================================== -->
+<div class="section-divider"></div>
+<h2>⭐ Result 页</h2>
+
+<h3>ScoreCircle</h3>
+<div class="score-hero">
+  <div class="score-circle"><div class="score-number">85</div></div>
+  <div class="score-suffix">/100 分</div>
+  <div class="score-tag-wrap"><div class="score-tag-text">良好</div></div>
+</div>
+
+<h3>ScoreRadar</h3>
+<div class="radar-chart">
+  <div class="radar-title"><div class="section-icon">📊</div><div class="section-label">五维评分</div></div>
+  <div class="dim-row"><div class="dim-name">构图</div><div class="bar-track"><div class="bar-fill" style="width:85%;background:#ff6b6b"></div></div><div class="dim-score-num">85</div><div class="dim-weight">30%</div></div>
+  <div class="dim-row"><div class="dim-name">曝光</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:#ffd93d"></div></div><div class="dim-score-num">72</div><div class="dim-weight">25%</div></div>
+  <div class="dim-row"><div class="dim-name">色彩</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#6bcb77"></div></div><div class="dim-score-num">80</div><div class="dim-weight">20%</div></div>
+  <div class="dim-row"><div class="dim-name">清晰度</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:#4d96ff"></div></div><div class="dim-score-num">90</div><div class="dim-weight">15%</div></div>
+  <div class="dim-row"><div class="dim-name">创意</div><div class="bar-track"><div class="bar-fill" style="width:65%;background:#c084fc"></div></div><div class="dim-score-num">65</div><div class="dim-weight">10%</div></div>
+</div>
+
+<h3>AdviceCard</h3>
+<div class="advice-card">
+  <div class="advice-header"><div class="advice-icon">🤖</div><div class="advice-title">AI 评价</div></div>
+  <div class="advice-body">这张照片整体不错！构图把人物放在三分线位置很舒服。可以改进的是背景稍微过曝了，下次试试降低曝光补偿。</div>
+</div>
+
+<h3>IssueCard x3 (高/中/低)</h3>
+<div class="issue-card">
+  <div class="issue-header"><span class="severity-tag sev-high">严重</span><span class="issue-category">曝光不足</span></div>
+  <div class="issue-desc">主体面部偏暗，背景高光溢出</div>
+  <div class="issue-suggestion row"><div class="suggestion-label">建议：</div><div class="suggestion-text">增加曝光 +0.5EV，压低高光</div></div>
+</div>
+<div class="issue-card issue-medium">
+  <div class="issue-header"><span class="severity-tag sev-medium">中等</span><span class="issue-category">色温偏冷</span></div>
+  <div class="issue-desc">画面整体偏蓝，肤色不自然</div>
+  <div class="issue-suggestion row"><div class="suggestion-label">建议：</div><div class="suggestion-text">白平衡调至 5500K 暖色</div></div>
+</div>
+<div class="issue-card issue-low">
+  <div class="issue-header"><span class="severity-tag sev-low">轻微</span><span class="issue-category">锐度略低</span></div>
+  <div class="issue-desc">边缘细节稍显模糊</div>
+  <div class="issue-suggestion row"><div class="suggestion-label">建议：</div><div class="suggestion-text">适当增加锐化 +15</div></div>
+</div>
+
+<h3>BulletList</h3>
+<div class="bullet-section">
+  <div class="bullet-header"><div class="bullet-icon">📐</div><div class="bullet-title">构图建议</div></div>
+  <div class="bullet-item"><div class="bullet-marker">•</div><div class="bullet-text">人物置于画面右侧三分线</div></div>
+  <div class="bullet-item"><div class="bullet-marker">•</div><div class="bullet-text">利用路边栏杆作引导线</div></div>
+  <div class="bullet-item"><div class="bullet-marker">•</div><div class="bullet-text">左侧留白，让画面呼吸</div></div>
+</div>
+
+<h3>ExpGainCard</h3>
+<div class="exp-gain-card"><div class="exp-icon">✨</div><div class="exp-text">本次获得 +25 经验</div></div>
+
+<h3>LevelUpCard</h3>
+<div class="level-up-card">
+  <div class="level-up-icon">🎉</div>
+  <div class="level-up-text">升级了！</div>
+  <div class="level-up-detail">摄影学徒 → 摄影达人</div>
+</div>
+
+<h3>BadgeUnlockCard</h3>
+<div class="badge-unlock-card">
+  <div class="badge-unlock-icon">🏅</div>
+  <div class="badge-unlock-text">新勋章解锁！</div>
+  <div class="badge-unlock-name">首战告捷</div>
+</div>
+
+<!-- =============================================== -->
+<div class="section-divider"></div>
+<h2>📁 Upload 页</h2>
+
+<h3>ImagePicker</h3>
+<div class="picker-entry">
+  <div class="picker-btn"><div class="picker-icon-text">📷</div><div class="picker-label">打开相机拍照</div></div>
+  <div class="picker-btn"><div class="picker-icon-text">🖼️</div><div class="picker-label">从相册选择</div></div>
+</div>
+
+<h3>ModeSelector</h3>
+<div class="mode-selector row">
+  <div class="mode-option"><div class="mode-icon">📷</div><div class="mode-name">拍摄指导</div><div class="mode-desc">推荐相机参数</div></div>
+  <div class="mode-divider"></div>
+  <div class="mode-option mode-selected"><div class="mode-icon">🔧</div><div class="mode-name-selected">修图建议</div><div class="mode-desc-selected">后期调色指导</div></div>
+  <div class="mode-divider"></div>
+  <div class="mode-option"><div class="mode-icon">⭐</div><div class="mode-name">评分评价</div><div class="mode-desc">五维打分反馈</div></div>
+</div>
+
+<!-- =============================================== -->
+<div class="section-divider"></div>
+<h2>🖼️ Gallery 页</h2>
+
+<h3>PhotoCard x3（三种模式）</h3>
+<div class="photo-card">
+  <div class="card-image"><div class="card-thumb-bg"><div class="card-thumb-icon">🖼️</div></div></div>
+  <div class="card-body">
+    <div class="card-tags"><span class="card-mode-tag mode-shooting">📷 拍摄</span></div>
+    <div class="card-summary">夜景人像 · 快门 1/30s, ISO 800</div>
+    <div class="card-time">2026-05-14 15:30</div>
+  </div>
+  <div class="card-arrow">〉</div>
+</div>
+<div class="photo-card">
+  <div class="card-image"><div class="card-thumb-bg"><div class="card-thumb-icon">🖼️</div></div></div>
+  <div class="card-body">
+    <div class="card-tags"><span class="card-mode-tag mode-edit">🔧 修图</span></div>
+    <div class="card-summary">调一下色温往暖色偏一点约5500K...</div>
+    <div class="card-time">2026-05-13 20:15</div>
+  </div>
+  <div class="card-arrow">〉</div>
+</div>
+<div class="photo-card">
+  <div class="card-image"><div class="card-thumb-bg"><div class="card-thumb-icon">🖼️</div></div></div>
+  <div class="card-body">
+    <div class="card-tags"><span class="card-mode-tag mode-score">⭐ 评分</span></div>
+    <div class="card-summary">⭐ 78 分 · 构图不错可以改进背景过曝</div>
+    <div class="card-time">2026-05-12 11:00</div>
+  </div>
+  <div class="card-arrow">〉</div>
+</div>
+
+<!-- =============================================== -->
+<div class="section-divider"></div>
+<h2>🌟 Growth 页</h2>
+
+<h3>LevelBadge</h3>
+<div class="level-badge-wrap">
+  <div class="badge-circle"><div class="badge-lv-label">Lv</div><div class="badge-lv-num">3</div></div>
+  <div class="level-info">
+    <div class="level-name">摄影达人</div>
+    <div class="exp-bar-track"><div class="exp-bar-fill" style="width:70%"></div></div>
+    <div class="exp-bar-text">420 / 600</div>
+  </div>
+</div>
+
+<h3>BadgeTag 列表</h3>
+<div class="tag-row">
+  <div class="badge-tag"><div class="badge-tag-icon">🏅</div><div class="badge-tag-name">高分达人</div></div>
+  <div class="badge-tag"><div class="badge-tag-icon">🏅</div><div class="badge-tag-name">首战告捷</div></div>
+  <div style="font-size:13px;color:#666;padding:6px 4px">（剩余 1 枚未解锁）</div>
+</div>
+
+<h3>StatsPanel</h3>
+<div class="stats-panel">
+  <div class="stats-header"><div class="stats-icon">📊</div><div class="stats-title">统计</div></div>
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num">23</div><div class="stat-label">累计分析</div></div>
+    <div class="stat-item"><div class="stat-num">76.5</div><div class="stat-label">平均分</div></div>
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">获得勋章</div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num">92</div><div class="stat-label">最高分</div></div>
+    <div class="stat-item"><div class="stat-num">420</div><div class="stat-label">总经验</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">连续打卡</div></div>
+  </div>
+</div>
+
+<!-- =============================================== -->
+<div class="section-divider"></div>
+<h2>⏳ 通用组件</h2>
+
+<h3>LoadingOverlay</h3>
+<div class="loading-bg">
+  <div class="loading-spinner">⏳</div>
+  <div class="loading-text">AI 分析中...</div>
+  <div class="loading-hint-text">正在识别场景并生成建议</div>
+</div>
+
+<h3>BottomNav</h3>
+<div class="bottom-nav">
+  <div class="nav-item"><div class="nav-icon">📋</div><div class="nav-label">历史</div></div>
+  <div class="nav-item"><div class="nav-icon">🖼️</div><div class="nav-label">选图</div></div>
+  <div class="nav-item"><div class="nav-icon">🌟</div><div class="nav-label">成长</div></div>
+</div>
+
+<!-- =============================================== -->
+<div class="section-divider"></div>
+<h2>🎨 设计规范速查</h2>
+
+<h3>色彩系统</h3>
+<table class="ref-table">
+  <tr><th>用途</th><th>色值</th></tr>
+  <tr><td>页面背景</td><td><span class="swatch" style="background:#0f0f23"></span>#0f0f23</td></tr>
+  <tr><td>卡片背景</td><td><span class="swatch" style="background:#1a1a2e"></span>#1a1a2e</td></tr>
+  <tr><td>主色/金色</td><td><span class="swatch" style="background:#ffd700"></span>#ffd700</td></tr>
+  <tr><td>文字主色</td><td><span class="swatch" style="background:#ffffff"></span>#ffffff</td></tr>
+  <tr><td>次要文字</td><td><span class="swatch" style="background:#cccccc"></span>#cccccc</td></tr>
+  <tr><td>辅助文字</td><td><span class="swatch" style="background:#888888"></span>#888888</td></tr>
+  <tr><td>成功绿</td><td><span class="swatch" style="background:#4caf50"></span>#4caf50</td></tr>
+  <tr><td>警告橙</td><td><span class="swatch" style="background:#ff9800"></span>#ff9800</td></tr>
+  <tr><td>错误红</td><td><span class="swatch" style="background:#f44336"></span>#f44336</td></tr>
+</table>
+
+<h3>等级颜色</h3>
+<div class="tag-row" style="gap:6px">
+  <div class="badge-tag" style="color:#9e9e9e;background:rgba(158,158,158,.1);border:1px solid rgba(158,158,158,.2)">Lv1 摄影新手</div>
+  <div class="badge-tag" style="color:#81c784;background:rgba(129,199,132,.1);border:1px solid rgba(129,199,132,.2)">Lv2 摄影学徒</div>
+  <div class="badge-tag" style="color:#4fc3f7;background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.2)">Lv3 摄影达人</div>
+  <div class="badge-tag" style="color:#ba68c8;background:rgba(186,104,200,.1);border:1px solid rgba(186,104,200,.2)">Lv4 摄影专家</div>
+  <div class="badge-tag" style="color:#ffd700;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2)">Lv5 摄影大师</div>
+  <div class="badge-tag" style="color:#ff6d00;background:rgba(255,109,0,.1);border:1px solid rgba(255,109,0,.2)">Lv6 光影艺术家</div>
+</div>
+
+<h3>五维评分颜色</h3>
+<div class="tag-row" style="gap:6px">
+  <div class="badge-tag" style="color:#ff6b6b;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.2)">构图 30%</div>
+  <div class="badge-tag" style="color:#ffd93d;background:rgba(255,217,61,.1);border:1px solid rgba(255,217,61,.2)">曝光 25%</div>
+  <div class="badge-tag" style="color:#6bcb77;background:rgba(107,203,119,.1);border:1px solid rgba(107,203,119,.2)">色彩 20%</div>
+  <div class="badge-tag" style="color:#4d96ff;background:rgba(77,150,255,.1);border:1px solid rgba(77,150,255,.2)">清晰度 15%</div>
+  <div class="badge-tag" style="color:#c084fc;background:rgba(192,132,252,.1);border:1px solid rgba(192,132,252,.2)">创意 10%</div>
+</div>
+
+</div><!-- /page-wrap -->
+
+</body>
+</html>

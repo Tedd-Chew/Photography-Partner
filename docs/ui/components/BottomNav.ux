@@ -1,0 +1,45 @@
+<!--
+  底部导航标签栏 — 3 个入口
+  占位符: {tab1}/{tab2}/{tab3} = 标签文字
+  占位符: {icon1}/{icon2}/{icon3} = emoji 图标
+-->
+<template>
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <text class="nav-icon">📋</text>
+      <text class="nav-label">历史</text>
+    </div>
+    <div class="nav-item">
+      <text class="nav-icon">🖼️</text>
+      <text class="nav-label">选图</text>
+    </div>
+    <div class="nav-item">
+      <text class="nav-icon">🌟</text>
+      <text class="nav-label">成长</text>
+    </div>
+  </div>
+</template>
+
+<style>
+  .bottom-nav {
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 12px 0;
+    background-color: #1a1a2e;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+
+  .nav-label {
+    font-size: 13px;
+    color: #888888;
+  }
+</style>

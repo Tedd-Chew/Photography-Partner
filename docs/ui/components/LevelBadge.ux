@@ -1,0 +1,86 @@
+<!--
+  等级勋章 — 大圆勋章 + 进度条 + Lv 数字
+  占位符: {level} = 1-6 替换颜色
+  占位符: {exp} / {expToNext} = 进度
+  颜色见 README.md 等级颜色表
+-->
+<template>
+  <div class="level-badge-wrap">
+    <div class="badge-circle">
+      <text class="badge-lv-label">Lv</text>
+      <text class="badge-lv-num">3</text>
+    </div>
+
+    <div class="level-info">
+      <text class="level-name">摄影达人</text>
+      <div class="exp-bar-track">
+        <div class="exp-bar-fill" style="width: 70%;"></div>
+      </div>
+      <text class="exp-text">420 / 600</text>
+    </div>
+  </div>
+</template>
+
+<style>
+  .level-badge-wrap {
+    flex-direction: row;
+    align-items: center;
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 0 20px;
+  }
+
+  .badge-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
+    border: 4px solid #4fc3f7;
+    background-color: rgba(79, 195, 247, 0.1);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-right: 16px;
+  }
+
+  .badge-lv-label {
+    font-size: 12px;
+    color: #4fc3f7;
+  }
+
+  .badge-lv-num {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4fc3f7;
+  }
+
+  .level-info {
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .level-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  .exp-bar-track {
+    height: 6px;
+    border-radius: 3px;
+    background-color: #2a2a3e;
+    margin-bottom: 4px;
+  }
+
+  .exp-bar-fill {
+    height: 6px;
+    border-radius: 3px;
+    background-color: #4fc3f7;
+  }
+
+  .exp-text {
+    font-size: 12px;
+    color: #888888;
+  }
+</style>
