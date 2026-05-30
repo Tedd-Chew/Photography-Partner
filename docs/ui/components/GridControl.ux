@@ -1,0 +1,62 @@
+<!--
+  构图线切换按钮组 — 4 种模式
+  前端自己加 onclick + active 状态切换
+-->
+<template>
+  <div class="grid-control">
+    <text class="control-label">构图线: 三分法</text>
+    <div class="grid-btns">
+      <div class="grid-btn">
+        <text>关闭</text>
+      </div>
+      <div class="grid-btn active">
+        <text>三分法</text>
+      </div>
+      <div class="grid-btn">
+        <text>黄金分割</text>
+      </div>
+      <div class="grid-btn">
+        <text>十字线</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .grid-control {
+    flex-direction: column;
+    padding: 12px 15px;
+    background-color: #111111;
+    border-top: 1px solid #222222;
+  }
+
+  .control-label {
+    font-size: 13px;
+    color: #888888;
+    margin-bottom: 8px;
+  }
+
+  .grid-btns {
+    flex-direction: row;
+  }
+
+  .grid-btn {
+    padding: 6px 14px;
+    margin-right: 8px;
+    border-radius: 6px;
+    background-color: #222222;
+  }
+
+  .grid-btn text {
+    font-size: 12px;
+    color: #ffffff;
+  }
+
+  .grid-btn.active {
+    background-color: #ffd700;
+  }
+
+  .grid-btn.active text {
+    color: #000000;
+  }
+</style>

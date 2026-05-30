@@ -1,0 +1,73 @@
+<!--
+  要点列表 — 用于构图建议、优缺点等列表展示
+  数据由前端通过 for 循环传入
+  占位符: {icon} = 列表图标（📐 💡 ✅ ⚡ …）
+  占位符: {title} = 列表标题
+  占位符: {items} = 数组 [{ text: "..." }]
+-->
+<template>
+  <div class="bullet-section">
+    <div class="bullet-header">
+      <text class="bullet-icon">📐</text>
+      <text class="bullet-title">构图建议</text>
+    </div>
+    <div class="bullet-item">
+      <text class="bullet-marker">•</text>
+      <text class="bullet-text">人物置于画面右侧三分线</text>
+    </div>
+    <div class="bullet-item">
+      <text class="bullet-marker">•</text>
+      <text class="bullet-text">利用路边栏杆作引导线</text>
+    </div>
+    <div class="bullet-item">
+      <text class="bullet-marker">•</text>
+      <text class="bullet-text">左侧留白，让画面呼吸</text>
+    </div>
+  </div>
+</template>
+
+<style>
+  .bullet-section {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 20px;
+  }
+
+  .bullet-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .bullet-icon {
+    font-size: 16px;
+    margin-right: 6px;
+  }
+
+  .bullet-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #cccccc;
+  }
+
+  .bullet-item {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .bullet-marker {
+    font-size: 14px;
+    color: #ffd700;
+    margin-right: 8px;
+    margin-top: 2px;
+  }
+
+  .bullet-text {
+    font-size: 14px;
+    color: #cccccc;
+    flex: 1;
+    line-height: 22px;
+  }
+</style>
