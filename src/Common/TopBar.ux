@@ -1,17 +1,24 @@
-<!--
-  顶部导航栏
-  占位符: {title} 替换为页面标题
-  占位符: {titleBarBackgroundColor} = #1a1a2e
--->
 <template>
   <div class="top-bar">
-    <div class="back-btn">
+    <div class="back-btn" onclick="onBack">
       <text>← 返回</text>
     </div>
-    <text class="title">页面标题</text>
+    <text class="title">{{title}}</text>
     <div class="spacer"></div>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    title: { default: '光影参谋' }
+  },
+
+  onBack() {
+    this.$emit('back')
+  }
+}
+</script>
 
 <style>
   .top-bar {

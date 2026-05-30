@@ -1,42 +1,39 @@
-<!--
-  相机取景框 — 预览区 + 构图参考线叠加层
-  构图线支持 4 种模式：off | thirds | golden | crosshair
-  前端通过条件渲染切换下方四个 grid 区块
--->
 <template>
   <div class="preview-area">
-
-    <!-- 相机预览占位（真机替换为 <camera> 组件） -->
     <div class="camera-placeholder">
       <text class="placeholder-icon">📷</text>
       <text class="placeholder-text">相机预览区域</text>
       <text class="placeholder-hint">（需真机调试）</text>
     </div>
 
-    <!-- ===== 模式1: 三分法 ===== -->
-    <div class="composition-overlay">
+    <div class="composition-overlay" if="{{gridMode === 'thirds'}}">
       <div class="h-line" style="top: 33.33%;"></div>
       <div class="h-line" style="top: 66.66%;"></div>
       <div class="v-line" style="left: 33.33%;"></div>
       <div class="v-line" style="left: 66.66%;"></div>
     </div>
 
-    <!-- ===== 模式2: 黄金分割 ===== -->
-    <!-- <div class="composition-overlay">
+    <div class="composition-overlay" if="{{gridMode === 'golden'}}">
       <div class="h-line" style="top: 38.2%;"></div>
       <div class="h-line" style="top: 61.8%;"></div>
       <div class="v-line" style="left: 38.2%;"></div>
       <div class="v-line" style="left: 61.8%;"></div>
-    </div> -->
+    </div>
 
-    <!-- ===== 模式3: 十字线 ===== -->
-    <!-- <div class="composition-overlay">
-      <div class="h-line" style="top: 50%; background-color: rgba(255,255,255,0.45);"></div>
-      <div class="v-line" style="left: 50%; background-color: rgba(255,255,255,0.45);"></div>
-    </div> -->
-
+    <div class="composition-overlay" if="{{gridMode === 'crosshair'}}">
+      <div class="h-line cross-line" style="top: 50%;"></div>
+      <div class="v-line cross-line" style="left: 50%;"></div>
+    </div>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    gridMode: { default: 'thirds' }
+  }
+}
+</script>
 
 <style>
   .preview-area {
@@ -69,7 +66,6 @@
     margin-top: 4px;
   }
 
-  /* 构图参考线叠加 */
   .composition-overlay {
     position: absolute;
     top: 0;
@@ -93,5 +89,9 @@
     bottom: 0;
     width: 1px;
     background-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .cross-line {
+    background-color: rgba(255, 255, 255, 0.45);
   }
 </style>

@@ -1,303 +1,127 @@
+<import name="top-bar" src="../Common/TopBar.ux"></import>
+<import name="level-badge" src="../Common/LevelBadge.ux"></import>
+<import name="badge-tag" src="../Common/BadgeTag.ux"></import>
+<import name="stats-panel" src="../Common/StatsPanel.ux"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+    <top-bar title="我的成长"></top-bar>
+
+    <scroll class="content">
+
+      <level-badge
+        level="{{user.level}}"
+        exp="{{user.exp}}"
+        exp-to-next="{{expToNext}}"
+        level-name="{{levelName}}">
+      </level-badge>
+
+      <text class="section-label">🏅 勋章 ({{user.badges.length}}/3)</text>
+
+      <div if="{{user.badges.length}}" class="badge-list">
+        <badge-tag for="b in user.badges" name="{{b}}"></badge-tag>
+      </div>
+
+      <div if="{{!user.badges.length}}" class="empty-badges">
+        <text class="empty-hint">还没有获得勋章，快去分析照片吧</text>
+      </div>
+
+      <stats-panel rows="{{statsRows}}"></stats-panel>
+    </scroll>
+
+    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+  </div>
+</template>
+
 <script>
-import router from '@system.router'
-import { store } from '../store/index.js'
-import { getUserInfo } from '../services/api.js'
+import { store } from '../store/index'
+import { getUserInfo } from '../services/api'
+
+const LEVELS = [
+  { level: 1, name: '摄影新手', exp: 0 },
+  { level: 2, name: '摄影学徒', exp: 100 },
+  { level: 3, name: '摄影达人', exp: 300 },
+  { level: 4, name: '摄影专家', exp: 600 },
+  { level: 5, name: '摄影大师', exp: 1000 },
+  { level: 6, name: '光影艺术家', exp: 1600 }
+]
 
 export default {
   data: {
-    user: null,
-    loading: true
+    user: store.state.user,
+    navTabs: [
+      { icon: '📋', label: '历史' },
+      { icon: '🖼️', label: '选图' },
+      { icon: '🌟', label: '成长' }
+    ]
   },
 
-  async onInit() {
-    await this.loadUser()
-  },
+  computed: {
+    levelName() {
+      const lv = LEVELS.find(l => l.level === this.user.level)
+      return lv ? lv.name : '摄影新手'
+    },
 
-  async loadUser() {
-    this.loading = true
-    try {
-      const res = await getUserInfo()
-      if (res.ok) {
-        this.user = res.data
-        store.setUser(res.data)
-      }
-    } catch (e) {
-      console.log('加载用户信息失败:', e)
-    } finally {
-      this.loading = false
+    expToNext() {
+      const lv = LEVELS.find(l => l.level === this.user.level + 1)
+      return lv ? lv.exp : this.user.exp
+    },
+
+    statsRows() {
+      const u = this.user
+      return [
+        [
+          { value: u.totalAnalyses || 0, label: '累计分析' },
+          { value: '--', label: '平均分' },
+          { value: (u.badges || []).length, label: '获得勋章' }
+        ],
+        [
+          { value: '--', label: '最高分' },
+          { value: u.exp || 0, label: '总经验' },
+          { value: '--', label: '连续打卡' }
+        ]
+      ]
     }
   },
 
-  getExpPercent(exp, level) {
-    const thresholds = { 1: 100, 2: 100, 3: 200, 4: 300, 5: 400, 6: 600 }
-    const bases = { 1: 0, 2: 100, 3: 200, 4: 400, 5: 700, 6: 1100 }
-    const base = bases[level] || 0
-    const need = thresholds[level] || 100
-    return Math.min(100, Math.round(((exp - base) / need) * 100))
-  },
-
-  getNextLevelExp(level) {
-    const thresholds = { 1: 100, 2: 200, 3: 400, 4: 700, 5: 1100, 6: 1600 }
-    return thresholds[level] || 1600
-  },
-
-  getLevelTitle(level) {
-    const titles = {
-      1: '摄影新手',
-      2: '摄影学徒',
-      3: '摄影达人',
-      4: '摄影专家',
-      5: '摄影大师',
-      6: '光影艺术家'
-    }
-    return titles[level] || '摄影新手'
-  },
-
-  goBack() {
-    router.back()
-  },
-
-  showToast(msg) {
-    try {
-      const prompt = require('@system.prompt')
-      prompt.showToast({ message: msg, duration: 1 })
-    } catch (e) {
-      console.log(msg)
-    }
+  onShow() {
+    this.user = store.state.user
   }
 }
 </script>
 
-<template>
-  <div class="growth-page">
-    <div class="header">
-      <div class="back-btn" onclick="goBack">
-        <text>← 返回</text>
-      </div>
-      <text class="header-title">我的成长</text>
-      <div class="header-right"></div>
-    </div>
-
-    <div if="{{loading}}" class="loading-area">
-      <progress type="circular"></progress>
-      <text class="loading-text">加载中...</text>
-    </div>
-
-    <div if="{{!loading && user}}" class="content">
-      <div class="level-card">
-        <text class="level-num">Lv.{{user.level}}</text>
-        <text class="level-title">{{getLevelTitle(user.level)}}</text>
-        <div class="exp-bar-bg">
-          <div class="exp-bar-fill" style="width: {{getExpPercent(user.exp, user.level)}}%;"></div>
-        </div>
-        <text class="exp-text">{{user.exp}} / {{getNextLevelExp(user.level)}} EXP</text>
-      </div>
-
-      <div class="badge-section">
-        <text class="section-label">🏅 勋章 ({{user.badges.length}}/8)</text>
-        <div if="{{user.badges.length}}" class="badge-list">
-          <div for="b in user.badges" class="badge-tag">
-            <text class="badge-name">{{b}}</text>
-          </div>
-        </div>
-        <text if="{{!user.badges.length}}" class="empty-hint">还没有获得勋章，快去分析照片吧</text>
-      </div>
-
-      <div class="stats-section">
-        <text class="section-label">📊 统计</text>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <text class="stat-num">{{user.total_analyses}}</text>
-            <text class="stat-label">累计分析</text>
-          </div>
-          <div class="stat-item">
-            <text class="stat-num">{{user.level}}</text>
-            <text class="stat-label">当前等级</text>
-          </div>
-          <div class="stat-item">
-            <text class="stat-num">{{user.badges.length}}</text>
-            <text class="stat-label">获得勋章</text>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="bottom-btn" onclick="goBack">
-        <text>返回</text>
-      </div>
-    </div>
-  </div>
-</template>
-
 <style>
-  .growth-page {
+  .page {
     flex-direction: column;
+    flex: 1;
     background-color: #0f0f23;
-    min-height: 100vh;
-  }
-
-  .header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    background-color: #1a1a2e;
-  }
-
-  .back-btn text {
-    font-size: 15px;
-    color: #ffd700;
-  }
-
-  .header-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-  }
-
-  .header-right {
-    width: 60px;
-  }
-
-  .loading-area {
-    flex-direction: column;
-    align-items: center;
-    padding: 60px;
-  }
-
-  .loading-text {
-    font-size: 14px;
-    color: #888;
-    margin-top: 12px;
   }
 
   .content {
-    flex-direction: column;
-    padding: 20px;
     flex: 1;
-  }
-
-  .level-card {
     flex-direction: column;
-    align-items: center;
-    padding: 30px 20px;
-    margin-bottom: 20px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #1a1a2e, #2a2a4a);
-  }
-
-  .level-num {
-    font-size: 48px;
-    font-weight: bold;
-    color: #ffd700;
-  }
-
-  .level-title {
-    font-size: 20px;
-    color: #fff;
-    margin-top: 8px;
-    margin-bottom: 20px;
-  }
-
-  .exp-bar-bg {
-    width: 80%;
-    height: 8px;
-    border-radius: 4px;
-    background-color: #2a2a4a;
-  }
-
-  .exp-bar-fill {
-    height: 8px;
-    border-radius: 4px;
-    background-color: #ffd700;
-  }
-
-  .exp-text {
-    font-size: 13px;
-    color: #888;
-    margin-top: 10px;
-  }
-
-  .badge-section {
-    flex-direction: column;
-    margin-bottom: 20px;
   }
 
   .section-label {
     font-size: 16px;
     font-weight: bold;
-    color: #ffd700;
-    margin-bottom: 12px;
+    color: #cccccc;
+    padding: 16px 20px 10px;
   }
 
   .badge-list {
     flex-direction: row;
     flex-wrap: wrap;
+    padding: 0 20px 16px;
   }
 
-  .badge-tag {
-    padding: 8px 16px;
-    margin-right: 10px;
-    margin-bottom: 8px;
-    border-radius: 20px;
-    background-color: #1a1a2e;
-    border: 1px solid #ffd700;
-  }
-
-  .badge-name {
-    font-size: 14px;
-    color: #fff;
+  .empty-badges {
+    padding: 8px 20px 16px;
   }
 
   .empty-hint {
     font-size: 13px;
-    color: #666;
-  }
-
-  .stats-section {
-    flex-direction: column;
-  }
-
-  .stats-grid {
-    flex-direction: row;
-    justify-content: space-around;
-  }
-
-  .stat-item {
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-    border-radius: 10px;
-    background-color: #1a1a2e;
-  }
-
-  .stat-num {
-    font-size: 28px;
-    font-weight: bold;
-    color: #ffd700;
-  }
-
-  .stat-label {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
-  }
-
-  .bottom-bar {
-    flex-direction: row;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .bottom-btn {
-    padding: 12px 30px;
-    border-radius: 8px;
-    background-color: #2a2a4a;
-  }
-
-  .bottom-btn text {
-    font-size: 15px;
-    color: #ccc;
+    color: #555555;
   }
 </style>

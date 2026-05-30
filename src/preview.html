@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>光影参谋</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a1a;color:#ccc;font-family:Arial,sans-serif}
+#app{width:420px;margin:0 auto;background:#0f0f23;min-height:100vh;display:flex;flex-direction:column}
+.f{display:flex}.fc{flex-direction:column}.aic{align-items:center}.jcc{justify-content:center}.jcsb{justify-content:space-between}.fw{flex-wrap:wrap}.f1{flex:1}
+.scroll{overflow-y:auto;flex:1}
+
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#1a1a2e;flex-shrink:0}
+#topbar .back{color:#ffd700;font-size:15px;cursor:pointer}
+#topbar .ttl{color:#fff;font-size:18px;font-weight:bold}
+#topbar .gap{width:50px}
+
+#botnav{display:flex;flex-direction:row;justify-content:space-around;padding:8px 0;background:#1a1a2e;flex-shrink:0;border-top:1px solid #2a2a3e}
+.nav-item{display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:4px 8px}
+.nav-item .ni{font-size:18px}.nav-item .nl{font-size:12px;color:#888}
+.nav-item.on .nl{color:#ffd700;font-weight:bold}
+
+.pv{display:flex;position:relative;height:320px;background:#0a0a0a;justify-content:center;align-items:center;flex-direction:column;flex-shrink:0}
+.pv .ph{font-size:60px}.pv .pt{font-size:16px;color:#888;margin-top:8px}.pv .ps{font-size:12px;color:#555;margin-top:4px}
+.grid-ov{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.gl{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,.3)}
+.gv{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.3)}
+
+.gc{display:flex;flex-direction:column;padding:10px 14px;background:#111;border-top:1px solid #222}
+.gc-l{font-size:13px;color:#888;margin-bottom:6px}
+.gc-b{display:flex;flex-direction:row}
+.gb{padding:4px 10px;margin-right:6px;border-radius:5px;background:#222;font-size:12px;color:#fff;cursor:pointer;border:none}
+.gb.on{background:#ffd700;color:#000;font-weight:bold}
+
+.actbar{display:flex;justify-content:center;padding:14px}
+.bs{width:60px;height:60px;border-radius:30px;background:#fff;display:flex;justify-content:center;align-items:center;border:4px solid #ffd700;font-size:22px;cursor:pointer}
+
+.stag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:10px;background:rgba(255,152,0,.15);border:1px solid rgba(255,152,0,.3)}
+.stag .sd{font-size:10px;color:#ff9800;margin-right:4px}.stag .sn{font-size:12px;color:#ff9800;font-weight:bold}
+
+.card{background:#1a1a2e;border-radius:10px;padding:14px;margin:8px 14px}
+.ct{font-size:15px;font-weight:bold;margin-bottom:4px}
+.ct.gold{color:#ffd700}.ct.white{color:#ccc}
+.cb{font-size:14px;color:#ccc;line-height:22px}
+
+.pp{display:flex;flex-wrap:wrap}
+.pit{width:50%;display:flex;flex-direction:column;padding:7px 0}
+.pit.w{width:100%}
+.pl{font-size:11px;color:#888;margin-bottom:2px}.pv2{font-size:14px;color:#fff;font-weight:bold}
+
+.sh{display:flex;flex-direction:column;align-items:center;padding:18px 0 10px}
+.scr{width:110px;height:110px;border-radius:55px;background:#1a1a2e;border:5px solid #ffd700;display:flex;justify-content:center;align-items:center;font-size:48px;font-weight:bold}
+.stag2{display:inline-block;margin-top:6px;padding:3px 12px;border-radius:10px;font-size:14px;font-weight:bold}
+
+.dr{display:flex;flex-direction:row;align-items:center;margin-bottom:8px}
+.dn{width:50px;font-size:13px;color:#ccc;flex-shrink:0}
+.dbt{flex:1;height:6px;border-radius:3px;background:#2a2a3e;margin:0 8px;overflow:hidden}
+.dbf{height:6px;border-radius:3px}
+.dsv{width:24px;font-size:13px;color:#fff;font-weight:bold;text-align:right;flex-shrink:0}
+.dw2{width:34px;font-size:11px;color:#666;text-align:right;flex-shrink:0;margin-left:2px}
+
+.ec{display:flex;align-items:center;justify-content:center;background:#2a2a1e;border-radius:10px;padding:12px;margin:6px 14px}
+.ec .ei{font-size:15px;margin-right:6px}.ec .et{font-size:14px;color:#ffd700;font-weight:bold}
+
+.luc{display:flex;flex-direction:column;align-items:center;background:#1e2a1e;border-radius:10px;padding:12px;margin:6px 14px}
+.luc .lui{font-size:26px;margin-bottom:4px}
+.luc .lut{font-size:16px;color:#4caf50;font-weight:bold}
+.luc .lud{font-size:12px;color:#81c784;margin-top:2px}
+
+.buc{display:flex;flex-direction:column;align-items:center;background:#2a2a1e;border-radius:10px;border:1px solid rgba(255,215,0,.3);padding:12px;margin:6px 14px}
+.buc .bui{font-size:32px;margin-bottom:4px}.buc .but{font-size:15px;color:#ffd700;font-weight:bold}.buc .bun{font-size:18px;color:#ffd700;margin-top:2px}
+
+.iss{background:#1a1a2e;border-radius:8px;padding:10px 14px;margin:6px 14px;border-left:3px solid #f44336}
+.iss.sevm{border-left-color:#ff9800}.iss.sevl{border-left-color:#4caf50}
+.ihd{display:flex;align-items:center;margin-bottom:5px}
+.sevt{padding:1px 7px;border-radius:3px;margin-right:6px;font-size:11px;font-weight:bold}
+.sevh{background:rgba(244,67,54,.2);color:#f44336}
+.sevm2{background:rgba(255,152,0,.2);color:#ff9800}
+.sevl2{background:rgba(76,175,80,.2);color:#4caf50}
+.ica{font-size:14px;color:#fff;font-weight:bold}.idc2{font-size:13px;color:#ccc;margin-bottom:4px}
+.isr{display:flex}.isl2{font-size:12px;color:#888}.ist2{font-size:12px;color:#4d96ff;flex:1}
+
+.bls{display:flex;flex-direction:column;margin:6px 14px}
+.bli2{display:flex;align-items:flex-start;margin-bottom:5px}
+.bm2{font-size:13px;color:#ffd700;margin-right:6px;flex-shrink:0}.bte2{font-size:13px;color:#ccc;line-height:20px}
+
+.pc2{display:flex;align-items:center;background:#1a1a2e;border-radius:10px;padding:10px 12px;margin:6px 14px;cursor:pointer}
+.pc2 .pimg{width:50px;height:50px;border-radius:6px;background:#2a2a3e;display:flex;justify-content:center;align-items:center;font-size:20px;flex-shrink:0;margin-right:10px}
+.pc2 .pbd{flex:1;display:flex;flex-direction:column;min-width:0}
+.pc2 .ptg{display:flex;flex-direction:row;margin-bottom:3px}
+.pc2 .pmt{padding:1px 6px;border-radius:3px;margin-right:4px;font-size:10px;display:inline-block}
+.pc2 .pmt.sh{background:rgba(77,150,255,.15);color:#4d96ff}
+.pc2 .pmt.ed{background:rgba(192,132,252,.15);color:#c084fc}
+.pc2 .pmt.sc{background:rgba(255,215,0,.15);color:#ffd700}
+.pc2 .psu{font-size:13px;color:#ccc;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc2 .pti{font-size:10px;color:#555}.pc2 .par{font-size:14px;color:#888;flex-shrink:0}
+
+.lv{display:flex;align-items:center;background:#1a1a2e;border-radius:10px;padding:12px;margin:8px 14px}
+.lv .lvc{width:56px;height:56px;border-radius:28px;border:4px solid #4fc3f7;background:rgba(79,195,247,.1);display:flex;flex-direction:column;justify-content:center;align-items:center;margin-right:12px;flex-shrink:0}
+.lv .lvcl{font-size:10px}.lv .lvcn{font-size:20px;font-weight:bold}
+.lv .lvi{flex:1;display:flex;flex-direction:column}
+.lv .lvn{font-size:16px;font-weight:bold;color:#fff;margin-bottom:5px}
+.lv .lvt{height:5px;border-radius:3px;background:#2a2a3e;margin-bottom:3px;overflow:hidden}
+.lv .lvf{height:5px;border-radius:3px}.lv .lve{font-size:11px;color:#888}
+
+.btag{display:inline-flex;align-items:center;padding:4px 10px;border-radius:14px;background:#2a2a1e;border:1px solid rgba(255,215,0,.2);margin-right:6px;margin-bottom:4px}
+.btag .btic{font-size:12px;margin-right:3px}.btag .btnm{font-size:12px;color:#ffd700}
+
+.sts{display:flex;flex-direction:row;margin-bottom:10px}
+.sti{flex:1;display:flex;flex-direction:column;align-items:center}
+.sti .stn{font-size:20px;font-weight:bold;color:#ffd700;margin-bottom:2px}.sti .stl{font-size:11px;color:#888}
+
+.msel{display:flex;flex-direction:row;justify-content:space-around;align-items:center;padding:8px 0;background:#1a1a2e;border-radius:10px;margin:0 14px}
+.mo2{display:flex;flex-direction:column;align-items:center;flex:1;padding:5px 0;border-bottom:2px solid transparent;cursor:pointer}
+.mo2.sel{border-bottom-color:#ffd700}
+.mo2 .mi2{font-size:20px;margin-bottom:2px}
+.mo2 .mn2{font-size:11px;color:#888}.mo2 .mn2.sel2{color:#ffd700;font-weight:bold}
+.mo2 .md2{font-size:9px;color:#555}.mo2 .md2.sel2{color:#888}
+.mdiv{width:1px;height:30px;background:#2a2a3e}
+
+.picker{display:flex;flex-direction:column;align-items:center;padding:18px 14px}
+.pbtn{display:flex;align-items:center;justify-content:center;width:280px;margin-bottom:8px;padding:14px;border-radius:10px;background:#1a1a2e;border:1px solid #2a2a3e;cursor:pointer}
+.pbtn .pbi{font-size:20px;margin-right:8px}.pbtn .pbl{font-size:15px;color:#fff;font-weight:bold}
+
+.btn-main{padding:14px;border-radius:10px;background:#ffd700;color:#000;font-size:15px;font-weight:bold;cursor:pointer;border:none;text-align:center;width:280px}
+.btn-dis{background:#444;color:#888;cursor:default}
+.btn-w{margin:12px 14px;display:flex;justify-content:center}
+
+.mock-img{width:260px;height:160px;border-radius:10px;background:#1a1a2e;display:flex;justify-content:center;align-items:center;margin-top:8px;font-size:40px}
+
+.sec-l{font-size:14px;font-weight:bold;color:#ccc;padding:12px 14px 6px}
+.sec-bg{background:#1a1a2e;border-radius:10px;padding:12px;margin:6px 14px}
+.sec-t{font-size:14px;color:#ccc;line-height:22px}
+
+.loading{background:rgba(10,10,26,.92);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;margin:6px 14px;border-radius:10px}
+.loading .lsp{font-size:40px;margin-bottom:12px}
+.loading .ltx{font-size:16px;color:#ffd700;font-weight:bold;margin-bottom:6px}.loading .lhx{font-size:12px;color:#888}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ========== 数据 ==========
+var LEVELS=[{l:1,n:'摄影新手',e:0},{l:2,n:'摄影学徒',e:100},{l:3,n:'摄影达人',e:300},{l:4,n:'摄影专家',e:600},{l:5,n:'摄影大师',e:1000},{l:6,n:'光影艺术家',e:1600}]
+var PRESETS={'夜景':{sh:'1/50',iso:'1600',ap:'f/2.8',wb:'4000K',fc:'画面中心对焦'},'人像':{sh:'1/250',iso:'200',ap:'f/2.8',wb:'5500K',fc:'人物面部单点对焦'},'风景':{sh:'1/125',iso:'100',ap:'f/8',wb:'5500K',fc:'全域对焦'},'街拍':{sh:'1/500',iso:'400',ap:'f/5.6',wb:'5500K',fc:'中央重点对焦'}}
+
+var S = {
+  user:{uid:'demo',level:3,exp:420,badges:['高分达人'],total:23},
+  cam:{scene:'夜景',grid:'thirds',params:{sh:'1/50',iso:'1600',ap:'f/2.8',wb:'4000K',fc:'画面中心对焦'}},
+  analysis:null
+}
+
+var MOCK_SHOOT={mode:'shooting',scene:'夜景人像',camera_params:{shutter:'1/30',iso:'800',aperture:'f/2.8',wb:'4000K',focus:'人物面部单点对焦'},composition_tips:['人物置于画面右侧三分线','利用路边栏杆作引导线','左侧留白让画面呼吸'],lighting_advice:'利用街道暖色灯光作主光源，配合远处冷色霓虹形成对比',extra_tips:'建议使用三脚架，长曝光1s拍出光轨效果',exp_gained:25}
+
+var MOCK_EDIT={mode:'edit',advice:'这张照片可以先调一下色温往暖色偏一点约5500K让肤色看起来更自然。然后亮度面板曝光+0.3EV提亮面部。高光部分稍微压低以免天空过曝。',issues:[{severity:'high',category:'曝光不足',description:'主体面部偏暗背景高光溢出',suggestion:'增加曝光+0.5EV压低高光'},{severity:'medium',category:'色温偏冷',description:'画面整体偏蓝肤色不自然',suggestion:'白平衡调至5500K暖色'},{severity:'low',category:'锐度略低',description:'边缘细节稍显模糊',suggestion:'适当增加锐化+15'}],exp_gained:25}
+
+var MOCK_SCORE={mode:'score',score:85,scores:{composition:85,exposure:72,color:80,sharpness:90,creativity:65},comment:'这张照片整体不错！构图把人物放在三分线位置很舒服。可以改进的是背景稍微过曝了下次试试降低曝光补偿。色彩搭配和谐暖色调营造了很好的氛围。',exp_gained:25,level_up:null,badge_unlocked:null}
+
+var MOCK_PERFECT={mode:'score',score:92,scores:{composition:95,exposure:88,color:92,sharpness:90,creativity:85},comment:'非常出色的作品！构图精准主体突出光影运用恰到好处。继续保持这个水准！',exp_gained:55,level_up:{level_up:true,old_level:3,new_level:4},badge_unlocked:['首战告捷']}
+
+var HIST=[{id:'h1',mode:'shooting',result_json:{scene:'夜景人像',camera_params:{shutter:'1/30',iso:'800'}},created_at:'2026-05-14 15:30'},{id:'h2',mode:'edit',result_json:{advice:'调一下色温往暖色偏一点约5500K...'},created_at:'2026-05-13 20:15'},{id:'h3',mode:'score',result_json:{score:78,comment:'构图不错可以改进背景过曝'},created_at:'2026-05-12 11:00'},{id:'h4',mode:'score',result_json:{score:91,comment:'非常出色的夜景...'},created_at:'2026-05-11 19:45'},{id:'h5',mode:'shooting',result_json:{scene:'街拍',camera_params:{shutter:'1/500',iso:'400'}},created_at:'2026-05-10 14:20'}]
+
+// ========== 状态 ==========
+var page='camera', grid=S.cam.grid, upMode='shooting', hasPic=false, curAn=null, curMode='score'
+
+// ========== 工具 ==========
+function E(tag,cls,html,attrs){var e=document.createElement(tag);if(cls)e.className=cls;if(attrs)for(var k in attrs)e[k]=attrs[k];if(typeof html==='string')e.innerHTML=html;else if(Array.isArray(html))html.forEach(function(c){if(c)e.appendChild(typeof c==='string'?document.createTextNode(c):c)});else if(html instanceof Element)e.appendChild(html);return e}
+function D(c,h){return E('div',c,h)}
+function T(t,c){return E('div',c,t)}
+
+function lc(lv){return{'1':'#9e9e9e','2':'#81c784','3':'#4fc3f7','4':'#ba68c8','5':'#ffd700','6':'#ff6d00'}[lv]||'#9e9e9e'}
+function sc(s){return s>=80?'#ffd700':s>=60?'#ff9800':'#f44336'}
+function sl(s){return s>=90?'优秀':s>=80?'良好':s>=60?'一般':'需改进'}
+function sbg(s){return s>=80?'rgba(255,215,0,.15)':s>=60?'rgba(255,152,0,.15)':'rgba(244,67,54,.15)'}
+function lname(lv){for(var i=0;i<LEVELS.length;i++)if(LEVELS[i].l===lv)return LEVELS[i].n;return'摄影新手'}
+function enext(u){for(var i=0;i<LEVELS.length;i++)if(LEVELS[i].l===u.level+1)return LEVELS[i].e;return u.exp}
+function epct(u){var cur=0;for(var i=0;i<LEVELS.length;i++)if(LEVELS[i].l===u.level)cur=LEVELS[i].e;var nxt=enext(u);return nxt>cur?Math.round((u.exp-cur)/(nxt-cur)*100):100}
+
+// ========== 导航 ==========
+function topbar(title){
+  return D('f aic jcsb'+(title?'':' jcc'),[
+    title?T('← 返回','back'):null,
+    T(title||'光影参谋','ttl'),
+    D('gap')
+  ])
+}
+
+function botnav(){
+  var tabs=[{i:'📷',l:'相机',p:'camera'},{i:'🖼️',l:'选图',p:'upload'},{i:'📋',l:'历史',p:'gallery'},{i:'🌟',l:'成长',p:'growth'}]
+  var nav=D('f')
+  tabs.forEach(function(t){
+    nav.appendChild(D('nav-item fc aic'+(page===t.p?' on':''),[
+      T(t.i,'ni'),T(t.l,'nl')
+    ]))
+  })
+  return nav
+}
+
+// ========== Camera ==========
+function pageCamera(){
+  var els=[]
+  // preview
+  var pv=D('pv',[T('📷','ph'),T('相机预览区域','pt'),T('（需真机调试）','ps')])
+  if(grid!=='off'){
+    var ov=D('grid-ov')
+    if(grid==='thirds'){ov.appendChild(gl('33.33%'));ov.appendChild(gl('66.66%'));ov.appendChild(gv('33.33%'));ov.appendChild(gv('66.66%'))}
+    else if(grid==='golden'){ov.appendChild(gl('38.2%'));ov.appendChild(gl('61.8%'));ov.appendChild(gv('38.2%'));ov.appendChild(gv('61.8%'))}
+    else{var hl=gl('50%');hl.style.background='rgba(255,255,255,.45)';var vl=gv('50%');vl.style.background='rgba(255,255,255,.45)';ov.appendChild(hl);ov.appendChild(vl)}
+    pv.appendChild(ov)
+  }
+  els.push(pv)
+
+  // scene tag
+  if(S.cam.scene) els.push(D('f',{style:'padding:6px 14px'},[stag(S.cam.scene)]))
+
+  // grid control
+  var modes=['off','thirds','golden','crosshair'];var names={off:'关闭',thirds:'三分法',golden:'黄金分割',crosshair:'十字线'}
+  var gbRow=D('gc-b')
+  modes.forEach(function(m){
+    var btn=document.createElement('button');btn.className='gb'+(grid===m?' on':'');btn.textContent=names[m];gbRow.appendChild(btn)
+  })
+  els.push(D('gc',[T('构图线: '+names[grid],'gc-l'),gbRow]))
+
+  // params
+  els.push(paramsPanel(S.cam.params,S.cam.scene))
+
+  // shoot btn
+  var sb=E('div','actbar',[E('div','bs','📸')])
+
+  var scroll=D('scroll',[
+    D('fc',{style:'padding-bottom:8px'},[els[0]]),
+    els[1],els[2],D('fc',[els[3]]),sb
+  ])
+
+  return D('fc',[topbar('拍摄指导'),scroll,botbar()])
+}
+
+function gl(top){var e=E('div','gl');e.style.top=top;return e}
+function gv(left){var e=E('div','gv');e.style.left=left;return e}
+function stag(n){return D('stag',[T('●','sd'),T(n,'sn')])}
+
+function paramsPanel(p,scene){
+  if(!p)p={sh:'--',iso:'--',ap:'--',wb:'--',fc:'--'}
+  var items=[['快门速度',p.sh||'--',0],['ISO 感光度',p.iso||'--',0],['光圈',p.ap||'--',0],['白平衡',p.wb||'--',0],['对焦建议',p.fc||'--',1]]
+  var grid=D('pp')
+  items.forEach(function(it){
+    grid.appendChild(D('pit'+(it[2]?' w':''),[T(it[0],'pl'),T(it[1],'pv2')]))
+  })
+  return D('card',[D('f aic',{style:'margin-bottom:10px'},[T('📷','pl'),T('建议参数','ct gold')]),grid])
+}
+
+// ========== Upload ==========
+function pageUpload(){
+  var items=[]
+  items.push(D('picker',[
+    D('pbtn aic',[T('📷','pbi'),T('打开相机拍照','pbl')]),
+    D('pbtn aic',[T('🖼️','pbi'),T('从相册选择','pbl')]),
+    hasPic?D('mock-img','🌃 已选照片'):null
+  ]))
+
+  // mode selector
+  var modes=[{v:'shooting',icon:'📷',name:'拍摄指导',desc:'推荐相机参数'},{v:'edit',icon:'🔧',name:'修图建议',desc:'后期调色指导'},{v:'score',icon:'⭐',name:'评分评价',desc:'五维打分反馈'}]
+  var ms=D('msel')
+  modes.forEach(function(m,i){
+    var sel=upMode===m.v
+    ms.appendChild(D('mo2'+(sel?' sel':''),[T(m.icon,'mi2'),T(m.name,'mn2'+(sel?' sel2':'')),T(m.desc,'md2'+(sel?' sel2':''))]))
+    if(i<2)ms.appendChild(D('mdiv'))
+  })
+  items.push(ms)
+
+  // analyze btn
+  var btn=document.createElement('button');btn.className='btn-main'+(hasPic?'':' btn-dis');btn.textContent='开始分析';btn.disabled=!hasPic
+  items.push(D('btn-w',[btn]))
+
+  var scroll=D('scroll',items)
+  return D('fc',[topbar('选择分析模式'),scroll,botbar()])
+}
+
+// ========== Result ==========
+function pageResult(){
+  if(!curAn){page='upload';return render()}
+  var a=curAn,m=curMode,els=[]
+
+  if(m==='score'&&a.score){
+    var c=sc(a.score)
+    els.push(D('sh',[D('scr',{style:'border-color:'+c+';color:'+c},String(a.score)),T('/100 分','pl'),D('stag2',{style:'background:'+sbg(a.score)+';color:'+c},sl(a.score))]))
+  }
+
+  if(m==='score'&&a.scores){
+    var dims=[{label:'构图',v:a.scores.composition||0,c:'#ff6b6b',w:'30'},{label:'曝光',v:a.scores.exposure||0,c:'#ffd93d',w:'25'},{label:'色彩',v:a.scores.color||0,c:'#6bcb77',w:'20'},{label:'清晰度',v:a.scores.sharpness||0,c:'#4d96ff',w:'15'},{label:'创意',v:a.scores.creativity||0,c:'#c084fc',w:'10'}]
+    var radar=D('card')
+    radar.appendChild(D('f aic',{style:'margin-bottom:12px'},[T('📊','pl'),T('五维评分','ct white')]))
+    dims.forEach(function(d){
+      radar.appendChild(D('dr',[T(d.label,'dn'),D('dbt',[D('dbf',{style:'width:'+d.v+'%;background:'+d.c})]),T(String(d.v),'dsv'),T(d.w+'%','dw2')]))
+    })
+    els.push(radar)
+  }
+
+  if((m==='edit'&&a.advice)||(m==='score'&&a.comment)){
+    var txt=m==='edit'?a.advice:a.comment
+    els.push(D('card',[D('f aic',{style:'margin-bottom:6px'},[T('🤖','pl'),T('AI 评价','ct white')]),D('cb',txt)]))
+  }
+
+  if(m==='shooting'&&a.camera_params) els.push(paramsPanel(a.camera_params,a.scene))
+
+  if(a.composition_tips&&a.composition_tips.length){
+    var bl=D('card bls');bl.appendChild(D('f aic',{style:'margin-bottom:6px'},[T('📐','pl'),T('构图建议','ct white')]))
+    a.composition_tips.forEach(function(t){bl.appendChild(D('bli2',[T('•','bm2'),D('bte2',t)]))})
+    els.push(bl)
+  }
+
+  if(a.issues&&a.issues.length){
+    var sevMap={high:'严重',medium:'中等',low:'轻微'},sevCls={high:'sevh',medium:'sevm2',low:'sevl2'}
+    a.issues.forEach(function(iss){
+      var sev=iss.severity||'medium',scls=sev==='medium'?' sevm':sev==='low'?' sevl':'',bcl=sev==='high'?'#f44336':sev==='medium'?'#ff9800':'#4caf50'
+      els.push(D('iss'+scls,{style:'border-left-color:'+bcl},[
+        D('ihd',[T(sevMap[sev],'sevt '+sevCls[sev]),T(iss.category,'ica')]),
+        T(iss.description,'idc2'),
+        D('isr',[T('建议：','isl2'),T(iss.suggestion,'ist2')])
+      ]))
+    })
+  }
+
+  if(m==='shooting'&&a.lighting_advice) els.push(D('sec-bg',[T('💡 用光建议','ct white'),D('sec-t',a.lighting_advice)]))
+  if(m==='shooting'&&a.extra_tips) els.push(D('sec-bg',[T('📝 额外建议','ct white'),D('sec-t',a.extra_tips)]))
+  if(a.exp_gained) els.push(D('ec',[T('✨','ei'),T('本次获得 +'+a.exp_gained+' 经验','et')]))
+  if(a.level_up&&a.level_up.level_up){
+    els.push(D('luc',[T('🎉','lui'),T('升级了！','lut'),T(lname(a.level_up.old_level)+' → '+lname(a.level_up.new_level),'lud')]))
+  }
+  if(a.badge_unlocked&&a.badge_unlocked.length){
+    els.push(D('buc',[T('🏅','bui'),T('新勋章解锁！','but'),T(a.badge_unlocked[0],'bun')]))
+  }
+
+  return D('fc',[topbar('分析结果'),D('scroll',els),botbar()])
+}
+
+// ========== Gallery ==========
+function pageGallery(){
+  var els=[]
+  var mm={shooting:'📷 拍摄',edit:'🔧 修图',score:'⭐ 评分'}
+  HIST.forEach(function(d){
+    var r=d.result_json,summary=''
+    if(d.mode==='shooting')summary=(r.scene||'')+' · 快门 '+(r.camera_params?r.camera_params.shutter:'--')+', ISO '+(r.camera_params?r.camera_params.iso:'--')
+    else if(d.mode==='edit')summary=r.advice?r.advice.substring(0,35)+'...':''
+    else if(d.mode==='score')summary='⭐ '+(r.score||'?')+' 分 · '+(r.comment?r.comment.substring(0,20)+'...':'')
+    els.push(D('pc2',[
+      D('pimg','🖼️'),
+      D('pbd',[D('ptg',[T(mm[d.mode],'pmt '+(d.mode==='shooting'?'sh':d.mode==='edit'?'ed':'sc'))]),T(summary,'psu'),T(d.created_at,'pti')]),
+      T('〉','par')
+    ]))
+  })
+  return D('fc',[topbar('历史记录'),D('scroll',els),botbar()])
+}
+
+// ========== Growth ==========
+function pageGrowth(){
+  var u=S.user,lvn=lname(u.level),nex=enext(u),pct=epct(u),c=lc(u.level)
+  var els=[]
+
+  els.push(D('lv',[
+    D('lvc',{style:'border-color:'+c+';background:'+c+'1a'},[T('Lv','lvcl'),D('lvcn',{style:'color:'+c},String(u.level))]),
+    D('lvi',[T(lvn,'lvn'),D('lvt',[D('lvf',{style:'width:'+pct+'%;background:'+c})]),T(u.exp+' / '+nex,'lve')])
+  ]))
+
+  els.push(T('🏅 勋章 ('+u.badges.length+'/3)','sec-l'))
+  var brow=D('f fw',{style:'padding:0 14px 6px'})
+  if(u.badges.length) u.badges.forEach(function(b){brow.appendChild(D('btag',[T('🏅','btic'),T(b,'btnm')]))})
+  else brow.appendChild(T('还没有获得勋章，快去分析照片吧','lve'))
+  els.push(brow)
+
+  var sp=D('card')
+  sp.appendChild(D('f aic',{style:'margin-bottom:10px'},[T('📊','pl'),T('统计','ct white')]))
+  sp.appendChild(D('sts',[D('sti',[T(String(u.total||0),'stn'),T('累计分析','stl')]),D('sti',[T('76.5','stn'),T('平均分','stl')]),D('sti',[T(String(u.badges.length),'stn'),T('获得勋章','stl')])]))
+  sp.appendChild(D('sts',[D('sti',[T('92','stn'),T('最高分','stl')]),D('sti',[T(String(u.exp),'stn'),T('总经验','stl')]),D('sti',[T('3','stn'),T('连续打卡','stl')])]))
+  els.push(sp)
+
+  return D('fc',[topbar('我的成长'),D('scroll',els),botbar()])
+}
+
+// ========== 底部导航点击事件 ==========
+function botbar(){
+  var nav=botnav()
+  var items=nav.querySelectorAll('.nav-item')
+  items.forEach(function(it,i){
+    it.addEventListener('click',function(){
+      var pages=['camera','upload','gallery','growth']
+      page=pages[i];render()
+    })
+  })
+  return E('div','botnav',Array.from(items))
+}
+
+// ========== 顶部返回事件 ==========
+function addBackHandler(bar){
+  var b=bar.querySelector('.back')
+  if(b)b.addEventListener('click',function(){page='camera';curAn=null;render()})
+  return bar
+}
+
+// ========== 相机页事件 ==========
+function addCameraEvents(root){
+  // grid buttons
+  var btns=root.querySelectorAll('.gb')
+  var modes=['off','thirds','golden','crosshair']
+  btns.forEach(function(b,i){
+    b.addEventListener('click',function(){grid=modes[i];S.cam.grid=grid;render()})
+  })
+  // shoot
+  var sb=root.querySelector('.bs')
+  if(sb)sb.addEventListener('click',function(){page='upload';render()})
+}
+
+// ========== Upload 事件 ==========
+function addUploadEvents(root){
+  // pick buttons
+  var pbs=root.querySelectorAll('.pbtn')
+  pbs.forEach(function(pb){
+    pb.addEventListener('click',function(){hasPic=true;render()})
+  })
+  // mode selector
+  var mos=root.querySelectorAll('.mo2')
+  var modeVals=['shooting','edit','score']
+  mos.forEach(function(mo,i){
+    mo.addEventListener('click',function(){upMode=modeVals[i];render()})
+  })
+  // analyze
+  var ab=root.querySelector('.btn-main')
+  if(ab)ab.addEventListener('click',function(){
+    if(!hasPic)return
+    var d=upMode==='shooting'?MOCK_SHOOT:upMode==='edit'?MOCK_EDIT:MOCK_SCORE
+    curAn=d;curMode=upMode
+    S.user.total++;S.user.exp+=d.exp_gained||0
+    if(d.badge_unlocked)d.badge_unlocked.forEach(function(b){if(S.user.badges.indexOf(b)===-1)S.user.badges.push(b)})
+    if(d.level_up&&d.level_up.new_level)S.user.level=d.level_up.new_level
+    page='result';render()
+  })
+}
+
+// ========== Gallery 事件 ==========
+function addGalleryEvents(root){
+  var cards=root.querySelectorAll('.pc2')
+  var histKeys=[MOCK_SHOOT,MOCK_EDIT,MOCK_SCORE,MOCK_PERFECT,MOCK_SHOOT]
+  cards.forEach(function(c,i){
+    c.addEventListener('click',function(){
+      var h=HIST[i];curAn=h.result_json;curAn.mode=h.mode;curAn.id=h.id;curMode=h.mode;page='result';render()
+    })
+  })
+}
+
+// ========== 渲染 ==========
+function render(){
+  var app=document.getElementById('app'),v=null
+  app.innerHTML=''
+  try{
+    switch(page){
+      case 'camera':v=pageCamera();addCameraEvents(v);break
+      case 'upload':v=pageUpload();addUploadEvents(v);break
+      case 'result':v=pageResult();break
+      case 'gallery':v=pageGallery();addGalleryEvents(v);break
+      case 'growth':v=pageGrowth();break
+    }
+    if(v)app.appendChild(v)
+  }catch(e){app.innerHTML='<div style="color:#f44336;padding:20px">Error: '+e.message+'</div>'}
+  window.scrollTo(0,0)
+}
+
+render()
+</script>
+
+</body>
+</html>

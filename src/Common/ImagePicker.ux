@@ -1,20 +1,27 @@
-<!--
-  选图/拍照入口按钮 — Upload 页用
-  占位符: {icon} 替换图标
-  占位符: {text} 替换文字
--->
 <template>
   <div class="picker-entry">
-    <div class="picker-btn">
+    <div class="picker-btn" onclick="onPickCamera">
       <text class="picker-icon">📷</text>
       <text class="picker-label">打开相机拍照</text>
     </div>
-    <div class="picker-btn">
+    <div class="picker-btn" onclick="onPickAlbum">
       <text class="picker-icon">🖼️</text>
       <text class="picker-label">从相册选择</text>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  onPickCamera() {
+    this.$emit('pickCamera')
+  },
+
+  onPickAlbum() {
+    this.$emit('pickAlbum')
+  }
+}
+</script>
 
 <style>
   .picker-entry {

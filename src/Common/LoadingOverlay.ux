@@ -1,14 +1,20 @@
-<!--
-  加载中遮罩 — 全屏半透明 + 动画文本
-  前端通过 v-if 控制显隐
--->
 <template>
-  <div class="loading-overlay">
+  <div class="loading-overlay" if="{{show}}">
     <text class="loading-spinner">⏳</text>
-    <text class="loading-text">AI 分析中...</text>
-    <text class="loading-hint">正在识别场景并生成建议</text>
+    <text class="loading-text">{{text}}</text>
+    <text class="loading-hint">{{hint}}</text>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    show: { default: false },
+    text: { default: 'AI 分析中...' },
+    hint: { default: '正在识别场景并生成建议' }
+  }
+}
+</script>
 
 <style>
   .loading-overlay {
