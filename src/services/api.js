@@ -25,8 +25,8 @@ function request(method, path, body) {
 }
 
 async function upload(path, filePath, extra = {}) {
-  const compressed = compressImage(filePath, 1024, 0.8)
-  const base64 = toBase64(compressed)
+  const compressedUri = await compressImage(filePath, 1024, 0.8)
+  const base64 = await toBase64(compressedUri)
 
   const boundary = '----PhotographyPartner' + Date.now()
   const bodyParts = []
@@ -49,7 +49,7 @@ async function upload(path, filePath, extra = {}) {
 
   return new Promise((resolve, reject) => {
     fetch.fetch({
-      url: BASE + path,
+      url: BASE_URL + path,
       method: 'POST',
       header: { 'Content-Type': 'multipart/form-data; boundary=' + boundary },
       data: body,
@@ -67,18 +67,8 @@ async function upload(path, filePath, extra = {}) {
   })
 }
 
-export function analyzePhoto(imagePath, mode) {
-  if (MOCK_MODE) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (mode === 'shooting') resolve(MOCK_SHOOTING)
-        else if (mode === 'edit') resolve(MOCK_EDIT)
-        else resolve(MOCK_SCORE)
-      }, 1200)
-    })
-  }
-
-  return uploadFile(imagePath, mode, getDeviceId())
+export function analyzePhoto(imagePath, mode, uid) {
+  return upload('/api/analyze', imagePath, { mode, uid })
 }
 
 export function getUserInfo(uid) {

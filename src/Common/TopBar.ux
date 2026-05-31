@@ -9,13 +9,15 @@
 </template>
 
 <script>
+import router from '@system.router'
+
 export default {
   props: {
     title: { default: '光影参谋' }
   },
 
   onBack() {
-    this.$emit('back')
+    router.back()
   }
 }
 </script>

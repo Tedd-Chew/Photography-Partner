@@ -4,29 +4,52 @@
 <import name="grid-control" src="../Common/GridControl.ux"></import>
 <import name="shoot-button" src="../Common/ShootButton.ux"></import>
 <import name="param-panel" src="../Common/ParamPanel.ux"></import>
+<import name="loading-overlay" src="../Common/LoadingOverlay.ux"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
 <template>
   <div class="page">
     <top-bar title="拍摄指导"></top-bar>
 
-    <camera-box grid-mode="{{gridMode}}"></camera-box>
+    <div class="content">
+      <camera-box grid-mode="{{gridMode}}"></camera-box>
 
-    <div if="{{scene}}" class="scene-wrap">
-      <scene-tag name="{{scene}}"></scene-tag>
+      <div if="{{scene}}" class="scene-wrap">
+        <scene-tag name="{{scene}}"></scene-tag>
+      </div>
+
+      <div if="{{compositionTips && compositionTips.length}}" class="tips-section">
+        <text class="tips-section-label">📐 构图建议</text>
+        <div class="tip-item" for="tip in compositionTips">
+          <text class="tip-text">• {{tip}}</text>
+        </div>
+      </div>
+
+      <div if="{{lightingAdvice}}" class="tips-section">
+        <text class="tips-section-label">💡 用光建议</text>
+        <text class="tip-text-single">{{lightingAdvice}}</text>
+      </div>
+
+      <div if="{{extraTips}}" class="tips-section">
+        <text class="tips-section-label">📝 额外建议</text>
+        <text class="tip-text-single">{{extraTips}}</text>
+      </div>
+
+      <grid-control value="{{gridMode}}" @change="onGridChange"></grid-control>
+
+      <param-panel params="{{params}}" scene="{{scene}}"></param-panel>
+
+      <shoot-button @click="onTakePhoto"></shoot-button>
     </div>
 
-    <grid-control value="{{gridMode}}" @change="onGridChange"></grid-control>
-
-    <param-panel params="{{params}}" scene="{{scene}}"></param-panel>
-
-    <shoot-button @click="onTakePhoto"></shoot-button>
+    <loading-overlay show="{{loading}}" text="{{loadingText}}"></loading-overlay>
 
     <bottom-nav tabs="{{navTabs}}"></bottom-nav>
   </div>
 </template>
 
 <script>
+import media from '@system.media'
 import { store } from '../store/index'
 import { analyzePhoto } from '../services/api'
 
@@ -42,6 +65,11 @@ export default {
     scene: null,
     gridMode: 'thirds',
     params: { shutter: null, iso: null, aperture: null, wb: null, focus: null },
+    compositionTips: [],
+    lightingAdvice: '',
+    extraTips: '',
+    loading: false,
+    loadingText: 'AI 分析中...',
     navTabs: [
       { icon: '📋', label: '历史' },
       { icon: '🖼️', label: '选图' },
@@ -53,7 +81,7 @@ export default {
     this.detectScene()
   },
 
-  async detectScene() {
+  detectScene() {
     this.scene = '夜景'
     const preset = SCENE_PRESETS['夜景']
     if (preset) {
@@ -62,17 +90,38 @@ export default {
     store.setCameraParams(this.scene, this.params)
   },
 
-  onRefreshParams() {
-    this.detectScene()
-  },
-
-  onGridChange(mode) {
-    this.gridMode = mode
-    store.state.camera.gridMode = mode
+  onGridChange(evt) {
+    this.gridMode = evt.detail.value
+    store.state.camera.gridMode = evt.detail.value
   },
 
   onTakePhoto() {
-    this.$app.navigateTo('Upload')
+    const self = this
+    media.takePhoto({
+      success: async function (data) {
+        self.loading = true
+        self.loadingText = 'AI 分析场景中...'
+        try {
+          const uid = store.state.user.uid || 'device_unknown'
+          const result = await analyzePhoto(data.uri, 'shooting', uid)
+          self.scene = result.scene || '未知场景'
+          self.params = result.camera_params || { shutter: null, iso: null, aperture: null, wb: null, focus: null }
+          self.compositionTips = result.composition_tips || []
+          self.lightingAdvice = result.lighting_advice || ''
+          self.extraTips = result.extra_tips || ''
+          store.setCameraParams(self.scene, self.params)
+        } catch (e) {
+          self.scene = '分析失败'
+          self.compositionTips = ['网络异常或服务器错误，请稍后重试']
+          self.lightingAdvice = ''
+          self.extraTips = ''
+        }
+        self.loading = false
+      },
+      fail: function (err) {
+        console.log('拍照失败:', err)
+      }
+    })
   }
 }
 </script>
@@ -84,7 +133,44 @@ export default {
     background-color: #0f0f23;
   }
 
+  .content {
+    flex: 1;
+    flex-direction: column;
+  }
+
   .scene-wrap {
     padding: 8px 20px;
+  }
+
+  .tips-section {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 6px 20px;
+  }
+
+  .tips-section-label {
+    font-size: 15px;
+    color: #cccccc;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .tip-item {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+
+  .tip-text {
+    font-size: 13px;
+    color: #aaaaaa;
+    line-height: 20px;
+  }
+
+  .tip-text-single {
+    font-size: 13px;
+    color: #aaaaaa;
+    line-height: 20px;
   }
 </style>
