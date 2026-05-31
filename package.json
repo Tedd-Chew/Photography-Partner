@@ -1,0 +1,34 @@
+{
+  "name": "photography-partner",
+  "version": "1.0.0",
+  "description": "光影参谋 AI拍照助手",
+  "scripts": {
+    "start": "hap server --watch",
+    "server": "hap server",
+    "build": "hap build",
+    "release": "hap release",
+    "watch": "hap watch",
+    "debug": "hap debug",
+    "gen": "node ./scripts/gen/index.js",
+    "prettier": "node ./scripts/selfCloseInputTag.js && prettier --write \"src/**/*.{ux,js,json,less,scss,css,pcss,md,vue}\""
+  },
+  "dependencies": {
+    "apex-ui": "^1.9.2"
+  },
+  "devDependencies": {
+    "@babel/runtime": "^7.12.5",
+    "@types/quickapp": "npm:quickapp-interface@^1.0.0",
+    "less": "^4.1.1",
+    "less-loader": "^10.0.1",
+    "prettier": "^2.3.2",
+    "prettier-plugin-ux": "^0.3.0"
+  },
+  "keywords": [
+    "快应用",
+    "AI",
+    "摄影"
+  ],
+  "browserslist": [
+    "chrome 65"
+  ]
+}

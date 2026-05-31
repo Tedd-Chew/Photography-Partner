@@ -66,13 +66,19 @@ async def get_or_create_user(uid: str) -> dict:
 
 
 async def update_user_exp(uid: str, exp_delta: int) -> dict:
-    """增加经验，检查升级"""
+    """增加经验，检查升级。用户不存在则自动创建。"""
     async with _open() as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute("SELECT level, exp FROM users WHERE uid = ?", (uid,))
         row = await cursor.fetchone()
-        old_level = row["level"]
-        new_exp = row["exp"] + exp_delta
+        if row is None:
+            await db.execute("INSERT INTO users (uid) VALUES (?)", (uid,))
+            await db.commit()
+            old_level = 1
+            new_exp = exp_delta
+        else:
+            old_level = row["level"]
+            new_exp = row["exp"] + exp_delta
         level_data = get_level(new_exp)
         new_level = level_data["level"]
         level_up = new_level > old_level
