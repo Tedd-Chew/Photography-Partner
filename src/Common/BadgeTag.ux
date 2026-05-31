@@ -1,0 +1,37 @@
+<template>
+  <div class="badge-tag">
+    <text class="badge-tag-icon">🏅</text>
+    <text class="badge-tag-name">{{name}}</text>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    name: { default: '' }
+  }
+}
+</script>
+
+<style>
+  .badge-tag {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background-color: #2a2a1e;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+
+  .badge-tag-icon {
+    font-size: 14px;
+    margin-right: 4px;
+  }
+
+  .badge-tag-name {
+    font-size: 13px;
+    color: #ffd700;
+  }
+</style>

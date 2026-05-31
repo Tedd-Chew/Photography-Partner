@@ -1,0 +1,36 @@
+<template>
+  <div class="action-bar">
+    <div class="btn-shoot" onclick="onClick">
+      <text class="shoot-icon">📸</text>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  onClick() {
+    this.$emit('click')
+  }
+}
+</script>
+
+<style>
+  .action-bar {
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .btn-shoot {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    background-color: #ffffff;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid #ffd700;
+  }
+
+  .shoot-icon {
+    font-size: 18px;
+  }
+</style>

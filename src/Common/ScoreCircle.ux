@@ -1,0 +1,82 @@
+<template>
+  <div class="score-hero">
+    <div class="score-circle" style="border-color: {{color}};">
+      <text class="score-number" style="color: {{color}};">{{score}}</text>
+    </div>
+    <text class="score-suffix">/100 分</text>
+    <div class="score-tag" style="background-color: {{tagBg}};">
+      <text class="score-tag-text" style="color: {{color}};">{{label}}</text>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    score: { default: 0 }
+  },
+
+  computed: {
+    color() {
+      if (this.score >= 80) return '#ffd700'
+      if (this.score >= 60) return '#ff9800'
+      return '#f44336'
+    },
+    label() {
+      if (this.score >= 90) return '优秀'
+      if (this.score >= 80) return '良好'
+      if (this.score >= 60) return '一般'
+      return '需改进'
+    },
+    tagBg() {
+      if (this.score >= 80) return 'rgba(255, 215, 0, 0.15)'
+      if (this.score >= 60) return 'rgba(255, 152, 0, 0.15)'
+      return 'rgba(244, 67, 54, 0.15)'
+    }
+  }
+}
+</script>
+
+<style>
+  .score-hero {
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0 16px 0;
+  }
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 70px;
+    background-color: #1a1a2e;
+    border-width: 5px;
+    border-color: #ffd700;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .score-number {
+    font-size: 72px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .score-suffix {
+    font-size: 15px;
+    color: #888888;
+    margin-top: 8px;
+  }
+
+  .score-tag {
+    margin-top: 8px;
+    padding: 4px 16px;
+    border-radius: 12px;
+    background-color: rgba(255, 215, 0, 0.15);
+  }
+
+  .score-tag-text {
+    font-size: 15px;
+    color: #ffd700;
+    font-weight: bold;
+  }
+</style>

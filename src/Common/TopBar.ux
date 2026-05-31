@@ -1,0 +1,48 @@
+<template>
+  <div class="top-bar">
+    <div class="back-btn" onclick="onBack">
+      <text>← 返回</text>
+    </div>
+    <text class="title">{{title}}</text>
+    <div class="spacer"></div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+
+export default {
+  props: {
+    title: { default: '光影参谋' }
+  },
+
+  onBack() {
+    router.back()
+  }
+}
+</script>
+
+<style>
+  .top-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background-color: #1a1a2e;
+  }
+
+  .back-btn text {
+    font-size: 15px;
+    color: #ffd700;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .spacer {
+    width: 60px;
+  }
+</style>

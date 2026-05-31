@@ -1,23 +1,52 @@
 <script>
 import router from '@system.router'
-import { store } from './store/index.js'
-import { getUid } from './helper/storage.js'
+import device from '@system.device'
+import { getUserInfo } from './services/api'
+import { store } from './store/index'
+import { getCache } from './helper/storage'
 
 export default {
   data: {
     uid: '',
-    user: null
+    ready: false
   },
 
-  onInit() {
-    getUid().then((uid) => {
-      this.uid = uid
-      store.setUser({ uid })
+  async onInit() {
+    const cached = await getCache('user')
+    if (cached) {
+      store.setUser(cached)
+      this.uid = cached.uid
+      this.ready = true
+    }
+
+    device.getInfo({
+      success: async (info) => {
+        const uid = info.device || 'device_' + Date.now()
+        this.uid = uid
+        try {
+          const userData = await getUserInfo(uid)
+          store.setUser(userData)
+          this.ready = true
+        } catch (e) {
+          if (!cached) {
+            store.setUser({ uid })
+            this.ready = true
+          }
+        }
+      },
+      fail: () => {
+        const uid = 'device_' + Date.now()
+        this.uid = uid
+        if (!cached) {
+          store.setUser({ uid })
+        }
+        this.ready = true
+      }
     })
   },
 
   navigateTo(page) {
-    router.push({ uri: `/${page}` })
+    router.push({ uri: '/' + page })
   }
 }
 </script>

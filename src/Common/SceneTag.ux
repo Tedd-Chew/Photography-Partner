@@ -1,0 +1,37 @@
+<template>
+  <div class="scene-tag">
+    <text class="scene-dot">●</text>
+    <text class="scene-name">{{name}}</text>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    name: { default: '' }
+  }
+}
+</script>
+
+<style>
+  .scene-tag {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background-color: rgba(255, 152, 0, 0.15);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+  }
+
+  .scene-dot {
+    font-size: 10px;
+    color: #ff9800;
+    margin-right: 5px;
+  }
+
+  .scene-name {
+    font-size: 13px;
+    color: #ff9800;
+    font-weight: bold;
+  }
+</style>

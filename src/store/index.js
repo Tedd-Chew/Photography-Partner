@@ -1,94 +1,63 @@
-const state = {
-  user: {
-    uid: '',
-    nickname: '',
-    level: 1,
-    exp: 0,
-    badges: [],
-    totalAnalyses: 0
-  },
-
-  camera: {
-    scene: null,
-    gridMode: 'thirds',
-    params: null
-  },
-
-  analysis: null,
-
-  analysisMode: 'score',
-
-  history: [],
-
-  currentImage: null,
-
-  loading: false
-}
-
-function setUser(data) {
-  Object.assign(state.user, data)
-}
-
-function setCamera(data) {
-  Object.assign(state.camera, data)
-}
-
-function setAnalysis(data) {
-  state.analysis = data
-}
-
-function setAnalysisMode(mode) {
-  state.analysisMode = mode
-}
-
-function setLoading(val) {
-  state.loading = val
-}
-
-function setCurrentImage(uri) {
-  state.currentImage = uri
-}
-
-function setHistory(list) {
-  state.history = list
-}
-
-function addBadge(badge) {
-  if (badge && !state.user.badges.includes(badge)) {
-    state.user.badges.push(badge)
-  }
-}
-
-function addExp(amount) {
-  state.user.exp += amount
-  if (state.user.exp >= 1600) {
-    state.user.level = 6
-  } else if (state.user.exp >= 1000) {
-    state.user.level = 5
-  } else if (state.user.exp >= 600) {
-    state.user.level = 4
-  } else if (state.user.exp >= 300) {
-    state.user.level = 3
-  } else if (state.user.exp >= 100) {
-    state.user.level = 2
-  }
-}
-
-function clearAnalysis() {
-  state.analysis = null
-  state.currentImage = null
-}
+import { getCache, saveCache } from '../helper/storage'
 
 export const store = {
-  state,
-  setUser,
-  setCamera,
-  setAnalysis,
-  setAnalysisMode,
-  setLoading,
-  setCurrentImage,
-  setHistory,
-  addBadge,
-  addExp,
-  clearAnalysis
+  state: {
+    user: {
+      uid: '',
+      nickname: '',
+      level: 1,
+      exp: 0,
+      badges: [],
+      totalAnalyses: 0
+    },
+
+    camera: {
+      scene: null,
+      gridMode: 'thirds',
+      params: { shutter: null, iso: null, aperture: null, wb: null, focus: null }
+    },
+
+    analysis: null,
+
+    history: []
+  },
+
+  setUser(data) {
+    Object.assign(this.state.user, data)
+    saveCache('user', this.state.user)
+  },
+
+  setCameraParams(scene, params) {
+    this.state.camera.scene = scene
+    this.state.camera.params = params
+  },
+
+  setAnalysis(data) {
+    this.state.analysis = data
+    if (data.exp_gained) {
+      this.state.user.exp += data.exp_gained
+    }
+    if (data.level_up && data.level_up.new_level) {
+      this.state.user.level = data.level_up.new_level
+    }
+    if (data.badge_unlocked && data.badge_unlocked.length) {
+      const badges = this.state.user.badges
+      for (let i = 0; i < data.badge_unlocked.length; i++) {
+        if (badges.indexOf(data.badge_unlocked[i]) === -1) {
+          badges.push(data.badge_unlocked[i])
+        }
+      }
+    }
+    this.state.user.totalAnalyses += 1
+    saveCache('user', this.state.user)
+  },
+
+  setHistory(list) {
+    this.state.history = list
+  },
+
+  clearAnalysis() {
+    this.state.analysis = null
+  }
 }
+

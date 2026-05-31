@@ -1,0 +1,95 @@
+<template>
+  <div class="param-panel">
+    <div class="panel-header">
+      <text class="panel-icon">📷</text>
+      <text class="panel-title">{{title}}</text>
+    </div>
+
+    <div class="param-grid">
+      <div class="param-item">
+        <text class="param-label">快门速度</text>
+        <text class="param-value">{{params.shutter || '--'}}</text>
+      </div>
+      <div class="param-item">
+        <text class="param-label">ISO 感光度</text>
+        <text class="param-value">{{params.iso || '--'}}</text>
+      </div>
+      <div class="param-item">
+        <text class="param-label">光圈</text>
+        <text class="param-value">{{params.aperture || '--'}}</text>
+      </div>
+      <div class="param-item">
+        <text class="param-label">白平衡</text>
+        <text class="param-value">{{params.wb || '--'}}</text>
+      </div>
+      <div class="param-item param-full" if="{{params.focus}}">
+        <text class="param-label">对焦建议</text>
+        <text class="param-value">{{params.focus}}</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    params: {
+      default: () => ({ shutter: null, iso: null, aperture: null, wb: null, focus: null })
+    },
+    title: { default: '建议参数' },
+    scene: { default: '' }
+  }
+}
+</script>
+
+<style>
+  .param-panel {
+    background-color: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 20px;
+  }
+
+  .panel-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .panel-icon {
+    font-size: 16px;
+    margin-right: 6px;
+  }
+
+  .panel-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+
+  .param-grid {
+    flex-wrap: wrap;
+  }
+
+  .param-item {
+    width: 50%;
+    flex-direction: column;
+    padding: 8px 0;
+  }
+
+  .param-full {
+    width: 100%;
+  }
+
+  .param-label {
+    font-size: 12px;
+    color: #888888;
+    margin-bottom: 3px;
+  }
+
+  .param-value {
+    font-size: 15px;
+    color: #ffffff;
+    font-weight: bold;
+  }
+</style>
