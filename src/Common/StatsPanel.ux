@@ -1,7 +1,9 @@
+<import name="st-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="stats-panel">
     <div class="stats-header">
-      <text class="stats-icon">📊</text>
+      <st-icon type="stats" size="16" color="#ffd700"></st-icon>
       <text class="stats-title">统计</text>
     </div>
 
@@ -50,7 +52,6 @@ export default {
   }
 
   .stats-icon {
-    font-size: 16px;
     margin-right: 6px;
   }
 

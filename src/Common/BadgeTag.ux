@@ -1,6 +1,8 @@
+<import name="bt-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="badge-tag">
-    <text class="badge-tag-icon">🏅</text>
+    <bt-icon type="star" size="14" color="#ffd700"></bt-icon>
     <text class="badge-tag-name">{{name}}</text>
   </div>
 </template>
@@ -26,7 +28,6 @@ export default {
   }
 
   .badge-tag-icon {
-    font-size: 14px;
     margin-right: 4px;
   }
 

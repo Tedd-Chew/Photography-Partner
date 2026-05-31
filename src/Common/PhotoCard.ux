@@ -1,9 +1,11 @@
+<import name="pc-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="photo-card" onclick="onClick">
     <div class="card-image">
       <image class="card-thumb" src="{{item.thumb_url}}" if="{{item.thumb_url}}"></image>
       <div class="card-thumb-bg" if="{{!item.thumb_url}}">
-        <text class="card-thumb-icon">🖼️</text>
+        <pc-icon type="image" size="32" color="#555555"></pc-icon>
       </div>
     </div>
 
@@ -33,8 +35,8 @@ export default {
 
   computed: {
     modeLabel() {
-      const map = { shooting: '📷 拍摄', edit: '🔧 修图', score: '⭐ 评分' }
-      return map[this.item.mode] || '⭐ 评分'
+      const map = { shooting: '拍摄', edit: '修图', score: '评分' }
+      return map[this.item.mode] || '评分'
     },
     modeClass() {
       return 'mode-' + (this.item.mode || 'score')
@@ -53,7 +55,7 @@ export default {
         return (this.item.result_json.advice || '').substring(0, 50)
       }
       if (this.item.mode === 'score') {
-        return '⭐ ' + (this.item.result_json.score || '?') + ' 分 · ' + ((this.item.result_json.comment || '').substring(0, 30))
+        return (this.item.result_json.score || '?') + ' 分 · ' + ((this.item.result_json.comment || '').substring(0, 30))
       }
       return ''
     }
@@ -98,7 +100,7 @@ export default {
   }
 
   .card-thumb-icon {
-    font-size: 28px;
+    margin-bottom: 4px;
   }
 
   .card-body {

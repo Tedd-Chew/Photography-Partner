@@ -1,7 +1,9 @@
+<import name="bl-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="bullet-section">
     <div class="bullet-header">
-      <text class="bullet-icon">{{icon}}</text>
+      <bl-icon type="{{iconType}}" size="16" color="#ffd700"></bl-icon>
       <text class="bullet-title">{{title}}</text>
     </div>
     <div class="bullet-item" for="text in items">
@@ -14,7 +16,7 @@
 <script>
 export default {
   props: {
-    icon: { default: '📐' },
+    iconType: { default: 'options' },
     title: { default: '' },
     items: { default: () => [] }
   }
@@ -36,7 +38,6 @@ export default {
   }
 
   .bullet-icon {
-    font-size: 16px;
     margin-right: 6px;
   }
 

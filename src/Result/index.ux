@@ -8,6 +8,7 @@
 <import name="exp-gain-card" src="../Common/ExpGainCard.ux"></import>
 <import name="level-up-card" src="../Common/LevelUpCard.ux"></import>
 <import name="badge-unlock-card" src="../Common/BadgeUnlockCard.ux"></import>
+<import name="res-icon" src="../apex-ui/components/icon/index"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
 <template>
@@ -28,7 +29,7 @@
 
       <bullet-list
         if="{{analysis.composition_tips && analysis.composition_tips.length}}"
-        icon="📐"
+        iconType="options"
         title="构图建议"
         items="{{analysis.composition_tips}}">
       </bullet-list>
@@ -38,12 +39,18 @@
       </div>
 
       <div if="{{analysis.lighting_advice && mode === 'shooting'}}" class="lighting-section">
-        <text class="lighting-label">💡 用光建议</text>
+        <div class="lighting-header">
+          <res-icon type="flashlight" size="16" color="#ffd700"></res-icon>
+          <text class="lighting-label">用光建议</text>
+        </div>
         <text class="lighting-text">{{analysis.lighting_advice}}</text>
       </div>
 
       <div if="{{analysis.extra_tips && mode === 'shooting'}}" class="extra-section">
-        <text class="lighting-label">📝 额外建议</text>
+        <div class="lighting-header">
+          <res-icon type="paper-plane" size="16" color="#ffd700"></res-icon>
+          <text class="lighting-label">额外建议</text>
+        </div>
         <text class="lighting-text">{{analysis.extra_tips}}</text>
       </div>
 
@@ -79,9 +86,9 @@ export default {
     hasScores: false,
     hasParams: false,
     navTabs: [
-      { icon: '📋', label: '历史' },
-      { icon: '🖼️', label: '选图' },
-      { icon: '🌟', label: '成长' }
+      { label: '历史' },
+      { label: '选图' },
+      { label: '成长' }
     ]
   },
 
@@ -131,11 +138,17 @@ export default {
     margin: 8px 20px;
   }
 
+  .lighting-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
   .lighting-label {
     font-size: 16px;
     color: #cccccc;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-left: 6px;
   }
 
   .lighting-text {

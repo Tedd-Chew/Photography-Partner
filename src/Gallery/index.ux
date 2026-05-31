@@ -1,5 +1,6 @@
 <import name="top-bar" src="../Common/TopBar.ux"></import>
 <import name="photo-card" src="../Common/PhotoCard.ux"></import>
+<import name="g-icon" src="../apex-ui/components/icon/index"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
 <template>
@@ -8,7 +9,7 @@
 
     <div class="content">
       <div if="{{!items.length}}" class="empty-state">
-        <text class="empty-icon">📭</text>
+        <g-icon type="images" size="48" color="#555555"></g-icon>
         <text class="empty-text">还没有分析记录</text>
         <text class="empty-hint">去选图页面开始第一次分析吧</text>
       </div>
@@ -34,9 +35,9 @@ export default {
     page: 1,
     total: 0,
     navTabs: [
-      { icon: '📋', label: '历史' },
-      { icon: '🖼️', label: '选图' },
-      { icon: '🌟', label: '成长' }
+      { label: '历史' },
+      { label: '选图' },
+      { label: '成长' }
     ]
   },
 
@@ -81,7 +82,6 @@ export default {
   }
 
   .empty-icon {
-    font-size: 48px;
     margin-bottom: 12px;
   }
 

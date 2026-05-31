@@ -1,7 +1,9 @@
+<import name="pp-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="param-panel">
     <div class="panel-header">
-      <text class="panel-icon">📷</text>
+      <pp-icon type="camera" size="16" color="#ffd700"></pp-icon>
       <text class="panel-title">{{title}}</text>
     </div>
 
@@ -57,7 +59,6 @@ export default {
   }
 
   .panel-icon {
-    font-size: 16px;
     margin-right: 6px;
   }
 

@@ -53,9 +53,9 @@ export default {
     mode: 'shooting',
     loading: false,
     navTabs: [
-      { icon: '📋', label: '历史' },
-      { icon: '🖼️', label: '选图' },
-      { icon: '🌟', label: '成长' }
+      { label: '历史' },
+      { label: '选图' },
+      { label: '成长' }
     ]
   },
 

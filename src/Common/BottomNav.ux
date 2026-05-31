@@ -1,15 +1,17 @@
+<import name="nav-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="bottom-nav">
     <div class="nav-item" onclick="navToGallery">
-      <text class="nav-icon">📋</text>
+      <nav-icon type="list" size="22" color="#888888"></nav-icon>
       <text class="nav-label">历史</text>
     </div>
     <div class="nav-item" onclick="navToUpload">
-      <text class="nav-icon">🖼️</text>
+      <nav-icon type="image" size="22" color="#888888"></nav-icon>
       <text class="nav-label">选图</text>
     </div>
     <div class="nav-item" onclick="navToCamera">
-      <text class="nav-icon">📷</text>
+      <nav-icon type="camera" size="22" color="#888888"></nav-icon>
       <text class="nav-label">拍摄</text>
     </div>
   </div>
@@ -36,12 +38,9 @@ export default {
     flex-direction: column;
     align-items: center;
   }
-  .nav-icon {
-    font-size: 20px;
-    margin-bottom: 2px;
-  }
   .nav-label {
     font-size: 13px;
     color: #888888;
+    margin-top: 4px;
   }
 </style>

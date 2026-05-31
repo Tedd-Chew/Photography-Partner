@@ -1,7 +1,9 @@
+<import name="lu-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div>
   <div class="level-up-card" if="{{show}}">
-    <text class="level-up-icon">🎉</text>
+    <lu-icon type="gift" size="32" color="#ffd700"></lu-icon>
     <text class="level-up-text">升级了！</text>
     <text class="level-up-detail">{{oldName}} → {{newName}}</text>
   </div>
@@ -34,7 +36,6 @@ export default {
   }
 
   .level-up-icon {
-    font-size: 28px;
     margin-bottom: 6px;
   }
 

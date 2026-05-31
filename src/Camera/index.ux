@@ -43,9 +43,9 @@ export default {
     gridMode: 'thirds',
     params: { shutter: null, iso: null, aperture: null, wb: null, focus: null },
     navTabs: [
-      { icon: '📋', label: '历史' },
-      { icon: '🖼️', label: '选图' },
-      { icon: '🌟', label: '成长' }
+      { label: '历史' },
+      { label: '选图' },
+      { label: '成长' }
     ]
   },
 

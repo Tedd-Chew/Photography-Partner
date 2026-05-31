@@ -1,7 +1,9 @@
+<import name="sr-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="radar-chart">
     <div class="radar-title">
-      <text class="section-icon">📊</text>
+      <sr-icon type="stats" size="16" color="#ffd700"></sr-icon>
       <text class="section-label">五维评分</text>
     </div>
 
@@ -53,7 +55,6 @@ export default {
   }
 
   .section-icon {
-    font-size: 16px;
     margin-right: 6px;
   }
 

@@ -1,7 +1,9 @@
+<import name="mode-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="mode-selector">
     <div class="mode-option {{value === 'shooting' ? 'option-selected' : ''}}" onclick="selectShooting">
-      <text class="mode-icon">📷</text>
+      <mode-icon type="camera" size="20" color="{{value === 'shooting' ? '#ffd700' : '#888888'}}"></mode-icon>
       <text class="{{value === 'shooting' ? 'mode-name-selected' : 'mode-name'}}">拍摄指导</text>
       <text class="{{value === 'shooting' ? 'mode-desc-selected' : 'mode-desc'}}">推荐相机参数</text>
     </div>
@@ -9,7 +11,7 @@
     <div class="mode-divider"></div>
 
     <div class="mode-option {{value === 'edit' ? 'option-selected' : ''}}" onclick="selectEdit">
-      <text class="mode-icon">🔧</text>
+      <mode-icon type="build" size="20" color="{{value === 'edit' ? '#c084fc' : '#888888'}}"></mode-icon>
       <text class="{{value === 'edit' ? 'mode-name-selected' : 'mode-name'}}">修图建议</text>
       <text class="{{value === 'edit' ? 'mode-desc-selected' : 'mode-desc'}}">后期调色指导</text>
     </div>
@@ -17,7 +19,7 @@
     <div class="mode-divider"></div>
 
     <div class="mode-option {{value === 'score' ? 'option-selected' : ''}}" onclick="selectScore">
-      <text class="mode-icon">⭐</text>
+      <mode-icon type="star" size="20" color="{{value === 'score' ? '#ffd700' : '#888888'}}"></mode-icon>
       <text class="{{value === 'score' ? 'mode-name-selected' : 'mode-name'}}">评分评价</text>
       <text class="{{value === 'score' ? 'mode-desc-selected' : 'mode-desc'}}">五维打分反馈</text>
     </div>
@@ -61,7 +63,6 @@ export default {
   }
 
   .mode-icon {
-    font-size: 24px;
     margin-bottom: 4px;
   }
 

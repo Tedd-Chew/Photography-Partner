@@ -1,6 +1,8 @@
+<import name="eg-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="exp-gain-card">
-    <text class="exp-icon">✨</text>
+    <eg-icon type="flash" size="16" color="#ffd700"></eg-icon>
     <text class="exp-text">本次获得 +{{exp}} 经验</text>
   </div>
 </template>
@@ -25,7 +27,6 @@ export default {
   }
 
   .exp-icon {
-    font-size: 16px;
     margin-right: 8px;
   }
 

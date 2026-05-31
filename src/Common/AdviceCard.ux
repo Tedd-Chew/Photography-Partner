@@ -1,7 +1,9 @@
+<import name="ad-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="advice-card">
     <div class="advice-header">
-      <text class="advice-icon">🤖</text>
+      <ad-icon type="rocket" size="16" color="#c084fc"></ad-icon>
       <text class="advice-title">AI 评价</text>
     </div>
     <text class="advice-body">{{comment}}</text>
@@ -31,7 +33,6 @@ export default {
   }
 
   .advice-icon {
-    font-size: 16px;
     margin-right: 6px;
   }
 

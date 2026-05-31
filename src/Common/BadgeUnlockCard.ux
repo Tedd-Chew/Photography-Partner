@@ -1,7 +1,9 @@
+<import name="bu-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div>
   <div class="badge-unlock-card" if="{{name}}">
-    <text class="badge-unlock-icon">🏅</text>
+    <bu-icon type="star" size="36" color="#ffd700"></bu-icon>
     <text class="badge-unlock-text">新勋章解锁！</text>
     <text class="badge-unlock-name">{{name}}</text>
   </div>
@@ -28,7 +30,6 @@ export default {
   }
 
   .badge-unlock-icon {
-    font-size: 36px;
     margin-bottom: 6px;
   }
 
