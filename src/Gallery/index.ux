@@ -6,7 +6,7 @@
   <div class="page">
     <top-bar title="历史记录"></top-bar>
 
-    <scroll class="content">
+    <div class="content">
       <div if="{{!items.length}}" class="empty-state">
         <text class="empty-icon">📭</text>
         <text class="empty-text">还没有分析记录</text>
@@ -18,7 +18,7 @@
         item="{{item}}"
         @click="onCardClick">
       </photo-card>
-    </scroll>
+    </div>
 
     <bottom-nav tabs="{{navTabs}}"></bottom-nav>
   </div>

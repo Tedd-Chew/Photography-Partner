@@ -1,9 +1,11 @@
 <template>
+  <div>
   <div class="level-up-card" if="{{show}}">
     <text class="level-up-icon">🎉</text>
     <text class="level-up-text">升级了！</text>
     <text class="level-up-detail">{{oldName}} → {{newName}}</text>
   </div>
+</div>
 </template>
 
 <script>

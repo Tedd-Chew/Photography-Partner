@@ -61,36 +61,3 @@ export const store = {
   }
 }
 
-function addExp(amount) {
-  state.user.exp += amount
-  if (state.user.exp >= 1600) {
-    state.user.level = 6
-  } else if (state.user.exp >= 1000) {
-    state.user.level = 5
-  } else if (state.user.exp >= 600) {
-    state.user.level = 4
-  } else if (state.user.exp >= 300) {
-    state.user.level = 3
-  } else if (state.user.exp >= 100) {
-    state.user.level = 2
-  }
-}
-
-function clearAnalysis() {
-  state.analysis = null
-  state.currentImage = null
-}
-
-export const store = {
-  state,
-  setUser,
-  setCamera,
-  setAnalysis,
-  setAnalysisMode,
-  setLoading,
-  setCurrentImage,
-  setHistory,
-  addBadge,
-  addExp,
-  clearAnalysis
-}

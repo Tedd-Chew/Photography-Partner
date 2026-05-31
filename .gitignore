@@ -34,3 +34,10 @@ sign/release/
 
 # Logs
 *.log
+
+# Quick App build
+build/
+.quickapp*
+
+# Quick App sign
+sign/release/

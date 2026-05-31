@@ -1,9 +1,11 @@
 <template>
+  <div>
   <div class="badge-unlock-card" if="{{name}}">
     <text class="badge-unlock-icon">🏅</text>
     <text class="badge-unlock-text">新勋章解锁！</text>
     <text class="badge-unlock-name">{{name}}</text>
   </div>
+</div>
 </template>
 
 <script>

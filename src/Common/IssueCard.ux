@@ -64,15 +64,15 @@ export default {
     margin-right: 8px;
   }
 
-  .severity-tag.severity-high {
+  .severity-high {
     background-color: rgba(244, 67, 54, 0.2);
   }
 
-  .severity-tag.severity-medium {
+  .severity-medium {
     background-color: rgba(255, 152, 0, 0.2);
   }
 
-  .severity-tag.severity-low {
+  .severity-low {
     background-color: rgba(76, 175, 80, 0.2);
   }
 
