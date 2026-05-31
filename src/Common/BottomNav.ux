@@ -1,23 +1,27 @@
 <template>
   <div class="bottom-nav">
-    <div class="nav-item" for="tab in tabs" onclick="tab.onclick">
-      <text class="nav-icon">{{tab.icon}}</text>
-      <text class="nav-label">{{tab.label}}</text>
+    <div class="nav-item" onclick="navToGallery">
+      <text class="nav-icon">📋</text>
+      <text class="nav-label">历史</text>
+    </div>
+    <div class="nav-item" onclick="navToUpload">
+      <text class="nav-icon">🖼️</text>
+      <text class="nav-label">选图</text>
+    </div>
+    <div class="nav-item" onclick="navToCamera">
+      <text class="nav-icon">📷</text>
+      <text class="nav-label">拍摄</text>
     </div>
   </div>
 </template>
 
 <script>
+import router from '@system.router'
+
 export default {
-  props: {
-    tabs: {
-      default: () => [
-        { icon: '📋', label: '历史' },
-        { icon: '🖼️', label: '选图' },
-        { icon: '🌟', label: '成长' }
-      ]
-    }
-  }
+  navToGallery() { router.push({ uri: '/Gallery' }) },
+  navToUpload() { router.push({ uri: '/Upload' }) },
+  navToCamera() { router.push({ uri: '/Camera' }) }
 }
 </script>
 
@@ -28,17 +32,14 @@ export default {
     padding: 12px 0;
     background-color: #1a1a2e;
   }
-
   .nav-item {
     flex-direction: column;
     align-items: center;
   }
-
   .nav-icon {
     font-size: 20px;
     margin-bottom: 2px;
   }
-
   .nav-label {
     font-size: 13px;
     color: #888888;

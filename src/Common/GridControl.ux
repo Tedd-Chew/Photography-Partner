@@ -2,16 +2,16 @@
   <div class="grid-control">
     <text class="control-label">构图线: {{label}}</text>
     <div class="grid-btns">
-      <div class="grid-btn {{value === 'off' ? 'active' : ''}}" onclick="onChange('off')">
+      <div class="grid-btn {{value === 'off' ? 'btn-active' : ''}}" onclick="selectOff">
         <text>关闭</text>
       </div>
-      <div class="grid-btn {{value === 'thirds' ? 'active' : ''}}" onclick="onChange('thirds')">
+      <div class="grid-btn {{value === 'thirds' ? 'btn-active' : ''}}" onclick="selectThirds">
         <text>三分法</text>
       </div>
-      <div class="grid-btn {{value === 'golden' ? 'active' : ''}}" onclick="onChange('golden')">
+      <div class="grid-btn {{value === 'golden' ? 'btn-active' : ''}}" onclick="selectGolden">
         <text>黄金分割</text>
       </div>
-      <div class="grid-btn {{value === 'crosshair' ? 'active' : ''}}" onclick="onChange('crosshair')">
+      <div class="grid-btn {{value === 'crosshair' ? 'btn-active' : ''}}" onclick="selectCrosshair">
         <text>十字线</text>
       </div>
     </div>
@@ -31,9 +31,10 @@ export default {
     }
   },
 
-  onChange(mode) {
-    this.$emit('change', mode)
-  }
+  selectOff() { this.$dispatch('change', { value: 'off' }) },
+  selectThirds() { this.$dispatch('change', { value: 'thirds' }) },
+  selectGolden() { this.$dispatch('change', { value: 'golden' }) },
+  selectCrosshair() { this.$dispatch('change', { value: 'crosshair' }) }
 }
 </script>
 
@@ -67,11 +68,11 @@ export default {
     color: #ffffff;
   }
 
-  .grid-btn.active {
+  .btn-active {
     background-color: #ffd700;
   }
 
-  .grid-btn.active text {
+  .btn-active text {
     color: #000000;
   }
 </style>

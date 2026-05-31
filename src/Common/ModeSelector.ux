@@ -1,6 +1,6 @@
 <template>
   <div class="mode-selector">
-    <div class="mode-option {{value === 'shooting' ? 'mode-selected' : ''}}" onclick="onChange('shooting')">
+    <div class="mode-option {{value === 'shooting' ? 'option-selected' : ''}}" onclick="selectShooting">
       <text class="mode-icon">📷</text>
       <text class="{{value === 'shooting' ? 'mode-name-selected' : 'mode-name'}}">拍摄指导</text>
       <text class="{{value === 'shooting' ? 'mode-desc-selected' : 'mode-desc'}}">推荐相机参数</text>
@@ -8,7 +8,7 @@
 
     <div class="mode-divider"></div>
 
-    <div class="mode-option {{value === 'edit' ? 'mode-selected' : ''}}" onclick="onChange('edit')">
+    <div class="mode-option {{value === 'edit' ? 'option-selected' : ''}}" onclick="selectEdit">
       <text class="mode-icon">🔧</text>
       <text class="{{value === 'edit' ? 'mode-name-selected' : 'mode-name'}}">修图建议</text>
       <text class="{{value === 'edit' ? 'mode-desc-selected' : 'mode-desc'}}">后期调色指导</text>
@@ -16,7 +16,7 @@
 
     <div class="mode-divider"></div>
 
-    <div class="mode-option {{value === 'score' ? 'mode-selected' : ''}}" onclick="onChange('score')">
+    <div class="mode-option {{value === 'score' ? 'option-selected' : ''}}" onclick="selectScore">
       <text class="mode-icon">⭐</text>
       <text class="{{value === 'score' ? 'mode-name-selected' : 'mode-name'}}">评分评价</text>
       <text class="{{value === 'score' ? 'mode-desc-selected' : 'mode-desc'}}">五维打分反馈</text>
@@ -30,9 +30,9 @@ export default {
     value: { default: 'score' }
   },
 
-  onChange(mode) {
-    this.$emit('change', mode)
-  }
+  selectShooting() { this.$dispatch('change', { value: 'shooting' }) },
+  selectEdit() { this.$dispatch('change', { value: 'edit' }) },
+  selectScore() { this.$dispatch('change', { value: 'score' }) }
 }
 </script>
 
@@ -56,7 +56,7 @@ export default {
     border-bottom-color: transparent;
   }
 
-  .mode-option.mode-selected {
+  .option-selected {
     border-bottom-color: #ffd700;
   }
 

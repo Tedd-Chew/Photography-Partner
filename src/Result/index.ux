@@ -14,17 +14,17 @@
   <div class="page">
     <top-bar title="分析结果"></top-bar>
 
-    <scroll class="content">
+    <div class="content">
 
-      <score-circle score="{{analysis.score || 0}}"></score-circle>
+      <score-circle if="{{mode === 'score'}}" score="{{scoreVal}}"></score-circle>
 
-      <score-radar if="{{mode === 'score'}}" scores="{{analysis.scores || {}}}"></score-radar>
+      <score-radar if="{{mode === 'score' && hasScores}}" scores="{{analysis.scores}}"></score-radar>
 
       <advice-card if="{{mode === 'edit'}}" comment="{{analysis.advice}}"></advice-card>
 
       <advice-card if="{{mode === 'score'}}" comment="{{analysis.comment}}"></advice-card>
 
-      <param-panel if="{{mode === 'shooting'}}" params="{{analysis.camera_params || {}}}" scene="{{analysis.scene}}"></param-panel>
+      <param-panel if="{{mode === 'shooting' && hasParams}}" params="{{analysis.camera_params}}" scene="{{analysis.scene}}"></param-panel>
 
       <bullet-list
         if="{{analysis.composition_tips && analysis.composition_tips.length}}"
@@ -47,7 +47,7 @@
         <text class="lighting-text">{{analysis.extra_tips}}</text>
       </div>
 
-      <exp-gain-card exp="{{analysis.exp_gained || 0}}"></exp-gain-card>
+      <exp-gain-card if="{{analysis.exp_gained}}" exp="{{analysis.exp_gained}}"></exp-gain-card>
 
       <level-up-card
         if="{{levelUp}}"
@@ -60,7 +60,7 @@
         name="{{analysis.badge_unlocked[0]}}">
       </badge-unlock-card>
 
-    </scroll>
+    </div>
 
     <bottom-nav tabs="{{navTabs}}"></bottom-nav>
   </div>
@@ -75,6 +75,9 @@ export default {
   data: {
     mode: 'score',
     analysis: {},
+    scoreVal: 0,
+    hasScores: false,
+    hasParams: false,
     navTabs: [
       { icon: '📋', label: '历史' },
       { icon: '🖼️', label: '选图' },
@@ -84,23 +87,26 @@ export default {
 
   computed: {
     levelUp() {
-      const lu = this.analysis.level_up
+      var lu = this.analysis.level_up
       return lu && lu.level_up
     },
     oldLevelName() {
-      const lu = this.analysis.level_up
-      return lu ? LEVEL_NAMES[lu.old_level] || '' : ''
+      var lu = this.analysis.level_up
+      return lu ? (LEVEL_NAMES[lu.old_level] || '') : ''
     },
     newLevelName() {
-      const lu = this.analysis.level_up
-      return lu ? LEVEL_NAMES[lu.new_level] || '' : ''
+      var lu = this.analysis.level_up
+      return lu ? (LEVEL_NAMES[lu.new_level] || '') : ''
     }
   },
 
   onInit() {
     if (store.state.analysis) {
-      this.analysis = store.state.analysis
-      this.mode = store.state.analysis.mode || 'score'
+      this.analysis = store.state.analysis || {}
+      this.mode = this.analysis.mode || 'score'
+      this.scoreVal = this.analysis.score || 0
+      this.hasScores = !!this.analysis.scores
+      this.hasParams = !!this.analysis.camera_params
     }
   }
 }

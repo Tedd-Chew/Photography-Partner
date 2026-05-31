@@ -1,9 +1,11 @@
 <template>
+  <div>
   <div class="loading-overlay" if="{{show}}">
     <text class="loading-spinner">⏳</text>
     <text class="loading-text">{{text}}</text>
     <text class="loading-hint">{{hint}}</text>
   </div>
+</div>
 </template>
 
 <script>

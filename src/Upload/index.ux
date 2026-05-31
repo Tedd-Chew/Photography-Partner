@@ -1,6 +1,5 @@
 <import name="top-bar" src="../Common/TopBar.ux"></import>
 <import name="image-picker" src="../Common/ImagePicker.ux"></import>
-<import name="mode-selector" src="../Common/ModeSelector.ux"></import>
 <import name="loading-overlay" src="../Common/LoadingOverlay.ux"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
@@ -10,7 +9,17 @@
 
     <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
 
-    <mode-selector value="{{mode}}" @change="onModeChange"></mode-selector>
+    <div class="mode-bar">
+      <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
+        <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
+      </div>
+      <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
+        <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
+      </div>
+      <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
+        <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
+      </div>
+    </div>
 
     <div if="{{selectedImage}}" class="preview-wrap">
       <text class="preview-label">已选择照片</text>
@@ -18,8 +27,11 @@
     </div>
 
     <div class="analyze-wrap">
-      <div class="analyze-btn {{selectedImage ? '' : 'disabled'}}" onclick="onAnalyze">
+      <div if="{{selectedImage}}" class="analyze-btn" onclick="onAnalyze">
         <text class="analyze-btn-text">开始分析</text>
+      </div>
+      <div else class="analyze-btn-disabled">
+        <text class="analyze-btn-text-disabled">请先选择照片</text>
       </div>
     </div>
 
@@ -75,9 +87,9 @@ export default {
     })
   },
 
-  onModeChange(mode) {
-    this.mode = mode
-  },
+  pickShooting() { this.mode = 'shooting' },
+  pickEdit() { this.mode = 'edit' },
+  pickScore() { this.mode = 'score' },
 
   async onAnalyze() {
     if (!this.selectedImage) return
@@ -133,7 +145,11 @@ export default {
     background-color: #ffd700;
   }
 
-  .analyze-btn.disabled {
+  .analyze-btn-disabled {
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
     background-color: #555555;
   }
 
@@ -141,5 +157,37 @@ export default {
     font-size: 16px;
     font-weight: bold;
     color: #000000;
+  }
+
+  .analyze-btn-text-disabled {
+    font-size: 16px;
+    font-weight: bold;
+    color: #888888;
+  }
+
+  .mode-bar {
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 12px 20px;
+  }
+
+  .mode-tab {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background-color: #1a1a2e;
+  }
+
+  .mode-active {
+    background-color: #ffd700;
+  }
+
+  .mode-tab-text {
+    font-size: 14px;
+    color: #888888;
+  }
+
+  .mode-text-active {
+    color: #000000;
+    font-weight: bold;
   }
 </style>

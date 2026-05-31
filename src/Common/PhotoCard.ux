@@ -117,15 +117,15 @@ export default {
     margin-right: 6px;
   }
 
-  .card-mode-tag.mode-shooting {
+  .mode-shooting {
     background-color: rgba(77, 150, 255, 0.15);
   }
 
-  .card-mode-tag.mode-edit {
+  .mode-edit {
     background-color: rgba(192, 132, 252, 0.15);
   }
 
-  .card-mode-tag.mode-score {
+  .mode-score {
     background-color: rgba(255, 215, 0, 0.15);
   }
 
