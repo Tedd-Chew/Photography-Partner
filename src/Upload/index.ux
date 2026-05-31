@@ -7,31 +7,33 @@
   <div class="page">
     <top-bar title="选择分析模式"></top-bar>
 
-    <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
+    <div class="content">
+      <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
 
-    <div class="mode-bar">
-      <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
-        <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
+      <div class="mode-bar">
+        <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
+          <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
+        </div>
+        <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
+          <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
+        </div>
+        <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
+          <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
+        </div>
       </div>
-      <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
-        <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
-      </div>
-      <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
-        <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
-      </div>
-    </div>
 
-    <div if="{{selectedImage}}" class="preview-wrap">
-      <text class="preview-label">已选择照片</text>
-      <image class="preview-img" src="{{selectedImage}}"></image>
-    </div>
-
-    <div class="analyze-wrap">
-      <div if="{{selectedImage}}" class="analyze-btn" onclick="onAnalyze">
-        <text class="analyze-btn-text">开始分析</text>
+      <div if="{{selectedImage}}" class="preview-wrap">
+        <text class="preview-label">已选择照片</text>
+        <image class="preview-img" src="{{selectedImage}}"></image>
       </div>
-      <div else class="analyze-btn-disabled">
-        <text class="analyze-btn-text-disabled">请先选择照片</text>
+
+      <div class="analyze-wrap">
+        <div if="{{selectedImage}}" class="analyze-btn" onclick="onAnalyze">
+          <text class="analyze-btn-text">开始分析</text>
+        </div>
+        <div else class="analyze-btn-disabled">
+          <text class="analyze-btn-text-disabled">请先选择照片</text>
+        </div>
       </div>
     </div>
 
@@ -96,7 +98,7 @@ export default {
 
     this.loading = true
     try {
-      const result = await analyzePhoto(this.selectedImage, this.mode)
+      const result = await analyzePhoto(this.selectedImage, this.mode, store.state.user.uid)
       store.setAnalysis(result)
       this.loading = false
       this.$app.navigateTo('Result', { result, localUri: this.selectedImage })
@@ -112,6 +114,11 @@ export default {
     flex-direction: column;
     flex: 1;
     background-color: #0f0f23;
+  }
+
+  .content {
+    flex: 1;
+    flex-direction: column;
   }
 
   .preview-wrap {
