@@ -1,0 +1,181 @@
+<import name="h-icon" src="../apex-ui/components/icon/index"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+
+    <div class="hero">
+      <div class="hero-accent"></div>
+      <text class="hero-title">光影参谋</text>
+      <text class="hero-sub">你的智能摄影助手</text>
+      <div class="hero-dots">
+        <div class="dot dot-1"></div>
+        <div class="dot dot-2"></div>
+        <div class="dot dot-3"></div>
+      </div>
+    </div>
+
+    <list class="content">
+      <list-item class="content-wrap">
+
+      <div class="hero-card" onclick="goCamera">
+        <div class="hero-card-inner" style="background: linear-gradient(135deg, rgba(196,165,74,0.18) 0%, rgba(196,165,74,0.08) 100%);">
+          <div class="hero-icon-big" style="background-color: rgba(196,165,74,0.22); border-color: rgba(196,165,74,0.4);">
+            <h-icon type="camera" size="32" color="#C4A54A"></h-icon>
+          </div>
+          <text class="hero-label">拍 照</text>
+          <text class="hero-desc">AI 实时场景识别 · 参数推荐 · 构图指导</text>
+        </div>
+      </div>
+
+      <div class="hero-card" onclick="goUpload">
+        <div class="hero-card-inner" style="background: linear-gradient(135deg, rgba(155,112,214,0.18) 0%, rgba(155,112,214,0.08) 100%);">
+          <div class="hero-icon-big" style="background-color: rgba(155,112,214,0.22); border-color: rgba(155,112,214,0.4);">
+            <h-icon type="image" size="32" color="#9B70D6"></h-icon>
+          </div>
+          <text class="hero-label">上传照片</text>
+          <text class="hero-desc">已有照片 · 专业分析</text>
+        </div>
+      </div>
+
+      </list-item>
+    </list>
+
+    <bottom-nav></bottom-nav>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+
+export default {
+  goCamera() {
+    router.push({ uri: '/Camera' })
+  },
+
+  goUpload() {
+    router.push({ uri: '/Upload' })
+  }
+}
+</script>
+
+<style>
+  .page {
+    flex-direction: column;
+    flex: 1;
+    background-color: #EDF2F8;
+    overflow: hidden;
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: center;
+    padding: 44px 20px 28px 20px;
+    background-color: #F4F8FC;
+    border-bottom: 1px solid #DCE4F0;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .hero-accent {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 40px;
+    height: 3px;
+    border-radius: 2px;
+    background-color: #C4A54A;
+    margin-left: -20px;
+  }
+
+  .hero-title {
+    font-size: 44px;
+    font-weight: bold;
+    color: #595040;
+    margin-bottom: 6px;
+  }
+
+  .hero-sub {
+    font-size: 24px;
+    color: #86909C;
+    margin-bottom: 16px;
+  }
+
+  .hero-dots {
+    flex-direction: row;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    margin: 0 4px;
+  }
+
+  .dot-1 {
+    background-color: #C4A54A;
+    opacity: 0.6;
+  }
+
+  .dot-2 {
+    background-color: #C4A54A;
+    opacity: 0.35;
+  }
+
+  .dot-3 {
+    background-color: #C4A54A;
+    opacity: 0.15;
+  }
+
+  .content {
+    flex: 1;
+    height: 0;
+    padding: 20px 16px;
+  }
+
+  .content-wrap {
+    flex-direction: column;
+  }
+
+  .hero-card {
+    flex-direction: column;
+    margin-bottom: 16px;
+    border-radius: 18px;
+    background-color: #F4F8FC;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+    transition: opacity 0.15s ease;
+  }
+
+  .hero-card:active {
+    opacity: 0.8;
+  }
+
+  .hero-card-inner {
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 24px 32px 24px;
+    border-radius: 18px;
+  }
+
+  .hero-icon-big {
+    width: 72px;
+    height: 72px;
+    border-radius: 36px;
+    border-width: 1px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .hero-label {
+    font-size: 32px;
+    font-weight: bold;
+    color: #595040;
+    margin-bottom: 6px;
+  }
+
+  .hero-desc {
+    font-size: 24px;
+    color: #86909C;
+  }
+</style>

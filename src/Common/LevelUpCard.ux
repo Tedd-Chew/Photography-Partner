@@ -1,13 +1,15 @@
-<import name="lu-icon" src="../apex-ui/components/icon/index"></import>
+<import name="my-dialog" src="../apex-ui/components/dialog/index"></import>
 
 <template>
-  <div>
-  <div class="level-up-card" if="{{show}}">
-    <lu-icon type="gift" size="32" color="#ffd700"></lu-icon>
-    <text class="level-up-text">升级了！</text>
-    <text class="level-up-detail">{{oldName}} → {{newName}}</text>
-  </div>
-</div>
+  <my-dialog
+    visible="{{visible}}"
+    title="恭喜升级！"
+    content="{{oldName}} → {{newName}}"
+    cancel=""
+    affirm="太棒了"
+    @affirm="onClose"
+    @cancel="onClose">
+  </my-dialog>
 </template>
 
 <script>
@@ -17,37 +19,21 @@ export default {
     newName: { default: '' }
   },
 
-  computed: {
-    show() {
-      return !!(this.oldName && this.newName)
+  data: {
+    visible: false
+  },
+
+  onInit() {
+    if (this.oldName && this.newName) {
+      this.visible = true
     }
+  },
+
+  onClose() {
+    this.visible = false
   }
 }
 </script>
 
 <style>
-  .level-up-card {
-    flex-direction: column;
-    align-items: center;
-    background-color: #1e2a1e;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 8px 20px;
-  }
-
-  .level-up-icon {
-    margin-bottom: 6px;
-  }
-
-  .level-up-text {
-    font-size: 18px;
-    color: #4caf50;
-    font-weight: bold;
-  }
-
-  .level-up-detail {
-    font-size: 13px;
-    color: #81c784;
-    margin-top: 4px;
-  }
 </style>

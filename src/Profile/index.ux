@@ -1,0 +1,182 @@
+<import name="p-icon" src="../apex-ui/components/icon/index"></import>
+<import name="badge-tag" src="../Common/BadgeTag.ux"></import>
+<import name="level-badge" src="../Common/LevelBadge.ux"></import>
+<import name="top-bar" src="../Common/TopBar.ux"></import>
+<import name="bottom-nav" src="../Common/BottomNav.ux"></import>
+
+<template>
+  <div class="page">
+    <top-bar title="个人主页"></top-bar>
+
+    <list class="content">
+      <list-item class="content-wrap">
+
+      <div class="outer-card">
+        <level-badge
+          level="{{level}}"
+          level-name="{{levelName}}"
+          exp="{{exp}}"
+          exp-to-next="{{expToNext}}">
+        </level-badge>
+      </div>
+
+      <div class="outer-card stats-outer">
+        <div class="stat-row">
+          <div class="stat-cell">
+            <text class="stat-num">{{totalAnalyses}}</text>
+            <text class="stat-label">累计分析</text>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-cell">
+            <text class="stat-num">{{badges.length}}</text>
+            <text class="stat-label">获得勋章</text>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-cell">
+            <text class="stat-num">{{exp}}</text>
+            <text class="stat-label">总经验</text>
+          </div>
+        </div>
+      </div>
+
+      <div if="{{badges.length}}" class="outer-card badge-outer">
+        <div class="section-header">
+          <div class="header-icon-wrap">
+            <p-icon type="star" size="16" color="#C4A54A"></p-icon>
+          </div>
+          <text class="section-title">我的勋章</text>
+        </div>
+        <div class="badge-row">
+          <badge-tag for="name in badges" name="{{name}}"></badge-tag>
+        </div>
+        </div>
+      </list-item>
+    </list>
+
+    <bottom-nav></bottom-nav>
+  </div>
+</template>
+
+<script>
+import { store } from '../store/index'
+
+const LEVEL_NAMES = ['', '摄影新手', '摄影学徒', '摄影达人', '摄影专家', '摄影大师', '光影艺术家']
+const EXP_THRESHOLDS = [0, 0, 100, 300, 600, 1000, 99999]
+
+export default {
+  data: {
+    level: 1,
+    levelName: '',
+    exp: 0,
+    expToNext: 100,
+    totalAnalyses: 0,
+    badges: []
+  },
+
+  onInit() {
+    const u = store.state.user
+    this.level = u.level || 1
+    this.levelName = LEVEL_NAMES[u.level] || '摄影新手'
+    this.exp = u.exp || 0
+    this.totalAnalyses = u.totalAnalyses || 0
+    this.badges = u.badges || []
+
+    const nextLevel = Math.min(this.level + 1, 6)
+    this.expToNext = EXP_THRESHOLDS[nextLevel] || 99999
+  }
+}
+</script>
+
+<style>
+  .page {
+    flex-direction: column;
+    flex: 1;
+    background-color: #EDF2F8;
+    overflow: hidden;
+  }
+
+  .content {
+    flex: 1;
+    height: 0;
+  }
+
+  .content-wrap {
+    flex-direction: column;
+  }
+
+  .outer-card {
+    flex-direction: column;
+    margin: 0 16px 10px 16px;
+    padding: 4px;
+    border-radius: 18px;
+    background-color: #F4F8FC;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+  }
+
+  .stats-outer {
+    padding: 20px 4px;
+  }
+
+  .badge-outer {
+    padding: 20px 16px;
+  }
+
+  .stat-row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .stat-cell {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-num {
+    font-size: 42px;
+    font-weight: bold;
+    color: #C4A54A;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 22px;
+    color: #86909C;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 36px;
+    background-color: #DCE4F0;
+  }
+
+  .section-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .header-icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: rgba(196,165,74,0.07);
+    border: 1px solid rgba(196,165,74,0.12);
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #595040;
+  }
+
+  .badge-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-top: 4px;
+  }
+</style>

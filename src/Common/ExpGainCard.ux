@@ -2,7 +2,9 @@
 
 <template>
   <div class="exp-gain-card">
-    <eg-icon type="flash" size="16" color="#ffd700"></eg-icon>
+    <div class="exp-icon-circle">
+      <eg-icon type="flash" size="14" color="#C4A54A"></eg-icon>
+    </div>
     <text class="exp-text">本次获得 +{{exp}} 经验</text>
   </div>
 </template>
@@ -20,19 +22,32 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: #2a2a1e;
-    border-radius: 12px;
-    padding: 14px;
-    margin: 8px 20px;
+    background-color: #F0F4FC;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 0 16px 10px 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: opacity 0.2s ease;
   }
 
-  .exp-icon {
-    margin-right: 8px;
+  .exp-gain-card:active {
+    opacity: 0.7;
+  }
+
+  .exp-icon-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: rgba(196, 165, 74, 0.09);
+    border: 1px solid rgba(196, 165, 74, 0.15);
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
   }
 
   .exp-text {
-    font-size: 15px;
-    color: #ffd700;
+    font-size: 26px;
+    color: #C4A54A;
     font-weight: bold;
   }
 </style>

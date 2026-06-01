@@ -17,7 +17,7 @@ export default {
   },
 
   onBack() {
-    router.back()
+    router.replace({ uri: '/Home' })
   }
 }
 </script>
@@ -27,19 +27,29 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
-    background-color: #1a1a2e;
+    padding: 18px 20px;
+    background-color: #F4F8FC;
+    border-bottom: 1px solid #DCE4F0;
+    flex-shrink: 0;
+  }
+
+  .back-btn {
+    transition: opacity 0.15s ease;
+  }
+
+  .back-btn:active {
+    opacity: 0.6;
   }
 
   .back-btn text {
-    font-size: 15px;
-    color: #ffd700;
+    font-size: 26px;
+    color: #5B8DEE;
   }
 
   .title {
-    font-size: 18px;
+    font-size: 30px;
     font-weight: bold;
-    color: #ffffff;
+    color: #595040;
   }
 
   .spacer {

@@ -9,18 +9,20 @@
     "logLevel": "debug"
   },
   "router": {
-    "entry": "Camera",
+    "entry": "Home",
     "pages": {
+      "Home":    { "component": "index" },
       "Camera":  { "component": "index" },
       "Upload":  { "component": "index" },
       "Result":  { "component": "index" },
-      "Gallery": { "component": "index" }
+      "Gallery": { "component": "index" },
+      "Profile": { "component": "index" }
     }
   },
   "display": {
     "titleBarText": "光影参谋",
-    "titleBarBackgroundColor": "#1a1a2e",
-    "backgroundColor": "#0f0f23"
+    "titleBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FAFAFB"
   },
   "features": [
     { "name": "system.media" },

@@ -3,11 +3,11 @@
 <template>
   <div class="picker-entry">
     <div class="picker-btn" onclick="onPickCamera">
-      <pick-icon type="camera" size="28" color="#ffffff"></pick-icon>
+      <pick-icon type="camera" size="28" color="#4E5969"></pick-icon>
       <text class="picker-label">打开相机拍照</text>
     </div>
     <div class="picker-btn" onclick="onPickAlbum">
-      <pick-icon type="image" size="28" color="#ffffff"></pick-icon>
+      <pick-icon type="image" size="28" color="#4E5969"></pick-icon>
       <text class="picker-label">从相册选择</text>
     </div>
   </div>
@@ -41,8 +41,15 @@ export default {
     margin-bottom: 12px;
     padding: 18px;
     border-radius: 12px;
-    background-color: #1a1a2e;
-    border: 1px solid #2a2a3e;
+    background-color: #F0F4FC;
+    border: 1px solid #DCE4F0;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
+    transition: border-color 0.25s ease, opacity 0.15s ease;
+  }
+
+  .picker-btn:active {
+    opacity: 0.75;
+    border-color: rgba(196, 165, 74, 0.3);
   }
 
   .picker-icon {
@@ -50,8 +57,8 @@ export default {
   }
 
   .picker-label {
-    font-size: 16px;
-    color: #ffffff;
+    font-size: 28px;
+    color: #4E5969;
     font-weight: bold;
   }
 </style>

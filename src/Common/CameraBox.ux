@@ -3,7 +3,7 @@
 <template>
   <div class="preview-area">
     <div class="camera-placeholder">
-      <cm-icon type="camera" size="64" color="#555555"></cm-icon>
+      <cm-icon type="camera" size="64" color="#86909C"></cm-icon>
       <text class="placeholder-text">相机预览区域</text>
       <text class="placeholder-hint">（需真机调试）</text>
     </div>
@@ -40,11 +40,13 @@ export default {
 <style>
   .preview-area {
     position: relative;
-    height: 400px;
+    height: 280px;
     justify-content: center;
     align-items: center;
-    background-color: #0a0a0a;
-    flex-direction: column;
+    background-color: #DEE6F0;
+    border-radius: 16px;
+    margin: 12px 16px 0 16px;
+    box-shadow: inset 0 2px 8px rgba(60,80,120,0.06);
   }
 
   .camera-placeholder {
@@ -53,14 +55,14 @@ export default {
   }
 
   .placeholder-text {
-    font-size: 18px;
-    color: #888888;
+    font-size: 30px;
+    color: #86909C;
     margin-top: 12px;
   }
 
   .placeholder-hint {
-    font-size: 13px;
-    color: #555555;
+    font-size: 24px;
+    color: #4E5969;
     margin-top: 4px;
   }
 
@@ -77,19 +79,19 @@ export default {
     position: absolute;
     left: 0;
     right: 0;
-    height: 1px;
-    background-color: rgba(255, 255, 255, 0.35);
+    height: 2px;
+    background-color: rgba(190, 70, 120, 0.3);
   }
 
   .v-line {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 1px;
-    background-color: rgba(255, 255, 255, 0.35);
+    width: 2px;
+    background-color: rgba(190, 70, 120, 0.3);
   }
 
   .cross-line {
-    background-color: rgba(255, 255, 255, 0.45);
+    background-color: rgba(190, 70, 120, 0.3);
   }
 </style>

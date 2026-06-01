@@ -1,45 +1,49 @@
 <import name="top-bar" src="../Common/TopBar.ux"></import>
 <import name="image-picker" src="../Common/ImagePicker.ux"></import>
 <import name="loading-overlay" src="../Common/LoadingOverlay.ux"></import>
+<import name="up-btn" src="../apex-ui/components/button/index"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
 <template>
   <div class="page">
     <top-bar title="选择分析模式"></top-bar>
 
-    <div class="content">
-      <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
+    <list class="content">
+      <list-item class="content-wrap">
+        <div class="outer-card picker-outer">
+        <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
+      </div>
 
-      <div class="mode-bar">
-        <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
-          <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
-        </div>
-        <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
-          <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
-        </div>
-        <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
-          <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
+      <div class="outer-card">
+        <text class="outer-label">分析模式</text>
+        <div class="mode-bar">
+          <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
+            <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
+          </div>
+          <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
+            <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
+          </div>
+          <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
+            <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
+          </div>
         </div>
       </div>
 
-      <div if="{{selectedImage}}" class="preview-wrap">
+      <div if="{{selectedImage}}" class="outer-card preview-outer">
         <text class="preview-label">已选择照片</text>
         <image class="preview-img" src="{{selectedImage}}"></image>
       </div>
 
       <div class="analyze-wrap">
-        <div if="{{selectedImage}}" class="analyze-btn" onclick="onAnalyze">
-          <text class="analyze-btn-text">开始分析</text>
-        </div>
-        <div else class="analyze-btn-disabled">
-          <text class="analyze-btn-text-disabled">请先选择照片</text>
-        </div>
+        <up-btn if="{{selectedImage}}" type="primary" size="large" shape="round" ontap="onAnalyze">开始分析</up-btn>
+        <up-btn else type="default" size="large" shape="round" disabled="true">请先选择照片</up-btn>
       </div>
-    </div>
+      </list-item>
+    </list>
 
     <loading-overlay show="{{loading}}"></loading-overlay>
 
-    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+    <bottom-nav></bottom-nav>
   </div>
 </template>
 
@@ -53,58 +57,44 @@ export default {
   data: {
     selectedImage: null,
     mode: 'shooting',
-    loading: false,
-    navTabs: [
-      { label: '历史' },
-      { label: '选图' },
-      { label: '成长' }
-    ]
+    loading: false
   },
 
   onInit() {
     store.clearAnalysis()
   },
 
-  onPickImage() {
-    const self = this
-    media.pickImage({
-      success: function (data) {
-        self.selectedImage = data.uri
-      },
-      fail: function (err) {
-        console.log('选择图片失败:', err)
-      }
-    })
-  },
+  pickShooting: function () { this.mode = 'shooting' },
+  pickEdit: function () { this.mode = 'edit' },
+  pickScore: function () { this.mode = 'score' },
 
-  onTakePhoto() {
-    const self = this
-    media.takePhoto({
-      success: function (data) {
-        self.selectedImage = data.uri
-      },
-      fail: function (err) {
-        console.log('拍照失败:', err)
-      }
-    })
-  },
-
-  pickShooting() { this.mode = 'shooting' },
-  pickEdit() { this.mode = 'edit' },
-  pickScore() { this.mode = 'score' },
-
-  async onAnalyze() {
+  onAnalyze: function () {
     if (!this.selectedImage) return
-
-    this.loading = true
-    try {
-      const result = await analyzePhoto(this.selectedImage, this.mode, store.state.user.uid)
+    var self = this
+    self.loading = true
+    analyzePhoto(self.selectedImage, self.mode, store.state.user.uid).then(function (result) {
       store.setAnalysis(result)
-      this.loading = false
-      this.$app.navigateTo('Result', { result, localUri: this.selectedImage })
-    } catch (e) {
-      this.loading = false
-    }
+      self.loading = false
+      self.$app.navigateTo('Result', { result: result, localUri: self.selectedImage })
+    }).catch(function (e) {
+      self.loading = false
+    })
+  },
+
+  onPickImage: function () {
+    var self = this
+    media.pickImage({
+      success: function (data) { self.selectedImage = data.uri },
+      fail: function (err) { console.log('选择图片失败:', err) }
+    })
+  },
+
+  onTakePhoto: function () {
+    var self = this
+    media.takePhoto({
+      success: function (data) { self.selectedImage = data.uri },
+      fail: function (err) { console.log('拍照失败:', err) }
+    })
   }
 }
 </script>
@@ -113,88 +103,91 @@ export default {
   .page {
     flex-direction: column;
     flex: 1;
-    background-color: #0f0f23;
+    background-color: #EDF2F8;
+    overflow: hidden;
   }
 
   .content {
     flex: 1;
+    height: 0;
+  }
+
+  .content-wrap {
     flex-direction: column;
   }
 
-  .preview-wrap {
+  .outer-card {
     flex-direction: column;
+    margin: 0 16px 10px 16px;
+    padding: 20px;
+    border-radius: 18px;
+    background-color: #F4F8FC;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+    transition: opacity 0.15s ease;
+  }
+
+  .picker-outer {
+    padding: 20px 4px;
+  }
+
+  .preview-outer {
     align-items: center;
-    padding: 12px 20px;
+  }
+
+  .outer-label {
+    font-size: 26px;
+    font-weight: bold;
+    color: #595040;
+    margin-bottom: 16px;
   }
 
   .preview-label {
-    font-size: 13px;
-    color: #888888;
-    margin-bottom: 8px;
+    font-size: 24px;
+    color: #86909C;
+    margin-bottom: 10px;
   }
 
   .preview-img {
     width: 200px;
     height: 200px;
     border-radius: 12px;
-    background-color: #1a1a2e;
+    background-color: #DEE6F0;
   }
 
   .analyze-wrap {
-    padding: 16px 20px;
-  }
-
-  .analyze-btn {
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    border-radius: 12px;
-    background-color: #ffd700;
-  }
-
-  .analyze-btn-disabled {
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    border-radius: 12px;
-    background-color: #555555;
-  }
-
-  .analyze-btn-text {
-    font-size: 16px;
-    font-weight: bold;
-    color: #000000;
-  }
-
-  .analyze-btn-text-disabled {
-    font-size: 16px;
-    font-weight: bold;
-    color: #888888;
+    padding: 12px 16px;
   }
 
   .mode-bar {
     flex-direction: row;
     justify-content: space-around;
-    padding: 12px 20px;
   }
 
   .mode-tab {
-    padding: 10px 20px;
+    padding: 12px 18px;
     border-radius: 8px;
-    background-color: #1a1a2e;
+    background-color: #E3EAF5;
+    transition: background-color 0.25s ease, opacity 0.15s ease;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mode-tab:active {
+    opacity: 0.7;
   }
 
   .mode-active {
-    background-color: #ffd700;
+    background-color: #C4A54A;
+    box-shadow: 0 2px 8px rgba(196, 165, 74, 0.25);
   }
 
   .mode-tab-text {
-    font-size: 14px;
-    color: #888888;
+    font-size: 24px;
+    color: #86909C;
   }
 
   .mode-text-active {
-    color: #000000;
+    color: #FFFFFF;
     font-weight: bold;
   }
 </style>

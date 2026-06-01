@@ -3,7 +3,9 @@
 <template>
   <div class="bullet-section">
     <div class="bullet-header">
-      <bl-icon type="{{iconType}}" size="16" color="#ffd700"></bl-icon>
+      <div class="header-icon-wrap">
+        <bl-icon type="{{iconType}}" size="16" color="#C4A54A"></bl-icon>
+      </div>
       <text class="bullet-title">{{title}}</text>
     </div>
     <div class="bullet-item" for="text in items">
@@ -25,26 +27,34 @@ export default {
 
 <style>
   .bullet-section {
-    background-color: #1a1a2e;
     border-radius: 12px;
     padding: 16px;
-    margin: 8px 20px;
+    margin: 0 8px;
+    background-color: #F0F4FC;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
   }
 
   .bullet-header {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
-  .bullet-icon {
-    margin-right: 6px;
+  .header-icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: rgba(196, 165, 74, 0.07);
+    border: 1px solid rgba(196, 165, 74, 0.12);
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
   }
 
   .bullet-title {
-    font-size: 16px;
+    font-size: 28px;
     font-weight: bold;
-    color: #cccccc;
+    color: #595040;
   }
 
   .bullet-item {
@@ -54,16 +64,16 @@ export default {
   }
 
   .bullet-marker {
-    font-size: 14px;
-    color: #ffd700;
+    font-size: 24px;
+    color: #C4A54A;
     margin-right: 8px;
     margin-top: 2px;
   }
 
   .bullet-text {
-    font-size: 14px;
-    color: #cccccc;
+    font-size: 26px;
+    color: #4E5969;
     flex: 1;
-    line-height: 22px;
+    line-height: 40px;
   }
 </style>

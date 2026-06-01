@@ -2,17 +2,25 @@
 
 <template>
   <div class="bottom-nav">
+    <div class="nav-item" onclick="navToHome">
+      <nav-icon type="home" size="22" color="#86909C"></nav-icon>
+      <text class="nav-label">首页</text>
+    </div>
     <div class="nav-item" onclick="navToGallery">
-      <nav-icon type="list" size="22" color="#888888"></nav-icon>
+      <nav-icon type="list" size="22" color="#86909C"></nav-icon>
       <text class="nav-label">历史</text>
     </div>
     <div class="nav-item" onclick="navToUpload">
-      <nav-icon type="image" size="22" color="#888888"></nav-icon>
+      <nav-icon type="image" size="22" color="#86909C"></nav-icon>
       <text class="nav-label">选图</text>
     </div>
     <div class="nav-item" onclick="navToCamera">
-      <nav-icon type="camera" size="22" color="#888888"></nav-icon>
+      <nav-icon type="camera" size="22" color="#86909C"></nav-icon>
       <text class="nav-label">拍摄</text>
+    </div>
+    <div class="nav-item" onclick="navToProfile">
+      <nav-icon type="user" size="22" color="#86909C"></nav-icon>
+      <text class="nav-label">我的</text>
     </div>
   </div>
 </template>
@@ -21,9 +29,11 @@
 import router from '@system.router'
 
 export default {
-  navToGallery() { router.push({ uri: '/Gallery' }) },
-  navToUpload() { router.push({ uri: '/Upload' }) },
-  navToCamera() { router.push({ uri: '/Camera' }) }
+  navToHome() { router.replace({ uri: '/Home' }) },
+  navToGallery() { router.replace({ uri: '/Gallery' }) },
+  navToUpload() { router.replace({ uri: '/Upload' }) },
+  navToCamera() { router.replace({ uri: '/Camera' }) },
+  navToProfile() { router.replace({ uri: '/Profile' }) }
 }
 </script>
 
@@ -32,15 +42,18 @@ export default {
     flex-direction: row;
     justify-content: space-around;
     padding: 12px 0;
-    background-color: #1a1a2e;
+    background-color: #F4F8FC;
+    border-top: 1px solid #DCE4F0;
+    flex-shrink: 0;
   }
   .nav-item {
     flex-direction: column;
     align-items: center;
+    transition: opacity 0.2s ease;
   }
   .nav-label {
-    font-size: 13px;
-    color: #888888;
+    font-size: 24px;
+    color: #86909C;
     margin-top: 4px;
   }
 </style>

@@ -3,7 +3,9 @@
 <template>
   <div class="stats-panel">
     <div class="stats-header">
-      <st-icon type="stats" size="16" color="#ffd700"></st-icon>
+      <div class="header-icon-wrap">
+        <st-icon type="stats" size="16" color="#C4A54A"></st-icon>
+      </div>
       <text class="stats-title">统计</text>
     </div>
 
@@ -39,26 +41,35 @@ export default {
 
 <style>
   .stats-panel {
-    background-color: #1a1a2e;
+    background-color: #F0F4FC;
     border-radius: 12px;
     padding: 16px;
-    margin: 8px 20px 20px 20px;
+    margin: 0 8px;
+    background-color: #E8EFF7;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
   }
 
   .stats-header {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
-  .stats-icon {
-    margin-right: 6px;
+  .header-icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: rgba(196, 165, 74, 0.07);
+    border: 1px solid rgba(196, 165, 74, 0.12);
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
   }
 
   .stats-title {
-    font-size: 16px;
+    font-size: 28px;
     font-weight: bold;
-    color: #cccccc;
+    color: #595040;
   }
 
   .stats-row {
@@ -73,14 +84,14 @@ export default {
   }
 
   .stat-num {
-    font-size: 24px;
+    font-size: 36px;
     font-weight: bold;
-    color: #ffd700;
+    color: #C4A54A;
     margin-bottom: 2px;
   }
 
   .stat-label {
-    font-size: 12px;
-    color: #888888;
+    font-size: 22px;
+    color: #86909C;
   }
 </style>
