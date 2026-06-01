@@ -1,11 +1,10 @@
+<import name="spinner" src="../apex-ui/components/spin/index"></import>
+
 <template>
-  <div>
   <div class="loading-overlay" if="{{show}}">
-    <text class="loading-spinner">⏳</text>
-    <text class="loading-text">{{text}}</text>
+    <spinner size="large" tip="{{text}}" color="#C4A54A"></spinner>
     <text class="loading-hint">{{hint}}</text>
   </div>
-</div>
 </template>
 
 <script>
@@ -25,26 +24,15 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(10, 10, 26, 0.92);
+    background-color: rgba(237,242,248,0.92);
     justify-content: center;
     align-items: center;
     flex-direction: column;
   }
 
-  .loading-spinner {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
-
-  .loading-text {
-    font-size: 18px;
-    color: #ffd700;
-    font-weight: bold;
-    margin-bottom: 8px;
-  }
-
   .loading-hint {
-    font-size: 13px;
-    color: #888888;
+    font-size: 24px;
+    color: #86909C;
+    margin-top: 4px;
   }
 </style>

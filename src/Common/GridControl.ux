@@ -21,7 +21,7 @@
 <script>
 export default {
   props: {
-    value: { default: 'thirds' }
+    value: { default: 'off' }
   },
 
   computed: {
@@ -41,14 +41,12 @@ export default {
 <style>
   .grid-control {
     flex-direction: column;
-    padding: 12px 15px;
-    background-color: #111111;
-    border-top: 1px solid #222222;
+    padding: 14px 15px;
   }
 
   .control-label {
-    font-size: 13px;
-    color: #888888;
+    font-size: 24px;
+    color: #86909C;
     margin-bottom: 8px;
   }
 
@@ -57,22 +55,31 @@ export default {
   }
 
   .grid-btn {
-    padding: 6px 14px;
+    padding: 8px 16px;
     margin-right: 8px;
-    border-radius: 6px;
-    background-color: #222222;
+    border-radius: 8px;
+    background-color: #E3EAF5;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.25s ease, opacity 0.15s ease;
+    opacity: 1;
+  }
+
+  .grid-btn:active {
+    opacity: 0.7;
   }
 
   .grid-btn text {
-    font-size: 12px;
-    color: #ffffff;
+    font-size: 22px;
+    color: #595040;
   }
 
   .btn-active {
-    background-color: #ffd700;
+    background-color: #C4A54A;
+    box-shadow: 0 2px 8px rgba(196, 165, 74, 0.25);
   }
 
   .btn-active text {
-    color: #000000;
+    color: #FFFFFF;
   }
 </style>

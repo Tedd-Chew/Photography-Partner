@@ -1,15 +1,12 @@
 <template>
-  <div class="level-badge-wrap">
-    <div class="badge-circle" style="border-color: {{levelColor}}; background-color: {{levelBg}};">
+  <div class="level-badge">
+    <div class="badge-circle" style="border-color: {{levelColor}};">
       <text class="badge-lv-label" style="color: {{levelColor}};">Lv</text>
       <text class="badge-lv-num" style="color: {{levelColor}};">{{level}}</text>
     </div>
-
     <div class="level-info">
       <text class="level-name">{{levelName}}</text>
-      <div class="exp-bar-track">
-        <div class="exp-bar-fill" style="width: {{progress}}%; background-color: {{levelColor}};"></div>
-      </div>
+      <progress class="exp-bar" type="horizontal" percent="{{progress}}" style="layer-color: #DEE6F0; progress-color: {{levelColor}};"></progress>
       <text class="exp-text">{{exp}} / {{expToNext}}</text>
     </div>
   </div>
@@ -17,54 +14,52 @@
 
 <script>
 const LEVEL_COLORS = {
-  1: '#9e9e9e',
-  2: '#81c784',
-  3: '#4fc3f7',
-  4: '#ba68c8',
-  5: '#ffd700',
-  6: '#ff6d00'
+  '1': '#9e9e9e',
+  '2': '#8ABA8E',
+  '3': '#5BA4C8',
+  '4': '#9B6BB8',
+  '5': '#C4A54A',
+  '6': '#D47A30'
 }
 
 export default {
   props: {
     level: { default: 1 },
+    levelName: { default: '初学者' },
     exp: { default: 0 },
-    expToNext: { default: 0 },
-    levelName: { default: '' }
+    expToNext: { default: 100 }
   },
 
   computed: {
-    levelColor() {
-      return LEVEL_COLORS[this.level] || '#9e9e9e'
+    progress: function () {
+      if (!this.expToNext) return 0
+      return Math.min(100, (this.exp / this.expToNext) * 100)
     },
-    levelBg() {
-      const c = this.levelColor
-      return c + '1a'
-    },
-    progress() {
-      if (!this.expToNext) return 100
-      return Math.min(100, Math.round(this.exp / this.expToNext * 100))
+    levelColor: function () {
+      return LEVEL_COLORS[String(this.level)] || '#9e9e9e'
     }
   }
 }
 </script>
 
 <style>
-  .level-badge-wrap {
+  .level-badge {
     flex-direction: row;
     align-items: center;
-    background-color: #1a1a2e;
+    background-color: #F0F4FC;
     border-radius: 12px;
     padding: 16px;
-    margin: 0 20px;
+    margin: 0 8px;
+    background-color: #E8EFF7;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
   }
 
   .badge-circle {
     width: 72px;
     height: 72px;
     border-radius: 36px;
-    border: 4px solid #4fc3f7;
-    background-color: rgba(79, 195, 247, 0.1);
+    border: 4px solid #5BA4C8;
+    background-color: rgba(91, 164, 200, 0.08);
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -72,14 +67,12 @@ export default {
   }
 
   .badge-lv-label {
-    font-size: 12px;
-    color: #4fc3f7;
+    font-size: 22px;
   }
 
   .badge-lv-num {
-    font-size: 28px;
+    font-size: 40px;
     font-weight: bold;
-    color: #4fc3f7;
   }
 
   .level-info {
@@ -88,27 +81,19 @@ export default {
   }
 
   .level-name {
-    font-size: 18px;
+    font-size: 30px;
     font-weight: bold;
-    color: #ffffff;
+    color: #595040;
     margin-bottom: 8px;
   }
 
-  .exp-bar-track {
+  .exp-bar {
     height: 6px;
-    border-radius: 3px;
-    background-color: #2a2a3e;
     margin-bottom: 4px;
   }
 
-  .exp-bar-fill {
-    height: 6px;
-    border-radius: 3px;
-    background-color: #4fc3f7;
-  }
-
   .exp-text {
-    font-size: 12px;
-    color: #888888;
+    font-size: 22px;
+    color: #86909C;
   }
 </style>

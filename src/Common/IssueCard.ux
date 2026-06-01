@@ -30,13 +30,13 @@ export default {
     severityClass() {
       return 'severity-' + (this.item.severity || 'medium')
     },
-    severityColor() {
-      const map = { high: '#f44336', medium: '#ff9800', low: '#4caf50' }
-      return map[this.item.severity] || '#ff9800'
-    },
     borderColor() {
-      const map = { high: '#f44336', medium: '#ff9800', low: '#4caf50' }
-      return map[this.item.severity] || '#ff9800'
+      const map = { high: '#D4686A', medium: '#D4894A', low: '#5BAA6E' }
+      return map[this.item.severity] || '#D4894A'
+    },
+    severityColor() {
+      const map = { high: '#D4686A', medium: '#D4894A', low: '#5BAA6E' }
+      return map[this.item.severity] || '#D4894A'
     }
   }
 }
@@ -44,12 +44,17 @@ export default {
 
 <style>
   .issue-card {
-    background-color: #1a1a2e;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 14px 16px;
-    margin: 6px 20px;
     border-left-width: 3px;
-    border-left-color: #f44336;
+    border-left-color: #D4686A;
+    background-color: #F0F4FC;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
+    transition: opacity 0.15s ease;
+  }
+
+  .issue-card:active {
+    opacity: 0.8;
   }
 
   .issue-header {
@@ -60,37 +65,37 @@ export default {
 
   .severity-tag {
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 8px;
     margin-right: 8px;
   }
 
   .severity-high {
-    background-color: rgba(244, 67, 54, 0.2);
+    background-color: rgba(212, 104, 106, 0.12);
   }
 
   .severity-medium {
-    background-color: rgba(255, 152, 0, 0.2);
+    background-color: rgba(212, 137, 74, 0.12);
   }
 
   .severity-low {
-    background-color: rgba(76, 175, 80, 0.2);
+    background-color: rgba(91, 170, 110, 0.12);
   }
 
   .severity-text {
-    font-size: 12px;
-    color: #f44336;
+    font-size: 22px;
+    color: #D4686A;
     font-weight: bold;
   }
 
   .issue-category {
-    font-size: 15px;
-    color: #ffffff;
+    font-size: 26px;
+    color: #595040;
     font-weight: bold;
   }
 
   .issue-desc {
-    font-size: 14px;
-    color: #cccccc;
+    font-size: 24px;
+    color: #4E5969;
     margin-bottom: 6px;
   }
 
@@ -99,13 +104,13 @@ export default {
   }
 
   .suggestion-label {
-    font-size: 13px;
-    color: #888888;
+    font-size: 24px;
+    color: #86909C;
   }
 
   .suggestion-text {
-    font-size: 13px;
-    color: #4d96ff;
+    font-size: 24px;
+    color: #5B8DEE;
     flex: 1;
   }
 </style>

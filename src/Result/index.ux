@@ -8,61 +8,80 @@
 <import name="exp-gain-card" src="../Common/ExpGainCard.ux"></import>
 <import name="level-up-card" src="../Common/LevelUpCard.ux"></import>
 <import name="badge-unlock-card" src="../Common/BadgeUnlockCard.ux"></import>
+<import name="res-icon" src="../apex-ui/components/icon/index"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
 <template>
   <div class="page">
     <top-bar title="分析结果"></top-bar>
 
-    <div class="content">
+    <list class="content">
+      <list-item class="content-wrap">
 
-      <score-circle if="{{mode === 'score'}}" score="{{scoreVal}}"></score-circle>
+        <div if="{{mode === 'score'}}" class="outer-card score-outer">
+          <score-circle score="{{scoreVal}}"></score-circle>
+        </div>
 
-      <score-radar if="{{mode === 'score' && hasScores}}" scores="{{analysis.scores}}"></score-radar>
+        <div if="{{mode === 'score' && hasScores}}" class="outer-card">
+          <score-radar scores="{{analysis.scores}}"></score-radar>
+        </div>
 
-      <advice-card if="{{mode === 'edit'}}" comment="{{analysis.advice}}"></advice-card>
+        <div if="{{mode === 'edit'}}" class="outer-card">
+          <advice-card comment="{{analysis.advice}}"></advice-card>
+        </div>
 
-      <advice-card if="{{mode === 'score'}}" comment="{{analysis.comment}}"></advice-card>
+        <div if="{{mode === 'score'}}" class="outer-card">
+          <advice-card comment="{{analysis.comment}}"></advice-card>
+        </div>
 
-      <param-panel if="{{mode === 'shooting' && hasParams}}" params="{{analysis.camera_params}}" scene="{{analysis.scene}}"></param-panel>
+        <div if="{{mode === 'shooting' && hasParams}}" class="outer-card">
+          <param-panel params="{{analysis.camera_params}}" scene="{{analysis.scene}}"></param-panel>
+        </div>
 
-      <bullet-list
-        if="{{analysis.composition_tips && analysis.composition_tips.length}}"
-        icon="📐"
-        title="构图建议"
-        items="{{analysis.composition_tips}}">
-      </bullet-list>
+        <div if="{{analysis.composition_tips && analysis.composition_tips.length}}" class="outer-card">
+          <bullet-list iconType="options" title="构图建议" items="{{analysis.composition_tips}}"></bullet-list>
+        </div>
 
-      <div for="issue in analysis.issues" if="{{analysis.issues}}">
-        <issue-card item="{{issue}}"></issue-card>
-      </div>
+        <div if="{{analysis.issues && analysis.issues.length}}" class="outer-card issues-outer">
+          <text class="section-heading">问题诊断</text>
+          <div for="issue in analysis.issues" class="issue-wrap">
+            <issue-card item="{{issue}}"></issue-card>
+          </div>
+        </div>
 
-      <div if="{{analysis.lighting_advice && mode === 'shooting'}}" class="lighting-section">
-        <text class="lighting-label">💡 用光建议</text>
-        <text class="lighting-text">{{analysis.lighting_advice}}</text>
-      </div>
+        <div if="{{analysis.lighting_advice && mode === 'shooting'}}" class="outer-card">
+          <div class="section-row">
+            <res-icon type="flashlight" size="16" color="#C4A54A"></res-icon>
+            <text class="section-label">用光建议</text>
+          </div>
+          <text class="section-text">{{analysis.lighting_advice}}</text>
+        </div>
 
-      <div if="{{analysis.extra_tips && mode === 'shooting'}}" class="extra-section">
-        <text class="lighting-label">📝 额外建议</text>
-        <text class="lighting-text">{{analysis.extra_tips}}</text>
-      </div>
+        <div if="{{analysis.extra_tips && mode === 'shooting'}}" class="outer-card">
+          <div class="section-row">
+            <res-icon type="paper-plane" size="16" color="#C4A54A"></res-icon>
+            <text class="section-label">额外建议</text>
+          </div>
+          <text class="section-text">{{analysis.extra_tips}}</text>
+        </div>
 
-      <exp-gain-card if="{{analysis.exp_gained}}" exp="{{analysis.exp_gained}}"></exp-gain-card>
+        <exp-gain-card if="{{analysis.exp_gained}}" exp="{{analysis.exp_gained}}"></exp-gain-card>
 
-      <level-up-card
-        if="{{levelUp}}"
-        old-name="{{oldLevelName}}"
-        new-name="{{newLevelName}}">
-      </level-up-card>
+        <level-up-card
+          if="{{levelUp}}"
+          old-name="{{oldLevelName}}"
+          new-name="{{newLevelName}}">
+        </level-up-card>
 
-      <badge-unlock-card
-        if="{{analysis.badge_unlocked && analysis.badge_unlocked.length}}"
-        name="{{analysis.badge_unlocked[0]}}">
-      </badge-unlock-card>
+        <badge-unlock-card
+          if="{{analysis.badge_unlocked && analysis.badge_unlocked.length}}"
+          name="{{analysis.badge_unlocked[0]}}">
+        </badge-unlock-card>
 
-    </div>
+      </list-item>
+    </list>
 
-    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+    <bottom-nav></bottom-nav>
   </div>
 </template>
 
@@ -77,12 +96,7 @@ export default {
     analysis: {},
     scoreVal: 0,
     hasScores: false,
-    hasParams: false,
-    navTabs: [
-      { icon: '📋', label: '历史' },
-      { icon: '🖼️', label: '选图' },
-      { icon: '🌟', label: '成长' }
-    ]
+    hasParams: false
   },
 
   computed: {
@@ -116,38 +130,66 @@ export default {
   .page {
     flex-direction: column;
     flex: 1;
-    background-color: #0f0f23;
+    background-color: #EDF2F8;
+    overflow: hidden;
   }
 
   .content {
     flex: 1;
+    height: 0;
+  }
+
+  .content-wrap {
     flex-direction: column;
   }
 
-  .lighting-section {
-    background-color: #1a1a2e;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 8px 20px;
+  .outer-card {
+    flex-direction: column;
+    margin: 0 16px 10px 16px;
+    padding: 24px 4px;
+    border-radius: 18px;
+    background-color: #F4F8FC;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.05);
   }
 
-  .lighting-label {
-    font-size: 16px;
-    color: #cccccc;
+  .score-outer {
+    padding: 10px 4px;
+  }
+
+  .issues-outer {
+    padding: 24px 4px;
+  }
+
+  .section-heading {
+    font-size: 28px;
     font-weight: bold;
-    margin-bottom: 8px;
+    color: #595040;
+    margin-left: 20px;
+    margin-bottom: 12px;
   }
 
-  .lighting-text {
-    font-size: 14px;
-    color: #cccccc;
-    line-height: 22px;
+  .section-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 20px;
   }
 
-  .extra-section {
-    background-color: #1a1a2e;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 8px 20px;
+  .section-label {
+    font-size: 28px;
+    color: #595040;
+    font-weight: bold;
+    margin-left: 6px;
+  }
+
+  .section-text {
+    font-size: 28px;
+    color: #4E5969;
+    line-height: 40px;
+    padding: 0 20px;
+  }
+
+  .issue-wrap {
+    margin: 0 12px 10px 12px;
   }
 </style>

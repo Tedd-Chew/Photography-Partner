@@ -1,26 +1,31 @@
 <import name="top-bar" src="../Common/TopBar.ux"></import>
 <import name="photo-card" src="../Common/PhotoCard.ux"></import>
+<import name="g-icon" src="../apex-ui/components/icon/index"></import>
 <import name="bottom-nav" src="../Common/BottomNav.ux"></import>
 
 <template>
   <div class="page">
     <top-bar title="历史记录"></top-bar>
 
-    <div class="content">
-      <div if="{{!items.length}}" class="empty-state">
-        <text class="empty-icon">📭</text>
+    <list class="content">
+      <list-item class="content-wrap">
+        <div if="{{!items.length}}" class="empty-state">
+        <g-icon type="images" size="48" color="#86909C"></g-icon>
         <text class="empty-text">还没有分析记录</text>
         <text class="empty-hint">去选图页面开始第一次分析吧</text>
       </div>
 
-      <photo-card
-        for="item in items"
-        item="{{item}}"
-        @click="onCardClick">
-      </photo-card>
-    </div>
+      <div if="{{items.length}}" class="gallery-list">
+        <photo-card
+          for="item in items"
+          item="{{item}}"
+          @click="onCardClick">
+        </photo-card>
+        </div>
+      </list-item>
+    </list>
 
-    <bottom-nav tabs="{{navTabs}}"></bottom-nav>
+    <bottom-nav></bottom-nav>
   </div>
 </template>
 
@@ -32,12 +37,7 @@ export default {
   data: {
     items: [],
     page: 1,
-    total: 0,
-    navTabs: [
-      { icon: '📋', label: '历史' },
-      { icon: '🖼️', label: '选图' },
-      { icon: '🌟', label: '成长' }
-    ]
+    total: 0
   },
 
   async onInit() {
@@ -65,12 +65,22 @@ export default {
   .page {
     flex-direction: column;
     flex: 1;
-    background-color: #0f0f23;
+    background-color: #EDF2F8;
+    overflow: hidden;
   }
 
   .content {
     flex: 1;
+    height: 0;
+  }
+
+  .content-wrap {
     flex-direction: column;
+  }
+
+  .gallery-list {
+    flex-direction: column;
+    padding: 0 16px;
   }
 
   .empty-state {
@@ -80,19 +90,14 @@ export default {
     padding: 80px 20px;
   }
 
-  .empty-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-
   .empty-text {
-    font-size: 16px;
-    color: #888888;
+    font-size: 28px;
+    color: #86909C;
     margin-bottom: 4px;
   }
 
   .empty-hint {
-    font-size: 13px;
-    color: #555555;
+    font-size: 24px;
+    color: #4E5969;
   }
 </style>

@@ -1,22 +1,20 @@
+<import name="sr-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="radar-chart">
     <div class="radar-title">
-      <text class="section-icon">📊</text>
+      <sr-icon type="stats" size="16" color="#C4A54A"></sr-icon>
       <text class="section-label">五维评分</text>
     </div>
-
-    <div class="dimension-row" for="d in dimensions">
-      <text class="dim-name">{{d.label}}</text>
-      <div class="bar-track">
-        <div class="bar-fill" style="width: {{d.value}}%; background-color: {{d.color}};"></div>
-      </div>
-      <text class="dim-score">{{d.value}}</text>
-      <text class="dim-weight">{{d.weight}}%</text>
-    </div>
+    <canvas class="radar-canvas" id="radar-canvas"></canvas>
   </div>
 </template>
 
 <script>
+import Charts from '../apex-ui/components/charts/qacharts-min'
+
+let $chart = null
+
 export default {
   props: {
     scores: {
@@ -24,84 +22,80 @@ export default {
     }
   },
 
-  computed: {
-    dimensions() {
-      return [
-        { label: '构图', value: this.scores.composition || 0, color: '#ff6b6b', weight: 30 },
-        { label: '曝光', value: this.scores.exposure || 0, color: '#ffd93d', weight: 25 },
-        { label: '色彩', value: this.scores.color || 0, color: '#6bcb77', weight: 20 },
-        { label: '清晰度', value: this.scores.sharpness || 0, color: '#4d96ff', weight: 15 },
-        { label: '创意', value: this.scores.creativity || 0, color: '#c084fc', weight: 10 }
-      ]
-    }
+  data: {
+    drawn: false
+  },
+
+  onReady() {
+    this.drawChart()
+  },
+
+  drawChart() {
+    const el = this.$element('radar-canvas')
+    if (!el) return
+    const s = this.scores
+    $chart = new Charts({
+      element: el,
+      width: 600,
+      height: 440,
+      backgroundColor: '#F4F8FC',
+      radarAxis: {
+        axisLabel: { color: '#86909C', fontSize: 11 },
+        axisLine: { color: '#D0DAE8' },
+        splitLine: { color: '#DCE4F0' },
+        splitArea: { show: true, color: ['rgba(100,130,180,0.02)', 'rgba(100,130,180,0.04)'] }
+      },
+      category: [
+        { name: '构图\n' + (s.composition || 0) },
+        { name: '曝光\n' + (s.exposure || 0) },
+        { name: '色彩\n' + (s.color || 0) },
+        { name: '清晰度\n' + (s.sharpness || 0) },
+        { name: '创意\n' + (s.creativity || 0) }
+      ],
+      series: [{
+        name: '评分',
+        type: 'radar',
+        data: [s.composition || 0, s.exposure || 0, s.color || 0, s.sharpness || 0, s.creativity || 0],
+        symbol: 'circle',
+        symbolSize: 4,
+        lineColor: '#C4A54A',
+        areaColor: 'rgba(196, 165, 74, 0.12)',
+        itemColor: '#C4A54A'
+      }],
+      onRenderComplete: function () {
+        this.drawn = true
+      }
+    })
   }
 }
 </script>
 
 <style>
   .radar-chart {
-    background-color: #1a1a2e;
+    background-color: #F0F4FC;
     border-radius: 12px;
     padding: 16px;
-    margin: 12px 20px;
+    margin: 0 8px;
+    background-color: #E8EFF7;
+    flex-direction: column;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
   }
 
   .radar-title {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 14px;
-  }
-
-  .section-icon {
-    font-size: 16px;
-    margin-right: 6px;
+    margin-bottom: 8px;
   }
 
   .section-label {
-    font-size: 16px;
+    font-size: 28px;
     font-weight: bold;
-    color: #cccccc;
+    color: #595040;
+    margin-left: 6px;
   }
 
-  .dimension-row {
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .dim-name {
-    width: 56px;
-    font-size: 14px;
-    color: #cccccc;
-  }
-
-  .bar-track {
-    flex: 1;
-    height: 8px;
-    border-radius: 4px;
-    background-color: #2a2a3e;
-    margin-left: 8px;
-    margin-right: 8px;
-  }
-
-  .bar-fill {
-    height: 8px;
-    border-radius: 4px;
-  }
-
-  .dim-score {
-    width: 28px;
-    font-size: 14px;
-    color: #ffffff;
-    font-weight: bold;
-    text-align: right;
-  }
-
-  .dim-weight {
-    width: 36px;
-    font-size: 12px;
-    color: #666666;
-    text-align: right;
-    margin-left: 4px;
+  .radar-canvas {
+    width: 568px;
+    height: 380px;
   }
 </style>

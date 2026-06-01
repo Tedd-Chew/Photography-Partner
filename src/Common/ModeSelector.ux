@@ -1,7 +1,9 @@
+<import name="mode-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
   <div class="mode-selector">
     <div class="mode-option {{value === 'shooting' ? 'option-selected' : ''}}" onclick="selectShooting">
-      <text class="mode-icon">📷</text>
+      <mode-icon type="camera" size="20" color="{{value === 'shooting' ? '#C4A54A' : '#86909C'}}"></mode-icon>
       <text class="{{value === 'shooting' ? 'mode-name-selected' : 'mode-name'}}">拍摄指导</text>
       <text class="{{value === 'shooting' ? 'mode-desc-selected' : 'mode-desc'}}">推荐相机参数</text>
     </div>
@@ -9,7 +11,7 @@
     <div class="mode-divider"></div>
 
     <div class="mode-option {{value === 'edit' ? 'option-selected' : ''}}" onclick="selectEdit">
-      <text class="mode-icon">🔧</text>
+      <mode-icon type="build" size="20" color="{{value === 'edit' ? '#9B70D6' : '#86909C'}}"></mode-icon>
       <text class="{{value === 'edit' ? 'mode-name-selected' : 'mode-name'}}">修图建议</text>
       <text class="{{value === 'edit' ? 'mode-desc-selected' : 'mode-desc'}}">后期调色指导</text>
     </div>
@@ -17,7 +19,7 @@
     <div class="mode-divider"></div>
 
     <div class="mode-option {{value === 'score' ? 'option-selected' : ''}}" onclick="selectScore">
-      <text class="mode-icon">⭐</text>
+      <mode-icon type="star" size="20" color="{{value === 'score' ? '#C4A54A' : '#86909C'}}"></mode-icon>
       <text class="{{value === 'score' ? 'mode-name-selected' : 'mode-name'}}">评分评价</text>
       <text class="{{value === 'score' ? 'mode-desc-selected' : 'mode-desc'}}">五维打分反馈</text>
     </div>
@@ -42,9 +44,11 @@ export default {
     justify-content: space-around;
     align-items: center;
     padding: 12px 0;
-    background-color: #1a1a2e;
-    border-radius: 12px;
-    margin: 0 20px;
+    background-color: #F4F8FC;
+    border-radius: 16px;
+    margin: 0 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+    background-image: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(252,252,253,1) 100%);
   }
 
   .mode-option {
@@ -54,43 +58,47 @@ export default {
     padding: 8px 0;
     border-bottom-width: 2px;
     border-bottom-color: transparent;
+    transition: border-bottom-color 0.2s ease, opacity 0.15s ease;
+  }
+
+  .mode-option:active {
+    opacity: 0.65;
   }
 
   .option-selected {
-    border-bottom-color: #ffd700;
+    border-bottom-color: #C4A54A;
   }
 
   .mode-icon {
-    font-size: 24px;
     margin-bottom: 4px;
   }
 
   .mode-name {
-    font-size: 13px;
-    color: #888888;
+    font-size: 24px;
+    color: #86909C;
     margin-bottom: 2px;
   }
 
   .mode-name-selected {
-    font-size: 13px;
-    color: #ffd700;
+    font-size: 24px;
+    color: #C4A54A;
     font-weight: bold;
     margin-bottom: 2px;
   }
 
   .mode-desc {
-    font-size: 11px;
-    color: #555555;
+    font-size: 20px;
+    color: #4E5969;
   }
 
   .mode-desc-selected {
-    font-size: 11px;
-    color: #888888;
+    font-size: 20px;
+    color: #86909C;
   }
 
   .mode-divider {
     width: 1px;
     height: 40px;
-    background-color: #2a2a3e;
+    background-color: #DCE4F0;
   }
 </style>

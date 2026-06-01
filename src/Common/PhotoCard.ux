@@ -1,158 +1,62 @@
+<import name="my-card" src="../apex-ui/components/card/index"></import>
+<import name="pc-icon" src="../apex-ui/components/icon/index"></import>
+
 <template>
-  <div class="photo-card" onclick="onClick">
-    <div class="card-image">
-      <image class="card-thumb" src="{{item.thumb_url}}" if="{{item.thumb_url}}"></image>
-      <div class="card-thumb-bg" if="{{!item.thumb_url}}">
-        <text class="card-thumb-icon">🖼️</text>
-      </div>
+  <my-card>
+    <div slot="title" class="card-title-wrap">
+      <text class="card-mode-tag" style="color: {{modeColor}};">{{modeLabel}}</text>
+      <pc-icon type="image" size="14" color="#86909C"></pc-icon>
     </div>
-
     <div class="card-body">
-      <div class="card-tags">
-        <div class="card-mode-tag {{modeClass}}">
-          <text class="card-mode-text" style="color: {{modeColor}};">{{modeLabel}}</text>
-        </div>
-      </div>
       <text class="card-summary">{{summary}}</text>
-      <text class="card-time">{{item.created_at}}</text>
     </div>
-
-    <div class="card-arrow">
-      <text class="arrow-text">〉</text>
-    </div>
-  </div>
+  </my-card>
 </template>
 
 <script>
 export default {
   props: {
-    item: {
-      default: () => ({ mode: 'score', thumb_url: '', created_at: '' })
-    }
+    item: { default: () => ({ mode: '', score: 0, summary: '' }) }
   },
 
   computed: {
-    modeLabel() {
-      const map = { shooting: '📷 拍摄', edit: '🔧 修图', score: '⭐ 评分' }
-      return map[this.item.mode] || '⭐ 评分'
+    modeLabel: function () {
+      const map = { shooting: '拍摄指导', edit: '修图建议', score: '评分评价' }
+      return map[this.item.mode] || ''
     },
-    modeClass() {
-      return 'mode-' + (this.item.mode || 'score')
+    modeColor: function () {
+      const map = { shooting: '#5B8DEE', edit: '#9B70D6', score: '#C4A54A' }
+      return map[this.item.mode] || '#C4A54A'
     },
-    modeColor() {
-      const map = { shooting: '#4d96ff', edit: '#c084fc', score: '#ffd700' }
-      return map[this.item.mode] || '#ffd700'
-    },
-    summary() {
-      if (!this.item.result_json) return ''
-      if (this.item.mode === 'shooting') {
-        const r = this.item.result_json
-        return (r.scene || '') + ' · 快门 ' + (r.camera_params ? r.camera_params.shutter : '--') + ', ISO ' + (r.camera_params ? r.camera_params.iso : '--')
-      }
-      if (this.item.mode === 'edit') {
-        return (this.item.result_json.advice || '').substring(0, 50)
-      }
-      if (this.item.mode === 'score') {
-        return '⭐ ' + (this.item.result_json.score || '?') + ' 分 · ' + ((this.item.result_json.comment || '').substring(0, 30))
-      }
-      return ''
+    summary: function () {
+      return this.item.summary || ''
     }
-  },
-
-  onClick() {
-    this.$emit('click', this.item)
   }
 }
 </script>
 
 <style>
-  .photo-card {
+  .card-title-wrap {
     flex-direction: row;
     align-items: center;
-    background-color: #1a1a2e;
-    border-radius: 12px;
-    padding: 12px;
-    margin: 6px 20px;
-  }
-
-  .card-image {
-    width: 64px;
-    height: 64px;
-    border-radius: 8px;
-    margin-right: 12px;
-  }
-
-  .card-thumb {
-    width: 64px;
-    height: 64px;
-    border-radius: 8px;
-  }
-
-  .card-thumb-bg {
-    width: 64px;
-    height: 64px;
-    border-radius: 8px;
-    background-color: #2a2a3e;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .card-thumb-icon {
-    font-size: 28px;
-  }
-
-  .card-body {
-    flex: 1;
-    flex-direction: column;
-  }
-
-  .card-tags {
-    flex-direction: row;
-    margin-bottom: 6px;
   }
 
   .card-mode-tag {
-    padding: 2px 8px;
-    border-radius: 4px;
+    font-size: 24px;
+    font-weight: bold;
     margin-right: 6px;
   }
 
-  .mode-shooting {
-    background-color: rgba(77, 150, 255, 0.15);
-  }
-
-  .mode-edit {
-    background-color: rgba(192, 132, 252, 0.15);
-  }
-
-  .mode-score {
-    background-color: rgba(255, 215, 0, 0.15);
-  }
-
-  .card-mode-text {
-    font-size: 11px;
-    color: #4d96ff;
+  .card-body {
+    flex-direction: column;
   }
 
   .card-summary {
-    font-size: 14px;
-    color: #cccccc;
-    margin-bottom: 4px;
-    lines: 1;
+    font-size: 24px;
+    color: #4E5969;
+    margin-top: 4px;
+    line-height: 36px;
+    max-lines: 2;
     text-overflow: ellipsis;
-  }
-
-  .card-time {
-    font-size: 11px;
-    color: #555555;
-  }
-
-  .card-arrow {
-    padding: 4px;
-  }
-
-  .arrow-text {
-    font-size: 16px;
-    color: #888888;
   }
 </style>
