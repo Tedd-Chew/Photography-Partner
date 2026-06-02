@@ -16,6 +16,7 @@ from openai import (
 )
 from config import VIVO_APP_KEY, VIVO_BASE_URL, MODEL_NAME
 from schemas.response import CameraParams
+from services.rag import retrieve_by_embedding, augment_prompt
 
 # ====================================================================
 # API 客户端
@@ -135,7 +136,9 @@ async def shooting_advice(image_b64: str) -> dict:
         }
     解析失败时返回"请重试"占位结构，不抛异常。
     """
-    raw = await _call_vision(_load_prompt("shooting.txt"), image_b64)
+    prompt = _load_prompt("shooting.txt")
+    knowledge = await retrieve_by_embedding(image_b64, "shooting")
+    raw = await _call_vision(augment_prompt(prompt, knowledge), image_b64)
     data = _parse_json(raw)
 
     if data.get("_parse_failed"):
@@ -160,7 +163,9 @@ async def editing_advice(image_b64: str) -> str:
     不走 JSON 解析，AI 直接输出自然语言。
     网络/API 异常会向上抛，由 photo_analysis 层兜底。
     """
-    return await _call_vision(_load_prompt("edit.txt"), image_b64)
+    prompt = _load_prompt("edit.txt")
+    knowledge = await retrieve_by_embedding(image_b64, "edit")
+    return await _call_vision(augment_prompt(prompt, knowledge), image_b64)
 
 
 async def score_photo(image_b64: str) -> dict:
@@ -169,7 +174,9 @@ async def score_photo(image_b64: str) -> dict:
     score 保证是 0-100 的整数，comment 保证是字符串。
     解析失败或 AI 返回非法 score 值时有安全兜底，不抛异常。
     """
-    raw = await _call_vision(_load_prompt("score.txt"), image_b64)
+    prompt = _load_prompt("score.txt")
+    knowledge = await retrieve_by_embedding(image_b64, "score")
+    raw = await _call_vision(augment_prompt(prompt, knowledge), image_b64)
     data = _parse_json(raw)
 
     if data.get("_parse_failed"):
