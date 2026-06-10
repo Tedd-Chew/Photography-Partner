@@ -1,6 +1,6 @@
 <template>
   <div class="preview-area">
-    <camera class="camera-view" device-position="back" flash="off"></camera>
+    <camera class="camera-view" device-position="back" flash="auto"></camera>
 
     <div class="composition-overlay" if="{{gridMode === 'thirds'}}">
       <div class="h-line" style="top:33.33%"></div>
