@@ -6,7 +6,11 @@
   "icon": "/assets/icon.png",
   "minPlatformVersion": 1100,
   "config": {
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "network": {
+      "cleartextTraffic": true,
+      "domain": ["192.168.137.1:8000"]
+    }
   },
   "router": {
     "entry": "Home",
