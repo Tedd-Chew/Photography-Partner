@@ -1,8 +1,8 @@
 import fetch from '@system.fetch'
-import request from '@system.request'
+import file from '@system.file'
 import { API_BASE_URL } from '../config'
 
-const BASE_URL = API_BASE_URL
+var BASE_URL = API_BASE_URL
 
 function jsonRequest(method, path, body) {
   return new Promise(function (resolve, reject) {
@@ -25,32 +25,42 @@ function jsonRequest(method, path, body) {
   })
 }
 
-export function analyzePhoto(imagePath, mode, uid) {
+function readFileAsBase64(fileUri) {
   return new Promise(function (resolve, reject) {
-    request.upload({
-      url: BASE_URL + '/api/analyze',
-      method: 'POST',
-      header: {
-        'Content-Type': 'multipart/form-data'
+    file.readText({
+      uri: fileUri,
+      encoding: 'base64',
+      success: function (data) {
+        resolve(data.text)
       },
-      data: [
-        { name: 'mode', value: mode },
-        { name: 'uid', value: uid || 'device_unknown' }
-      ],
-      files: [
-        { uri: imagePath, name: 'image', filename: 'photo.jpg' }
-      ],
-      success: function (res) {
-        var d = res.data
-        if (d && d.ok) {
-          resolve(d.data)
-        } else {
-          reject({ error: (d && d.error) || '分析失败' })
-        }
-      },
-      fail: function (err, code) {
-        reject({ err: err, code: code })
-      }
+      fail: function (err, code) { reject({ err: err, code: code }) }
+    })
+  })
+}
+
+export function analyzePhoto(imagePath, mode, uid) {
+  return readFileAsBase64(imagePath).then(function (base64Str) {
+    return new Promise(function (resolve, reject) {
+      fetch.fetch({
+        url: BASE_URL + '/api/analyze',
+        method: 'POST',
+        header: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({
+          image: base64Str,
+          mode: mode,
+          uid: uid || 'device_unknown'
+        }),
+        responseType: 'json',
+        success: function (res) {
+          var d = res.data
+          if (d && d.ok) {
+            resolve(d.data)
+          } else {
+            reject({ error: (d && d.error) || '分析失败' })
+          }
+        },
+        fail: function (err, code) { reject({ err: err, code: code }) }
+      })
     })
   })
 }
