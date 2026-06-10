@@ -29,14 +29,15 @@ export function analyzePhoto(imagePath, mode, uid) {
   return new Promise(function (resolve, reject) {
     request.upload({
       url: BASE_URL + '/api/analyze',
-      filePath: imagePath,
-      name: 'image',
-      formData: {
-        mode: mode,
-        uid: uid || 'device_unknown'
-      },
+      files: [
+        { uri: imagePath, name: 'image' }
+      ],
+      data: [
+        { name: 'mode', value: mode },
+        { name: 'uid', value: uid || 'device_unknown' }
+      ],
       success: function (res) {
-        var d = JSON.parse(res.data)
+        var d = res.data
         if (d && d.ok) {
           resolve(d.data)
         } else {
