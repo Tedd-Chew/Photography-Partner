@@ -41,12 +41,8 @@
 
       <list-item type="upload-analyze">
         <div class="analyze-wrap">
-          <div if="{{selectedImage}}" class="analyze-btn" onclick="onAnalyze">
-            <text class="analyze-btn-text">开始分析</text>
-          </div>
-          <div else class="analyze-btn-disabled">
-            <text class="analyze-btn-text-disabled">请先选择照片</text>
-          </div>
+          <up-btn if="{{selectedImage}}" type="primary" size="large" shape="round" ontap="onAnalyze">开始分析</up-btn>
+          <up-btn else type="default" size="large" shape="round" disabled="true">请先选择照片</up-btn>
         </div>
       </list-item>
     </list>
