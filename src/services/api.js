@@ -36,15 +36,11 @@ export function analyzePhoto(imagePath, mode, uid) {
         uid: uid || 'device_unknown'
       },
       success: function (res) {
-        try {
-          var d = JSON.parse(res.data)
-          if (d && d.ok) {
-            resolve(d.data)
-          } else {
-            reject({ error: (d && d.error) || '分析失败' })
-          }
-        } catch (e) {
-          reject({ error: '服务器返回数据格式错误' })
+        var d = JSON.parse(res.data)
+        if (d && d.ok) {
+          resolve(d.data)
+        } else {
+          reject({ error: (d && d.error) || '分析失败' })
         }
       },
       fail: function (err, code) {

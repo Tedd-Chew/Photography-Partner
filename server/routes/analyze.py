@@ -17,7 +17,6 @@ async def analyze(image: UploadFile, mode: str = Form(...), uid: str = Form(...)
         return ResponseBuilder.error("图片不能为空")
     if mode not in HANDLERS:
         return ResponseBuilder.error(f"未知模式: {mode}")
-
     try:
         result = await HANDLERS[mode](uid.strip(), image)
         return ResponseBuilder.ok(result)
