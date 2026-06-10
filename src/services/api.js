@@ -37,7 +37,7 @@ export function analyzePhoto(imagePath, mode, uid) {
         { name: 'uid', value: uid || 'device_unknown' }
       ],
       success: function (res) {
-        var d = res.data
+        var d = JSON.parse(res.data)
         if (d && d.ok) {
           resolve(d.data)
         } else {
