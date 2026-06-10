@@ -10,7 +10,7 @@ export function analyzePhoto(imagePath, mode, uid) {
 
   return new Promise(function (resolve, reject) {
     uploadtask.uploadFile({
-      url: BASE_URL + '/api/analyze',
+      url: BASE_URL + '/api/analyze?mode=' + mode + '&uid=' + (uid || 'device_unknown'),
       filePath: imagePath,
       name: 'image',
       formData: {
