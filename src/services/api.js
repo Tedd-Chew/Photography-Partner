@@ -1,7 +1,8 @@
 import fetch from '@system.fetch'
 import { compressImage, toBase64 } from '../helper/image'
+import { API_BASE_URL } from '../config'
 
-const BASE_URL = 'http://10.0.2.2:8000'
+const BASE_URL = API_BASE_URL
 
 function request(method, path, body) {
   return new Promise((resolve, reject) => {
