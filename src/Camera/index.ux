@@ -54,7 +54,7 @@
       </list-item>
     </list>
 
-    <loading-overlay show="{{loading}}" text="{{loadingText}}"></loading-overlay>
+    <loading-overlay visible="{{loading}}" text="{{loadingText}}"></loading-overlay>
 
     <bottom-nav></bottom-nav>
   </div>

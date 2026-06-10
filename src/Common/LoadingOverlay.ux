@@ -1,7 +1,7 @@
 <import name="spinner" src="../apex-ui/components/spin/index"></import>
 
 <template>
-  <div class="loading-overlay" if="{{show}}">
+  <div class="loading-overlay" if="{{visible}}">
     <spinner size="large" tip="{{text}}" color="#C4A54A"></spinner>
     <text class="loading-hint">{{hint}}</text>
   </div>
@@ -10,7 +10,7 @@
 <script>
 export default {
   props: {
-    show: { default: false },
+    visible: { default: false },
     text: { default: 'AI 分析中...' },
     hint: { default: '正在识别场景并生成建议' }
   }

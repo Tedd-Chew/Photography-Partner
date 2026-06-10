@@ -1,30 +1,24 @@
-<import name="cm-icon" src="../apex-ui/components/icon/index"></import>
-
 <template>
   <div class="preview-area">
-    <div class="camera-placeholder">
-      <cm-icon type="camera" size="64" color="#86909C"></cm-icon>
-      <text class="placeholder-text">相机预览区域</text>
-      <text class="placeholder-hint">（需真机调试）</text>
-    </div>
+    <camera class="camera-view" device-position="back" flash="off"></camera>
 
     <div class="composition-overlay" if="{{gridMode === 'thirds'}}">
-      <div class="h-line" style="top: 33.33%;"></div>
-      <div class="h-line" style="top: 66.66%;"></div>
-      <div class="v-line" style="left: 33.33%;"></div>
-      <div class="v-line" style="left: 66.66%;"></div>
+      <div class="h-line" style="top:33.33%"></div>
+      <div class="h-line" style="top:66.66%"></div>
+      <div class="v-line" style="left:33.33%"></div>
+      <div class="v-line" style="left:66.66%"></div>
     </div>
 
     <div class="composition-overlay" if="{{gridMode === 'golden'}}">
-      <div class="h-line" style="top: 38.2%;"></div>
-      <div class="h-line" style="top: 61.8%;"></div>
-      <div class="v-line" style="left: 38.2%;"></div>
-      <div class="v-line" style="left: 61.8%;"></div>
+      <div class="h-line" style="top:38.2%"></div>
+      <div class="h-line" style="top:61.8%"></div>
+      <div class="v-line" style="left:38.2%"></div>
+      <div class="v-line" style="left:61.8%"></div>
     </div>
 
     <div class="composition-overlay" if="{{gridMode === 'crosshair'}}">
-      <div class="h-line cross-line" style="top: 50%;"></div>
-      <div class="v-line cross-line" style="left: 50%;"></div>
+      <div class="h-line cross-line" style="top:50%"></div>
+      <div class="v-line cross-line" style="left:50%"></div>
     </div>
   </div>
 </template>
@@ -41,57 +35,33 @@ export default {
   .preview-area {
     position: relative;
     height: 280px;
-    justify-content: center;
-    align-items: center;
-    background-color: #DEE6F0;
+    background-color: #000000;
     border-radius: 16px;
     margin: 12px 16px 0 16px;
-    box-shadow: inset 0 2px 8px rgba(60,80,120,0.06);
+    overflow: hidden;
   }
 
-  .camera-placeholder {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .placeholder-text {
-    font-size: 30px;
-    color: #86909C;
-    margin-top: 12px;
-  }
-
-  .placeholder-hint {
-    font-size: 24px;
-    color: #4E5969;
-    margin-top: 4px;
+  .camera-view {
+    width: 100%;
+    height: 100%;
   }
 
   .composition-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    
+    top: 0; left: 0; right: 0; bottom: 0;
   }
 
   .h-line {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: rgba(190, 70, 120, 0.3);
+    left: 0; right: 0;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.3);
   }
 
   .v-line {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: rgba(190, 70, 120, 0.3);
-  }
-
-  .cross-line {
-    background-color: rgba(190, 70, 120, 0.3);
+    top: 0; bottom: 0;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.3);
   }
 </style>
