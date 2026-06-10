@@ -16,69 +16,84 @@
     <top-bar title="分析结果"></top-bar>
 
     <list class="content">
-      <list-item class="content-wrap" type="result-main">
 
-        <div if="{{mode === 'score'}}" class="outer-card score-outer">
+      <list-item if="{{mode === 'score'}}" type="result-score">
+        <div class="outer-card score-outer">
           <score-circle score="{{scoreVal}}"></score-circle>
         </div>
+      </list-item>
 
-        <div if="{{mode === 'score' && hasScores}}" class="outer-card">
+      <list-item if="{{mode === 'score' && hasScores}}" type="result-radar">
+        <div class="outer-card">
           <score-radar scores="{{analysis.scores}}"></score-radar>
         </div>
+      </list-item>
 
-        <div if="{{mode === 'edit'}}" class="outer-card">
+      <list-item if="{{mode === 'edit'}}" type="result-advice-edit">
+        <div class="outer-card">
           <advice-card comment="{{analysis.advice}}"></advice-card>
         </div>
+      </list-item>
 
-        <div if="{{mode === 'score'}}" class="outer-card">
+      <list-item if="{{mode === 'score'}}" type="result-advice-score">
+        <div class="outer-card">
           <advice-card comment="{{analysis.comment}}"></advice-card>
         </div>
+      </list-item>
 
-        <div if="{{mode === 'shooting' && hasParams}}" class="outer-card">
+      <list-item if="{{mode === 'shooting' && hasParams}}" type="result-params">
+        <div class="outer-card">
           <param-panel params="{{analysis.camera_params}}" scene="{{analysis.scene}}"></param-panel>
         </div>
+      </list-item>
 
-        <div if="{{analysis.composition_tips && analysis.composition_tips.length}}" class="outer-card">
+      <list-item if="{{analysis.composition_tips && analysis.composition_tips.length}}" type="result-tips">
+        <div class="outer-card">
           <bullet-list iconType="options" title="构图建议" items="{{analysis.composition_tips}}"></bullet-list>
         </div>
+      </list-item>
 
-        <div if="{{analysis.issues && analysis.issues.length}}" class="outer-card issues-outer">
+      <list-item if="{{analysis.issues && analysis.issues.length}}" type="result-issues">
+        <div class="outer-card issues-outer">
           <text class="section-heading">问题诊断</text>
           <div for="issue in analysis.issues" class="issue-wrap">
             <issue-card item="{{issue}}"></issue-card>
           </div>
         </div>
+      </list-item>
 
-        <div if="{{analysis.lighting_advice && mode === 'shooting'}}" class="outer-card">
+      <list-item if="{{analysis.lighting_advice && mode === 'shooting'}}" type="result-lighting">
+        <div class="outer-card">
           <div class="section-row">
             <res-icon type="flashlight" size="16" color="#C4A54A"></res-icon>
             <text class="section-label">用光建议</text>
           </div>
           <text class="section-text">{{analysis.lighting_advice}}</text>
         </div>
+      </list-item>
 
-        <div if="{{analysis.extra_tips && mode === 'shooting'}}" class="outer-card">
+      <list-item if="{{analysis.extra_tips && mode === 'shooting'}}" type="result-extra">
+        <div class="outer-card">
           <div class="section-row">
             <res-icon type="paper-plane" size="16" color="#C4A54A"></res-icon>
             <text class="section-label">额外建议</text>
           </div>
           <text class="section-text">{{analysis.extra_tips}}</text>
         </div>
-
-        <exp-gain-card if="{{analysis.exp_gained}}" exp="{{analysis.exp_gained}}"></exp-gain-card>
-
-        <level-up-card
-          if="{{levelUp}}"
-          old-name="{{oldLevelName}}"
-          new-name="{{newLevelName}}">
-        </level-up-card>
-
-        <badge-unlock-card
-          if="{{analysis.badge_unlocked && analysis.badge_unlocked.length}}"
-          name="{{analysis.badge_unlocked[0]}}">
-        </badge-unlock-card>
-
       </list-item>
+
+      <list-item if="{{analysis.exp_gained}}" type="result-exp">
+        <exp-gain-card exp="{{analysis.exp_gained}}"></exp-gain-card>
+      </list-item>
+
+      <list-item if="{{levelUp}}" type="result-levelup">
+        <level-up-card old-name="{{oldLevelName}}" new-name="{{newLevelName}}"></level-up-card>
+      </list-item>
+
+      <list-item if="{{analysis.badge_unlocked && analysis.badge_unlocked.length}}" type="result-badge">
+        <badge-unlock-card name="{{analysis.badge_unlocked[0]}}"></badge-unlock-card>
+      </list-item>
+
     </list>
 
     <bottom-nav></bottom-nav>
@@ -137,10 +152,6 @@ export default {
   .content {
     flex: 1;
     height: 0;
-  }
-
-  .content-wrap {
-    flex-direction: column;
   }
 
   .outer-card {
