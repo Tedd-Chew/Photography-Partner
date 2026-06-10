@@ -31,7 +31,7 @@
   "features": [
     { "name": "system.media" },
     { "name": "system.fetch" },
-    { "name": "system.request" },
+    { "name": "system.uploadtask" },
     { "name": "system.storage" },
     { "name": "system.device" },
     { "name": "system.sensor" },

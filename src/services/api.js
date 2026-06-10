@@ -1,5 +1,5 @@
 import fetch from '@system.fetch'
-import request from '@system.request'
+import uploadtask from '@system.uploadtask'
 import { API_BASE_URL } from '../config'
 
 var BASE_URL = API_BASE_URL
@@ -27,15 +27,14 @@ function jsonRequest(method, path, body) {
 
 export function analyzePhoto(imagePath, mode, uid) {
   return new Promise(function (resolve, reject) {
-    request.upload({
+    uploadtask.uploadFile({
       url: BASE_URL + '/api/analyze',
-      files: [
-        { uri: imagePath, name: 'image' }
-      ],
-      data: [
-        { name: 'mode', value: mode },
-        { name: 'uid', value: uid || 'device_unknown' }
-      ],
+      filePath: imagePath,
+      name: 'image',
+      formData: {
+        mode: mode,
+        uid: uid || 'device_unknown'
+      },
       success: function (res) {
         var d = JSON.parse(res.data)
         if (d && d.ok) {
