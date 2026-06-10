@@ -13,12 +13,10 @@
     </div>
 
     <list class="content">
-      <list-item class="content-wrap" type="camera-main">
-
-        <div if="{{compositionTips.length || lightingAdvice || extraTips}}" class="outer-card">
+      <list-item if="{{compositionTips.length || lightingAdvice || extraTips}}" type="camera-tips">
+        <div class="outer-card">
           <div if="{{compositionTips && compositionTips.length}}" class="mid-card">
             <text class="mid-card-title">构  图</text>
-            <text class="mid-card-desc" if="{{!compositionTips.length}}">暂无建议</text>
             <div class="tip-item" for="tip in compositionTips">
               <text class="tip-dot">•</text>
               <text class="tip-text">{{tip}}</text>
@@ -33,11 +31,15 @@
             <text class="tip-text-single">{{extraTips}}</text>
           </div>
         </div>
+      </list-item>
 
+      <list-item type="camera-params">
         <div class="outer-card">
           <param-panel params="{{params}}" scene="{{scene}}"></param-panel>
         </div>
+      </list-item>
 
+      <list-item type="camera-preview">
         <div class="preview-section">
           <camera-box grid-mode="{{gridMode}}"></camera-box>
           <div class="grid-row">
@@ -50,7 +52,6 @@
             <shoot-button @click="onTakePhoto"></shoot-button>
           </div>
         </div>
-
       </list-item>
     </list>
 
