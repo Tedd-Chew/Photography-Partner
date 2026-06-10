@@ -54,7 +54,10 @@
       </list-item>
     </list>
 
-    <loading-overlay visible="{{loading}}" text="{{loadingText}}"></loading-overlay>
+    <div if="{{loading}}" style="position:absolute;top:0;left:0;right:0;bottom:0;background-color:rgba(237,242,248,0.92);justify-content:center;align-items:center;flex-direction:column">
+      <text style="font-size:28px;color:#1A1A2E;margin-bottom:8px">{{loadingText}}</text>
+      <text style="font-size:24px;color:#86909C">正在识别场景并生成建议</text>
+    </div>
 
     <bottom-nav></bottom-nav>
   </div>

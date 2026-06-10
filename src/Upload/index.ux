@@ -41,7 +41,11 @@
       </list-item>
     </list>
 
-    <loading-overlay visible="{{loading}}"></loading-overlay>
+    <div if="{{loading}}" class="loading-wrap">
+      <div class="loading-dot"></div>
+      <text class="loading-text">AI 分析中...</text>
+      <text class="loading-hint">正在识别场景并生成建议</text>
+    </div>
 
     <bottom-nav></bottom-nav>
   </div>
@@ -189,5 +193,33 @@ export default {
   .mode-text-active {
     color: #FFFFFF;
     font-weight: bold;
+  }
+
+  .loading-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(237,242,248,0.92);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .loading-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #C4A54A;
+    margin-bottom: 16px;
+  }
+
+  .loading-text {
+    font-size: 28px;
+    color: #1A1A2E;
+    margin-bottom: 8px;
+  }
+
+  .loading-hint {
+    font-size: 24px;
+    color: #86909C;
   }
 </style>
