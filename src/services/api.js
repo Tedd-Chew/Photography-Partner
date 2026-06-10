@@ -1,5 +1,5 @@
 import fetch from '@system.fetch'
-import file from '@system.file'
+import request from '@system.request'
 import { API_BASE_URL } from '../config'
 
 var BASE_URL = API_BASE_URL
@@ -25,42 +25,31 @@ function jsonRequest(method, path, body) {
   })
 }
 
-function readFileAsBase64(fileUri) {
-  return new Promise(function (resolve, reject) {
-    file.readText({
-      uri: fileUri,
-      encoding: 'base64',
-      success: function (data) {
-        resolve(data.text)
-      },
-      fail: function (err, code) { reject({ err: err, code: code }) }
-    })
-  })
-}
-
 export function analyzePhoto(imagePath, mode, uid) {
-  return readFileAsBase64(imagePath).then(function (base64Str) {
-    return new Promise(function (resolve, reject) {
-      fetch.fetch({
-        url: BASE_URL + '/api/analyze',
-        method: 'POST',
-        header: { 'Content-Type': 'application/json' },
-        data: JSON.stringify({
-          image: base64Str,
-          mode: mode,
-          uid: uid || 'device_unknown'
-        }),
-        responseType: 'json',
-        success: function (res) {
-          var d = res.data
+  return new Promise(function (resolve, reject) {
+    request.upload({
+      url: BASE_URL + '/api/analyze',
+      filePath: imagePath,
+      name: 'image',
+      formData: {
+        mode: mode,
+        uid: uid || 'device_unknown'
+      },
+      success: function (res) {
+        try {
+          var d = JSON.parse(res.data)
           if (d && d.ok) {
             resolve(d.data)
           } else {
             reject({ error: (d && d.error) || '分析失败' })
           }
-        },
-        fail: function (err, code) { reject({ err: err, code: code }) }
-      })
+        } catch (e) {
+          reject({ error: '服务器返回数据格式错误' })
+        }
+      },
+      fail: function (err, code) {
+        reject({ err: err, code: code })
+      }
     })
   })
 }
