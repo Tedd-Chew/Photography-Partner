@@ -9,7 +9,7 @@
     <top-bar title="选择分析模式"></top-bar>
 
     <list class="content">
-      <list-item class="content-wrap">
+      <list-item class="content-wrap" type="upload-main">
         <div class="outer-card picker-outer">
         <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
       </div>

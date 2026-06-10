@@ -8,7 +8,7 @@
     <top-bar title="历史记录"></top-bar>
 
     <list class="content">
-      <list-item class="content-wrap">
+      <list-item class="content-wrap" type="gallery-main">
         <div if="{{!items.length}}" class="empty-state">
         <g-icon type="images" size="48" color="#86909C"></g-icon>
         <text class="empty-text">还没有分析记录</text>

@@ -16,7 +16,7 @@
     <top-bar title="分析结果"></top-bar>
 
     <list class="content">
-      <list-item class="content-wrap">
+      <list-item class="content-wrap" type="result-main">
 
         <div if="{{mode === 'score'}}" class="outer-card score-outer">
           <score-circle score="{{scoreVal}}"></score-circle>

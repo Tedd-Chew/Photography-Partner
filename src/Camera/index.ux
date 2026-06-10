@@ -13,7 +13,7 @@
     </div>
 
     <list class="content">
-      <list-item class="content-wrap">
+      <list-item class="content-wrap" type="camera-main">
 
         <div if="{{compositionTips.length || lightingAdvice || extraTips}}" class="outer-card">
           <div if="{{compositionTips && compositionTips.length}}" class="mid-card">
