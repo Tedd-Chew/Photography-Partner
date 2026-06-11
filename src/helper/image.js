@@ -1,6 +1,7 @@
-const MAX_EDGE = 1024
+const MAX_EDGE = 800
+const JPEG_QUALITY = 75  // 和缩略图一致，大幅减小文件体积
 
-export function compressImage(src, maxWidth = MAX_EDGE, quality = 0.85) {
+export function compressImage(src, maxWidth = MAX_EDGE, quality = JPEG_QUALITY) {
   return new Promise((resolve) => {
     const image = require('@system.image')
     image.getImageInfo({
@@ -9,19 +10,13 @@ export function compressImage(src, maxWidth = MAX_EDGE, quality = 0.85) {
         const width = info.width
         const height = info.height
         const maxSide = Math.max(width, height)
-
-        if (maxSide <= maxWidth) {
-          resolve(src)
-          return
-        }
-
-        const ratio = maxWidth / maxSide
+        const ratio = maxSide > maxWidth ? maxWidth / maxSide : 1
         const newWidth = Math.round(width * ratio)
         const newHeight = Math.round(height * ratio)
 
         image.compressImage({
           src,
-          quality: Math.round(quality * 100),
+          quality: quality,  // 0-100
           width: newWidth,
           height: newHeight,
           success: (res) => resolve(res.uri),

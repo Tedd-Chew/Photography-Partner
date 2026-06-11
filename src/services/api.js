@@ -16,6 +16,7 @@ function doUpload(imagePath, mode, uid, resolve, reject) {
     filePath: imagePath,
     name: 'file',
     formData: { mode: mode, uid: uid || 'device_unknown' },
+    timeout: 120000,
     success: function (res) {
       if (done) return; done = true; clearTimeout(timer)
       console.log('[analyze] upload ok status=' + res.statusCode)
