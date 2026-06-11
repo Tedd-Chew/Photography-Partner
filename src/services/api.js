@@ -29,8 +29,9 @@ export function analyzePhoto(imagePath, mode, uid) {
       console.log('[analyze] fail code=' + code + ' err=' + JSON.stringify(err))
       reject({ error: '上传失败 code=' + code })
     }
+    })
   })
-})
+}
 
 export function getUserInfo(uid) {
   return new Promise(function (resolve, reject) {

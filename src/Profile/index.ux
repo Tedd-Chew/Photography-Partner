@@ -73,15 +73,22 @@ export default {
     badges: []
   },
 
-  onInit() {
-    const u = store.state.user
+  onInit: function () {
+    this.refresh()
+  },
+
+  onShow: function () {
+    this.refresh()
+  },
+
+  refresh: function () {
+    var u = store.state.user
     this.level = u.level || 1
     this.levelName = LEVEL_NAMES[u.level] || '摄影新手'
     this.exp = u.exp || 0
     this.totalAnalyses = u.totalAnalyses || 0
     this.badges = u.badges || []
-
-    const nextLevel = Math.min(this.level + 1, 6)
+    var nextLevel = this.level < 6 ? this.level + 1 : 6
     this.expToNext = EXP_THRESHOLDS[nextLevel] || 99999
   }
 }

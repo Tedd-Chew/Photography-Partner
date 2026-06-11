@@ -50,7 +50,11 @@ export default {
   loadGallery: function () {
     var self = this
     var uid = store.state.user.uid
-    if (!uid) return
+    console.log('[Gallery] loadGallery uid=' + uid)
+    if (!uid) {
+      console.log('[Gallery] no uid, skip')
+      return
+    }
     getGallery(uid, self.page, 20).then(function (data) {
       var items = data.items || []
       // 解析 result_json 字符串
