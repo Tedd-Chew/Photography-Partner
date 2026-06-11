@@ -60,7 +60,7 @@
 <script>
 import router from '@system.router'
 import media from '@system.media'
-import file from '@system.file'
+import prompt from '@system.prompt'
 import { analyzePhoto } from '../services/api'
 import { store } from '../store/index'
 
@@ -78,17 +78,23 @@ export default {
   pickScore: function () { this.mode = 'score' },
 
   onAnalyze: function () {
-    if (!this.selectedImage) return
+    if (!this.selectedImage || this._busy) return
+    this._busy = true
     store.clearAnalysis()
     var self = this
     self.loading = true
     analyzePhoto(self.selectedImage, self.mode, store.state.user.uid).then(function (result) {
       store.setAnalysis(result)
       self.loading = false
+      self._busy = false
       store.state.localUri = self.selectedImage
       router.push({ uri: '/Result' })
     }).catch(function (e) {
       self.loading = false
+      self._busy = false
+      var msg = (e && e.error) || '分析失败，请重试'
+      console.log('[Upload] analyze fail: ' + msg)
+      prompt.showToast({ message: msg, duration: 2 })
     })
   },
 

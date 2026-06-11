@@ -9,7 +9,7 @@
     "logLevel": "debug",
     "network": {
       "cleartextTraffic": true,
-      "domain": ["192.168.137.1:8000"]
+      "domain": ["192.168.137.1:8000", "106.54.35.197:8000"]
     }
   },
   "router": {
