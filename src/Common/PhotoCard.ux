@@ -1,61 +1,94 @@
-<import name="my-card" src="../apex-ui/components/card/index"></import>
 <import name="pc-icon" src="../apex-ui/components/icon/index"></import>
 
 <template>
-  <my-card>
-    <div slot="title" class="card-title-wrap">
-      <text class="card-mode-tag" style="color: {{modeColor}};">{{modeLabel}}</text>
-      <pc-icon type="image" size="14" color="#86909C"></pc-icon>
-    </div>
-    <div class="card-body">
+  <div class="photo-card" onclick="onClick">
+    <image class="card-thumb" src="{{thumbUrl}}"></image>
+    <div class="card-info">
+      <text class="card-mode {{modeColor}}">{{modeLabel}}</text>
       <text class="card-summary">{{summary}}</text>
     </div>
-  </my-card>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    item: { default: () => ({ mode: '', score: 0, summary: '' }) }
+    item: { default: () => ({}) }
   },
 
   computed: {
     modeLabel: function () {
-      const map = { shooting: '拍摄指导', edit: '修图建议', score: '评分评价' }
-      return map[this.item.mode] || ''
+      return { shooting: '拍摄指导', edit: '修图建议', score: '评分评价' }[this.item.mode] || ''
     },
     modeColor: function () {
-      const map = { shooting: '#5B8DEE', edit: '#9B70D6', score: '#C4A54A' }
-      return map[this.item.mode] || '#C4A54A'
+      return { shooting: 'mode-shooting', edit: 'mode-edit', score: 'mode-score' }[this.item.mode] || ''
+    },
+    thumbUrl: function () {
+      return this.item.thumb_url || ''
     },
     summary: function () {
-      return this.item.summary || ''
+      var mode = this.item.mode
+      var json = this.item.result_json
+      if (typeof json === 'string') {
+        try { json = JSON.parse(json) } catch (e) { return '' }
+      }
+      if (mode === 'shooting') {
+        return (json.scene || '') + ' · 快门 ' + ((json.camera_params && json.camera_params.shutter) || '--')
+      }
+      if (mode === 'edit') {
+        return (json.advice || '').substring(0, 60)
+      }
+      if (mode === 'score') {
+        return (json.score || '?') + '分 · ' + (json.comment || '').substring(0, 40)
+      }
+      return ''
     }
+  },
+
+  onClick: function () {
+    this.$emit('click', this.item)
   }
 }
 </script>
 
 <style>
-  .card-title-wrap {
+  .photo-card {
     flex-direction: row;
     align-items: center;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background-color: #FFFFFF;
   }
 
-  .card-mode-tag {
+  .card-thumb {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    background-color: #EDF2F8;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .card-info {
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-mode {
     font-size: 24px;
     font-weight: bold;
-    margin-right: 6px;
+    margin-bottom: 6px;
   }
 
-  .card-body {
-    flex-direction: column;
-  }
+  .mode-shooting { color: #5B8DEE; }
+  .mode-edit    { color: #9B70D6; }
+  .mode-score   { color: #C4A54A; }
 
   .card-summary {
-    font-size: 24px;
-    color: #4E5969;
-    margin-top: 4px;
-    line-height: 36px;
+    font-size: 22px;
+    color: #86909C;
+    line-height: 32px;
     max-lines: 2;
     text-overflow: ellipsis;
   }

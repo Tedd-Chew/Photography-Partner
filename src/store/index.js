@@ -18,11 +18,16 @@ export const store = {
     },
 
     analysis: null,
+    localUri: '',
 
     history: []
   },
 
   setUser(data) {
+    // 后端返回 snake_case，对齐到 camelCase
+    if (data.total_analyses !== undefined) {
+      data.totalAnalyses = data.total_analyses
+    }
     Object.assign(this.state.user, data)
     saveCache('user', this.state.user)
   },
@@ -34,6 +39,7 @@ export const store = {
 
   setAnalysis(data) {
     this.state.analysis = data
+    saveCache('analysis', data)
     if (data.exp_gained) {
       this.state.user.exp += data.exp_gained
     }

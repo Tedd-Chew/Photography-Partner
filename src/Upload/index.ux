@@ -9,39 +9,49 @@
     <top-bar title="选择分析模式"></top-bar>
 
     <list class="content">
-      <list-item class="content-wrap">
+      <list-item type="upload-picker">
         <div class="outer-card picker-outer">
-        <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
-      </div>
+          <image-picker @pick-camera="onTakePhoto" @pick-album="onPickImage"></image-picker>
+        </div>
+      </list-item>
 
-      <div class="outer-card">
-        <text class="outer-label">分析模式</text>
-        <div class="mode-bar">
-          <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
-            <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
-          </div>
-          <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
-            <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
-          </div>
-          <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
-            <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
+      <list-item type="upload-mode">
+        <div class="outer-card">
+          <text class="outer-label">分析模式</text>
+          <div class="mode-bar">
+            <div class="mode-tab {{mode === 'shooting' ? 'mode-active' : ''}}" onclick="pickShooting">
+              <text class="mode-tab-text {{mode === 'shooting' ? 'mode-text-active' : ''}}">拍摄指导</text>
+            </div>
+            <div class="mode-tab {{mode === 'edit' ? 'mode-active' : ''}}" onclick="pickEdit">
+              <text class="mode-tab-text {{mode === 'edit' ? 'mode-text-active' : ''}}">修图建议</text>
+            </div>
+            <div class="mode-tab {{mode === 'score' ? 'mode-active' : ''}}" onclick="pickScore">
+              <text class="mode-tab-text {{mode === 'score' ? 'mode-text-active' : ''}}">评分评价</text>
+            </div>
           </div>
         </div>
-      </div>
+      </list-item>
 
-      <div if="{{selectedImage}}" class="outer-card preview-outer">
-        <text class="preview-label">已选择照片</text>
-        <image class="preview-img" src="{{selectedImage}}"></image>
-      </div>
+      <list-item if="{{selectedImage}}" type="upload-preview">
+        <div class="outer-card preview-outer">
+          <text class="preview-label">已选择照片</text>
+          <image class="preview-img" src="{{selectedImage}}"></image>
+        </div>
+      </list-item>
 
-      <div class="analyze-wrap">
-        <up-btn if="{{selectedImage}}" type="primary" size="large" shape="round" ontap="onAnalyze">开始分析</up-btn>
-        <up-btn else type="default" size="large" shape="round" disabled="true">请先选择照片</up-btn>
-      </div>
+      <list-item type="upload-analyze">
+        <div class="analyze-wrap">
+          <up-btn if="{{selectedImage}}" type="primary" size="large" shape="round" ontap="onAnalyze">开始分析</up-btn>
+          <up-btn else type="default" size="large" shape="round" disabled="true">请先选择照片</up-btn>
+        </div>
       </list-item>
     </list>
 
-    <loading-overlay show="{{loading}}"></loading-overlay>
+    <div if="{{loading}}" class="loading-wrap">
+      <div class="loading-dot"></div>
+      <text class="loading-text">{{loadingText}}</text>
+      <text class="loading-hint">正在识别场景并生成建议</text>
+    </div>
 
     <bottom-nav></bottom-nav>
   </div>
@@ -50,40 +60,67 @@
 <script>
 import router from '@system.router'
 import media from '@system.media'
-import { analyzePhoto } from '../services/api'
+import prompt from '@system.prompt'
+import { uploadImage, analyzePhoto } from '../services/api'
 import { store } from '../store/index'
 
 export default {
   data: {
     selectedImage: null,
     mode: 'shooting',
-    loading: false
+    loading: false,
+    loadingText: '上传中...'
   },
 
-  onInit() {
-    store.clearAnalysis()
-  },
+  onInit() {},
 
   pickShooting: function () { this.mode = 'shooting' },
   pickEdit: function () { this.mode = 'edit' },
   pickScore: function () { this.mode = 'score' },
 
   onAnalyze: function () {
-    if (!this.selectedImage) return
+    if (!this.selectedImage || this._busy) return
+    this._busy = true
+    store.clearAnalysis()
     var self = this
     self.loading = true
-    analyzePhoto(self.selectedImage, self.mode, store.state.user.uid).then(function (result) {
-      store.setAnalysis(result)
-      self.loading = false
-      self.$app.navigateTo('Result', { result: result, localUri: self.selectedImage })
+    self.loadingText = '上传中...'
+
+    // 第一步：上传图片（快速，不调 AI）
+    uploadImage(self.selectedImage).then(function (uploadResult) {
+      console.log('[Upload] step1 ok imageId=' + uploadResult.image_id)
+      self.loadingText = 'AI 分析中...'
+
+      // 第二步：触发 AI 分析（可以等久一点）
+      analyzePhoto(uploadResult.image_id, self.mode, store.state.user.uid, uploadResult.thumb_url).then(function (result) {
+        console.log('[Upload] step2 ok mode=' + result.mode)
+        // 如果后端没带 thumb_url，用上传阶段的
+        if (!result.thumb_url) result.thumb_url = uploadResult.thumb_url
+        store.setAnalysis(result)
+        self.loading = false
+        self._busy = false
+        store.state.localUri = self.selectedImage
+        router.push({ uri: '/Result' })
+      }).catch(function (e) {
+        self.loading = false
+        self._busy = false
+        var msg = (e && e.error) || '分析失败，请重试'
+        console.log('[Upload] step2 fail: ' + msg)
+        prompt.showToast({ message: msg, duration: 2 })
+      })
     }).catch(function (e) {
       self.loading = false
+      self._busy = false
+      var msg = (e && e.error) || '上传失败，请重试'
+      console.log('[Upload] step1 fail: ' + msg)
+      prompt.showToast({ message: msg, duration: 2 })
     })
   },
 
   onPickImage: function () {
     var self = this
     media.pickImage({
+      sizeType: ['compressed'],
       success: function (data) { self.selectedImage = data.uri },
       fail: function (err) { console.log('选择图片失败:', err) }
     })
@@ -189,5 +226,33 @@ export default {
   .mode-text-active {
     color: #FFFFFF;
     font-weight: bold;
+  }
+
+  .loading-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(237,242,248,0.92);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .loading-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #C4A54A;
+    margin-bottom: 16px;
+  }
+
+  .loading-text {
+    font-size: 28px;
+    color: #1A1A2E;
+    margin-bottom: 8px;
+  }
+
+  .loading-hint {
+    font-size: 24px;
+    color: #86909C;
   }
 </style>

@@ -59,6 +59,8 @@
 
 <script>
 import { store } from '../store/index'
+import { getCache } from '../helper/storage'
+import { getUserInfo } from '../services/api'
 
 const LEVEL_NAMES = ['', '摄影新手', '摄影学徒', '摄影达人', '摄影专家', '摄影大师', '光影艺术家']
 const EXP_THRESHOLDS = [0, 0, 100, 300, 600, 1000, 99999]
@@ -73,15 +75,42 @@ export default {
     badges: []
   },
 
-  onInit() {
-    const u = store.state.user
+  onInit: function () {
+    this.refresh()
+  },
+
+  onShow: function () {
+    
+    this.refresh()
+  },
+
+  refresh: function () {
+    var self = this
+    var uid = store.state.user.uid || 'device_unknown'
+    // 从后端拉最新用户数据
+    console.log('[Profile] refresh uid=' + uid)
+    getUserInfo(uid).then(function (u) {
+      console.log('[Profile] got user level=' + u.level + ' exp=' + u.exp)
+      store.setUser(u)
+      self.applyUser(u)
+    }).catch(function () {
+      var u = store.state.user
+      if (u && u.uid) { self.applyUser(u) }
+      else {
+        getCache('user').then(function (c) {
+          if (c && c.uid) { self.applyUser(c) }
+        })
+      }
+    })
+  },
+
+  applyUser: function (u) {
     this.level = u.level || 1
     this.levelName = LEVEL_NAMES[u.level] || '摄影新手'
     this.exp = u.exp || 0
-    this.totalAnalyses = u.totalAnalyses || 0
+    this.totalAnalyses = u.totalAnalyses || u.total_analyses || 0
     this.badges = u.badges || []
-
-    const nextLevel = Math.min(this.level + 1, 6)
+    var nextLevel = this.level < 6 ? this.level + 1 : 6
     this.expToNext = EXP_THRESHOLDS[nextLevel] || 99999
   }
 }

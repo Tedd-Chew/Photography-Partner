@@ -27,10 +27,6 @@
         <text class="param-value">{{params.wb || '--'}}</text>
       </div>
       <div class="param-row">
-        <text class="param-label">测光模式</text>
-        <text class="param-value">{{params.metering || '--'}}</text>
-      </div>
-      <div class="param-row">
         <text class="param-label">曝光补偿</text>
         <text class="param-value">{{params.ev || '--'}}</text>
       </div>
@@ -50,7 +46,7 @@
 export default {
   props: {
     params: {
-      default: () => ({ shutter: null, iso: null, aperture: null, wb: null, metering: null, ev: null, drive: null, focus: null })
+      default: () => ({ shutter: null, iso: null, aperture: null, wb: null, ev: null, drive: null, focus: null })
     },
     title: { default: '建议参数' },
     scene: { default: '' }
@@ -97,7 +93,7 @@ export default {
 
   .param-row {
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     padding: 16px 4px;
     border-bottom: 1px solid #DCE4F0;

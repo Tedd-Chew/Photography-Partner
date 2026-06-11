@@ -4,9 +4,13 @@
   "versionName": "1.0.0",
   "versionCode": 1,
   "icon": "/assets/icon.png",
-  "minPlatformVersion": 1103,
+  "minPlatformVersion": 1100,
   "config": {
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "network": {
+      "cleartextTraffic": true,
+      "domain": ["192.168.137.1:8000", "106.54.35.197:8000"]
+    }
   },
   "router": {
     "entry": "Home",
@@ -27,6 +31,7 @@
   "features": [
     { "name": "system.media" },
     { "name": "system.fetch" },
+    { "name": "system.uploadtask" },
     { "name": "system.storage" },
     { "name": "system.device" },
     { "name": "system.sensor" },

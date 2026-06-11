@@ -1,9 +1,9 @@
 # services/photo_analysis.py
 # 照片分析业务编排
+# 两步流程：upload 阶段已压缩好 base64，这里直接调 AI
 
 from services.deepseek import shooting_advice, editing_advice, score_photo
 from models.database import save_analysis, update_user_exp, check_badge_unlock
-from utils.image import compress_to_base64, ImageError
 from config import EXP_PER_ANALYSIS, EXP_HIGH_SCORE, EXP_PERFECT_SCORE
 
 
@@ -11,19 +11,8 @@ class AnalysisError(Exception):
     """业务分析异常"""
 
 
-async def _compress(upload_file) -> tuple[str, str]:
-    """图片压缩，失败抛 AnalysisError"""
-    try:
-        return await compress_to_base64(upload_file)
-    except ImageError as e:
-        raise AnalysisError(str(e))
-    except Exception as e:
-        raise AnalysisError(f"图片处理失败: {e}")
-
-
-async def shooting(uid: str, image) -> dict:
-    """拍摄指导：压缩 → AI → 存库 → 返回"""
-    img_b64, thumb_url = await _compress(image)
+async def shooting(uid: str, img_b64: str, thumb_url: str = "") -> dict:
+    """拍摄指导：AI → 存库 → 返回"""
     try:
         result = await shooting_advice(img_b64)
     except Exception as e:
@@ -34,9 +23,8 @@ async def shooting(uid: str, image) -> dict:
     return result
 
 
-async def edit(uid: str, image) -> dict:
-    """修图建议：压缩 → AI 纯文本 → 存库 → 返回"""
-    img_b64, thumb_url = await _compress(image)
+async def edit(uid: str, img_b64: str, thumb_url: str = "") -> dict:
+    """修图建议：AI 纯文本 → 存库 → 返回"""
     try:
         advice = await editing_advice(img_b64)
     except Exception as e:
@@ -48,9 +36,8 @@ async def edit(uid: str, image) -> dict:
     return result
 
 
-async def score(uid: str, image) -> dict:
-    """评分评价：压缩 → AI → 经验 → 勋章 → 存库 → 返回"""
-    img_b64, thumb_url = await _compress(image)
+async def score(uid: str, img_b64: str, thumb_url: str = "") -> dict:
+    """评分评价：AI → 经验 → 勋章 → 存库 → 返回"""
     try:
         result = await score_photo(img_b64)
     except Exception as e:

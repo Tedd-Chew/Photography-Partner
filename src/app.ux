@@ -3,7 +3,7 @@ import router from '@system.router'
 import device from '@system.device'
 import { getUserInfo } from './services/api'
 import { store } from './store/index'
-import { getCache } from './helper/storage'
+import { getUid, getCache } from './helper/storage'
 
 export default {
   data: {
@@ -11,41 +11,28 @@ export default {
     ready: false
   },
 
-  async onInit() {
-    const cached = await getCache('user')
-    if (cached) {
-      store.setUser(cached)
-      this.uid = cached.uid
-      this.ready = true
-    }
-
-    device.getInfo({
-      success: async (info) => {
-        const uid = info.device || 'device_' + Date.now()
-        this.uid = uid
-        try {
-          const userData = await getUserInfo(uid)
-          store.setUser(userData)
-          this.ready = true
-        } catch (e) {
-          if (!cached) {
-            store.setUser({ uid })
-            this.ready = true
-          }
-        }
-      },
-      fail: () => {
-        const uid = 'device_' + Date.now()
-        this.uid = uid
-        if (!cached) {
-          store.setUser({ uid })
-        }
-        this.ready = true
-      }
+  onInit: function () {
+    var self = this
+    // 立即设默认 uid，防止页面初始化时 uid 为空
+    var fallbackUid = 'device_' + Date.now()
+    store.state.user.uid = fallbackUid
+    self.uid = fallbackUid
+    // 从本地获取持久化 uid
+    getUid().then(function (uid) {
+      self.uid = uid
+      store.state.user.uid = uid
+      // 从后端拉用户数据
+      getUserInfo(uid).then(function (data) {
+        store.setUser(data)
+        self.ready = true
+      }).catch(function () {
+        store.setUser({ uid: uid })
+        self.ready = true
+      })
     })
   },
 
-  navigateTo(page) {
+  navigateTo: function (page) {
     router.push({ uri: '/' + page })
   }
 }

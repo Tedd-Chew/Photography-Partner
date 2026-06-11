@@ -1,6 +1,5 @@
 <import name="camera-box" src="../Common/CameraBox.ux"></import>
 <import name="scene-tag" src="../Common/SceneTag.ux"></import>
-<import name="grid-control" src="../Common/GridControl.ux"></import>
 <import name="shoot-button" src="../Common/ShootButton.ux"></import>
 <import name="param-panel" src="../Common/ParamPanel.ux"></import>
 <import name="loading-overlay" src="../Common/LoadingOverlay.ux"></import>
@@ -13,12 +12,10 @@
     </div>
 
     <list class="content">
-      <list-item class="content-wrap">
-
-        <div if="{{compositionTips.length || lightingAdvice || extraTips}}" class="outer-card">
+      <list-item if="{{compositionTips.length || lightingAdvice || extraTips}}" type="camera-tips">
+        <div class="outer-card">
           <div if="{{compositionTips && compositionTips.length}}" class="mid-card">
             <text class="mid-card-title">构  图</text>
-            <text class="mid-card-desc" if="{{!compositionTips.length}}">暂无建议</text>
             <div class="tip-item" for="tip in compositionTips">
               <text class="tip-dot">•</text>
               <text class="tip-text">{{tip}}</text>
@@ -33,16 +30,17 @@
             <text class="tip-text-single">{{extraTips}}</text>
           </div>
         </div>
+      </list-item>
 
+      <list-item type="camera-params">
         <div class="outer-card">
           <param-panel params="{{params}}" scene="{{scene}}"></param-panel>
         </div>
+      </list-item>
 
+      <list-item type="camera-preview">
         <div class="preview-section">
-          <camera-box grid-mode="{{gridMode}}"></camera-box>
-          <div class="grid-row">
-            <grid-control value="{{gridMode}}" @change="onGridChange"></grid-control>
-          </div>
+          <camera-box></camera-box>
           <div if="{{scene}}" class="scene-bar">
             <scene-tag name="{{scene}}"></scene-tag>
           </div>
@@ -50,11 +48,14 @@
             <shoot-button @click="onTakePhoto"></shoot-button>
           </div>
         </div>
-
       </list-item>
     </list>
 
-    <loading-overlay show="{{loading}}" text="{{loadingText}}"></loading-overlay>
+    <div if="{{loading}}" class="loading-mask">
+      <div class="loading-dot"></div>
+      <text class="loading-text">{{loadingText}}</text>
+      <text class="loading-hint">正在识别场景并生成建议</text>
+    </div>
 
     <bottom-nav></bottom-nav>
   </div>
@@ -64,20 +65,12 @@
 import media from '@system.media'
 import router from '@system.router'
 import { store } from '../store/index'
-import { analyzePhoto } from '../services/api'
-
-const SCENE_PRESETS = {
-  '夜景': { shutter: '1/50', iso: '1600', aperture: 'f/2.8', wb: '4000K', metering: '点测光', ev: '-0.3 EV', drive: '单次拍摄', focus: '画面中心对焦' },
-  '人像': { shutter: '1/250', iso: '200', aperture: 'f/2.8', wb: '5500K', metering: '中央重点', ev: '+0.3 EV', drive: '单次拍摄', focus: '人物面部单点对焦' },
-  '风景': { shutter: '1/125', iso: '100', aperture: 'f/8', wb: '5500K', metering: '矩阵测光', ev: '0 EV', drive: '单次拍摄', focus: '全域对焦' },
-  '街拍': { shutter: '1/500', iso: '400', aperture: 'f/5.6', wb: '5500K', metering: '矩阵测光', ev: '0 EV', drive: '连拍模式', focus: '中央重点对焦' }
-}
+import { uploadImage, analyzePhoto } from '../services/api'
 
 export default {
   data: {
     scene: null,
-    gridMode: 'off',
-    params: { shutter: null, iso: null, aperture: null, wb: null, metering: null, ev: null, drive: null, focus: null },
+    params: { shutter: null, iso: null, aperture: null, wb: null, ev: null, drive: null, focus: null },
     compositionTips: [],
     lightingAdvice: '',
     extraTips: '',
@@ -89,49 +82,54 @@ export default {
     router.replace({ uri: '/Home' })
   },
 
-  onReady() {
-    this.detectScene()
-  },
-
-  detectScene() {
-    this.scene = '夜景'
-    const preset = SCENE_PRESETS['夜景']
-    if (preset) {
-      this.params = Object.assign({}, preset)
-    }
-    store.setCameraParams(this.scene, this.params)
-  },
-
-  onGridChange(evt) {
-    this.gridMode = evt.detail.value
-    store.state.camera.gridMode = evt.detail.value
-  },
-
   onTakePhoto() {
-    const self = this
+    if (this._busy) return
+    this._busy = true
+    var self = this
     media.takePhoto({
-      success: async function (data) {
+      success: function (data) {
         self.loading = true
-        self.loadingText = 'AI 分析场景中...'
-        try {
-          const uid = store.state.user.uid || 'device_unknown'
-          const result = await analyzePhoto(data.uri, 'shooting', uid)
-          self.scene = result.scene || '未知场景'
-          self.params = result.camera_params || { shutter: null, iso: null, aperture: null, wb: null, metering: null, ev: null, drive: null, focus: null }
-          self.compositionTips = result.composition_tips || []
-          self.lightingAdvice = result.lighting_advice || ''
-          self.extraTips = result.extra_tips || ''
-          store.setCameraParams(self.scene, self.params)
-        } catch (e) {
-          self.scene = '分析失败'
-          self.compositionTips = ['网络异常或服务器错误，请稍后重试']
-          self.lightingAdvice = ''
-          self.extraTips = ''
-        }
-        self.loading = false
+        self.loadingText = '上传中...'
+        var uid = store.state.user.uid || 'device_unknown'
+
+        // 第一步：上传图片
+        uploadImage(data.uri).then(function (uploadResult) {
+          self.loadingText = 'AI 分析场景中...'
+
+          // 第二步：AI 分析
+          analyzePhoto(uploadResult.image_id, 'shooting', uid, uploadResult.thumb_url).then(function (result) {
+            self.scene = result.scene || '未知场景'
+            self.params = result.camera_params || {}
+            self.compositionTips = result.composition_tips || []
+            self.lightingAdvice = result.lighting_advice || ''
+            self.extraTips = result.extra_tips || ''
+            store.setCameraParams(self.scene, self.params)
+            self.loading = false
+            self._busy = false
+          }).catch(function (e) {
+            console.log('[Camera] step2 fail:', e)
+            self.scene = '分析失败'
+            self.compositionTips = ['网络异常或服务器错误，请稍后重试']
+            self.loading = false
+            self._busy = false
+          })
+        }).catch(function (e) {
+          console.log('[Camera] step1 fail:', e)
+          self.scene = '上传失败'
+          self.compositionTips = ['图片上传失败，请检查网络后重试']
+          self.loading = false
+          self._busy = false
+        })
       },
       fail: function (err) {
         console.log('拍照失败:', err)
+        self.loading = false
+        self._busy = false
+      },
+      cancel: function () {
+        console.log('拍照取消')
+        self.loading = false
+        self._busy = false
       }
     })
   }
@@ -187,15 +185,6 @@ export default {
     box-shadow: 0 1px 6px rgba(0,0,0,0.03), inset 0 1px 2px rgba(0,0,0,0.02);
   }
 
-  .mid-card:first-child {
-    margin-top: 0;
-    padding-top: 22px;
-  }
-
-  .mid-card:last-child {
-    margin-bottom: 0;
-    padding-bottom: 22px;
-  }
 
   .mid-card-title {
     font-size: 26px;
@@ -252,5 +241,33 @@ export default {
     background-color: #F4F8FC;
     box-shadow: 0 4px 24px rgba(0,0,0,0.05);
     overflow: hidden;
+  }
+
+  .loading-mask {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(237,242,248,0.92);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .loading-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #C4A54A;
+    margin-bottom: 16px;
+  }
+
+  .loading-text {
+    font-size: 28px;
+    color: #1A1A2E;
+    margin-bottom: 8px;
+  }
+
+  .loading-hint {
+    font-size: 24px;
+    color: #86909C;
   }
 </style>

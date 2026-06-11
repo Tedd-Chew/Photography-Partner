@@ -8,19 +8,21 @@
     <top-bar title="历史记录"></top-bar>
 
     <list class="content">
-      <list-item class="content-wrap">
-        <div if="{{!items.length}}" class="empty-state">
-        <g-icon type="images" size="48" color="#86909C"></g-icon>
-        <text class="empty-text">还没有分析记录</text>
-        <text class="empty-hint">去选图页面开始第一次分析吧</text>
-      </div>
+      <list-item if="{{!items.length}}" type="gallery-empty">
+        <div class="empty-state">
+          <g-icon type="images" size="48" color="#86909C"></g-icon>
+          <text class="empty-text">还没有分析记录</text>
+          <text class="empty-hint">去选图页面开始第一次分析吧</text>
+        </div>
+      </list-item>
 
-      <div if="{{items.length}}" class="gallery-list">
-        <photo-card
-          for="item in items"
-          item="{{item}}"
-          @click="onCardClick">
-        </photo-card>
+      <list-item if="{{items.length}}" type="gallery-list">
+        <div class="gallery-list">
+          <photo-card
+            for="item in items"
+            item="{{item}}"
+            @click="onCardClick(item)">
+          </photo-card>
         </div>
       </list-item>
     </list>
@@ -30,8 +32,9 @@
 </template>
 
 <script>
+import router from '@system.router'
 import { store } from '../store/index'
-import { getGallery, getGalleryDetail } from '../services/api'
+import { getGallery } from '../services/api'
 
 export default {
   data: {
@@ -40,23 +43,39 @@ export default {
     total: 0
   },
 
-  async onInit() {
-    await this.loadGallery()
+  onInit: function () {
+    this.loadGallery()
   },
 
-  async loadGallery() {
-    const uid = store.state.user.uid
-    if (!uid) return
-    try {
-      const data = await getGallery(uid, this.page, 20)
-      this.items = data.items || []
-      this.total = data.total || 0
-      store.setHistory(this.items)
-    } catch (e) {}
+  loadGallery: function () {
+    var self = this
+    var uid = store.state.user.uid || 'device_unknown'
+    console.log('[Gallery] loadGallery uid=' + uid)
+    getGallery(uid, self.page, 20).then(function (data) {
+      var items = data.items || []
+      self.items = items
+      self.total = data.total || 0
+      store.setHistory(self.items)
+    }).catch(function (e) {
+      console.log('加载历史失败:', e)
+    })
   },
 
-  onCardClick(item) {
-    this.$app.navigateTo('Result')
+  onCardClick: function (item) {
+    // 解析 result_json 字符串，然后赋值
+    var data = item
+    if (typeof item.result_json === 'string') {
+      try {
+        var parsed = JSON.parse(item.result_json)
+        for (var k in parsed) { data[k] = parsed[k] }
+      } catch (e) {}
+    }
+    store.setAnalysis(data)
+    router.push({ uri: '/Result' })
+  },
+
+  onShow: function () {
+    this.loadGallery()
   }
 }
 </script>
@@ -72,10 +91,6 @@ export default {
   .content {
     flex: 1;
     height: 0;
-  }
-
-  .content-wrap {
-    flex-direction: column;
   }
 
   .gallery-list {

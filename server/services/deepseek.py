@@ -24,7 +24,7 @@ from schemas.response import CameraParams
 client = AsyncOpenAI(
     api_key=VIVO_APP_KEY,
     base_url=VIVO_BASE_URL,
-    timeout=30.0,
+    timeout=60.0,
     max_retries=0,
     default_headers={"Content-Type": "application/json; charset=utf-8"},
     default_query={"request_id": str(uuid.uuid4())},

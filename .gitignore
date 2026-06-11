@@ -22,6 +22,7 @@ server/data/
 server/static/*.jpg
 server/static/*.png
 server/config.py
+src/config.js
 
 # Sign keys (keep debug, ignore release)
 sign/release/
