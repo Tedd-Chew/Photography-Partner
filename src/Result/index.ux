@@ -132,17 +132,18 @@ export default {
 
   onInit: function () {
     var data = store.state.analysis
-    if (!data) {
-      var self = this
-      getCache('analysis').then(function (cached) {
-        if (cached) { self.loadData(cached) }
-      })
-    } else {
+    if (data && data.mode) {
       this.loadData(data)
+      return
     }
+    var self = this
+    getCache('analysis').then(function (cached) {
+      if (cached && cached.mode) { self.loadData(cached) }
+    })
   },
 
   loadData: function (data) {
+    console.log('[Result] loadData mode=' + (data && data.mode) + ' score=' + (data && data.score) + ' scene=' + (data && data.scene))
     this.analysis = data || {}
     this.mode = this.analysis.mode || 'score'
     this.scoreVal = this.analysis.score || 0

@@ -53,14 +53,6 @@ export default {
     console.log('[Gallery] loadGallery uid=' + uid)
     getGallery(uid, self.page, 20).then(function (data) {
       var items = data.items || []
-      // 解析 result_json 字符串
-      for (var i = 0; i < items.length; i++) {
-        if (typeof items[i].result_json === 'string') {
-          try {
-            items[i].result_json = JSON.parse(items[i].result_json)
-          } catch (e) {}
-        }
-      }
       self.items = items
       self.total = data.total || 0
       store.setHistory(self.items)
@@ -70,7 +62,15 @@ export default {
   },
 
   onCardClick: function (item) {
-    store.state.analysis = item
+    // 解析 result_json 字符串，然后赋值
+    var data = item
+    if (typeof item.result_json === 'string') {
+      try {
+        var parsed = JSON.parse(item.result_json)
+        for (var k in parsed) { data[k] = parsed[k] }
+      } catch (e) {}
+    }
+    store.setAnalysis(data)
     router.push({ uri: '/Result' })
   },
 

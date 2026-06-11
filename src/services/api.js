@@ -51,11 +51,24 @@ export function getGallery(uid, page, size) {
   size = size || 20
   return new Promise(function (resolve, reject) {
     fetch.fetch({
-      url: BASE_URL + '/gallery?uid=' + uid + '&page=' + page + '&size=' + size,
+      url: BASE_URL + '/api/gallery?uid=' + uid + '&page=' + page + '&size=' + size,
       method: 'GET',
       header: { 'Content-Type': 'application/json' },
       responseType: 'json',
-      success: function (res) { var d = res.data; if (d && d.ok) resolve(d.data); else reject({ error: (d && d.error) || '请求失败' }) },
+      success: function (res) {
+        var d = res.data || res
+        if (d && d.ok) {
+          var items = d.data.items || []
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].thumb_url && items[i].thumb_url.indexOf('/') === 0) {
+              items[i].thumb_url = BASE_URL + items[i].thumb_url
+            }
+          }
+          resolve(d.data)
+        } else {
+          reject({ error: (d && d.error) || '请求失败' })
+        }
+      },
       fail: function (err, code) { reject({ err: err, code: code }) }
     })
   })
@@ -64,7 +77,7 @@ export function getGallery(uid, page, size) {
 export function getGalleryDetail(id) {
   return new Promise(function (resolve, reject) {
     fetch.fetch({
-      url: BASE_URL + '/gallery/' + id,
+      url: BASE_URL + '/api/gallery/' + id,
       method: 'GET',
       header: { 'Content-Type': 'application/json' },
       responseType: 'json',
