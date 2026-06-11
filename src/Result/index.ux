@@ -157,7 +157,7 @@ export default {
     this.hasScores = !!this.analysis.scores
     this.hasParams = !!this.analysis.camera_params
     var tu = this.analysis.thumb_url || ''
-    if (tu && tu.indexOf('/') === 0) { tu = 'http://192.168.137.1:8000' + tu }
+    if (tu && tu.indexOf('/') === 0) { tu = 'http://106.54.35.197:8000' + tu }
     this.thumbUrl = tu
   }
 }
