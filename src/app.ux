@@ -13,7 +13,11 @@ export default {
 
   onInit: function () {
     var self = this
-    // 先看本地有没有 uid
+    // 立即设默认 uid，防止页面初始化时 uid 为空
+    var fallbackUid = 'device_' + Date.now()
+    store.state.user.uid = fallbackUid
+    self.uid = fallbackUid
+    // 从本地获取持久化 uid
     getUid().then(function (uid) {
       self.uid = uid
       store.state.user.uid = uid
