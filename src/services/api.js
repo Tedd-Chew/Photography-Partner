@@ -18,6 +18,7 @@ export function analyzePhoto(imagePath, mode, uid) {
         if (d && d.ok) resolve(d.data)
         else reject({ error: (d && d.error) || '分析失败' })
       },
+      timeout: 120000,
       fail: function (err, code) { reject({ error: '上传失败 code=' + code }) }
     })
   })
