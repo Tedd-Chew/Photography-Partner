@@ -87,7 +87,9 @@ export default {
     var self = this
     var uid = store.state.user.uid || 'device_unknown'
     // 从后端拉最新用户数据
+    console.log('[Profile] refresh uid=' + uid)
     getUserInfo(uid).then(function (u) {
+      console.log('[Profile] got user level=' + u.level + ' exp=' + u.exp)
       store.setUser(u)
       self.applyUser(u)
     }).catch(function () {

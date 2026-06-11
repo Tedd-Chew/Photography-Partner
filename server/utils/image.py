@@ -48,8 +48,8 @@ async def compress_to_base64(upload_file) -> tuple[str, str]:
     filename = f"{uuid.uuid4().hex}.jpg"
     thumb = img.copy()
     tw, th = thumb.size
-    if max(tw, th) > 200:
-        r = 200 / max(tw, th)
+    if max(tw, th) > 150:
+        r = 150 / max(tw, th)
         thumb = thumb.resize((int(tw * r), int(th * r)), Image.LANCZOS)
     thumb.save(os.path.join(STATIC_DIR, filename), "JPEG", quality=75)
     thumb_url = f"/static/{filename}"

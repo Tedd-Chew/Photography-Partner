@@ -17,6 +17,12 @@
 
     <list class="content">
 
+      <list-item if="{{thumbUrl}}" type="result-photo">
+        <div class="outer-card photo-outer">
+          <image class="result-photo" src="{{thumbUrl}}"></image>
+        </div>
+      </list-item>
+
       <list-item if="{{mode === 'score'}}" type="result-score">
         <div class="outer-card score-outer">
           <score-circle score="{{scoreVal}}"></score-circle>
@@ -111,6 +117,7 @@ export default {
     mode: 'score',
     analysis: {},
     scoreVal: 0,
+    thumbUrl: '',
     hasScores: false,
     hasParams: false
   },
@@ -149,6 +156,9 @@ export default {
     this.scoreVal = this.analysis.score || 0
     this.hasScores = !!this.analysis.scores
     this.hasParams = !!this.analysis.camera_params
+    var tu = this.analysis.thumb_url || ''
+    if (tu && tu.indexOf('/') === 0) { tu = 'http://192.168.137.1:8000' + tu }
+    this.thumbUrl = tu
   }
 }
 </script>
@@ -214,5 +224,16 @@ export default {
 
   .issue-wrap {
     margin: 0 12px 10px 12px;
+  }
+
+  .photo-outer {
+    align-items: center;
+    padding: 12px 4px;
+  }
+
+  .result-photo {
+    width: 300px;
+    height: 300px;
+    border-radius: 12px;
   }
 </style>
