@@ -108,7 +108,7 @@ export default {
     this.level = u.level || 1
     this.levelName = LEVEL_NAMES[u.level] || '摄影新手'
     this.exp = u.exp || 0
-    this.totalAnalyses = u.totalAnalyses || 0
+    this.totalAnalyses = u.totalAnalyses || u.total_analyses || 0
     this.badges = u.badges || []
     var nextLevel = this.level < 6 ? this.level + 1 : 6
     this.expToNext = EXP_THRESHOLDS[nextLevel] || 99999

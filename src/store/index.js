@@ -24,6 +24,10 @@ export const store = {
   },
 
   setUser(data) {
+    // 后端返回 snake_case，对齐到 camelCase
+    if (data.total_analyses !== undefined) {
+      data.totalAnalyses = data.total_analyses
+    }
     Object.assign(this.state.user, data)
     saveCache('user', this.state.user)
   },
