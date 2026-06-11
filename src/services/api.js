@@ -5,44 +5,71 @@ import { compressImage } from '../helper/image'
 
 var BASE_URL = API_BASE_URL
 
-function doUpload(imagePath, mode, uid, resolve, reject) {
-  var done = false
-  var timer = setTimeout(function () {
-    if (!done) { done = true; reject({ error: '上传超时(120s)，请检查网络后重试' }) }
-  }, 120000)
+// ====== 第一步：上传图片（只上传，不调 AI，快速返回）======
 
-  uploadtask.uploadFile({
-    url: BASE_URL + '/api/analyze',
-    filePath: imagePath,
-    name: 'file',
-    formData: { mode: mode, uid: uid || 'device_unknown' },
-    timeout: 120000,
-    success: function (res) {
-      if (done) return; done = true; clearTimeout(timer)
-      console.log('[analyze] upload ok status=' + res.statusCode)
-      var d = res.data
-      if (typeof d === 'string') { try { d = JSON.parse(d) } catch(e) {} }
-      if (d && d.ok) resolve(d.data)
-      else reject({ error: (d && d.error) || '分析失败' })
-    },
-    fail: function (err, code) {
-      if (done) return; done = true; clearTimeout(timer)
-      console.log('[analyze] upload fail code=' + code + ' err=' + JSON.stringify(err))
-      reject({ error: '上传失败 code=' + code + '，请检查网络后重试' })
-    }
+export function uploadImage(imagePath) {
+  console.log('[upload] start path=' + (imagePath || '').substring(0, 40))
+  return new Promise(function (resolve, reject) {
+    compressImage(imagePath).then(function (compressedPath) {
+      console.log('[upload] compressed path=' + (compressedPath || '').substring(0, 40))
+
+      var done = false
+      var timer = setTimeout(function () {
+        if (!done) { done = true; reject({ error: '上传超时，请检查网络后重试' }) }
+      }, 30000)
+
+      uploadtask.uploadFile({
+        url: BASE_URL + '/api/images',
+        filePath: compressedPath,
+        name: 'file',
+        formData: {},
+        success: function (res) {
+          if (done) return; done = true; clearTimeout(timer)
+          console.log('[upload] ok status=' + res.statusCode)
+          var d = res.data
+          if (typeof d === 'string') { try { d = JSON.parse(d) } catch(e) {} }
+          if (d && d.ok) resolve(d.data)
+          else reject({ error: (d && d.error) || '上传失败' })
+        },
+        fail: function (err, code) {
+          if (done) return; done = true; clearTimeout(timer)
+          console.log('[upload] fail code=' + code + ' err=' + JSON.stringify(err))
+          reject({ error: '上传失败 code=' + code + '，请检查网络后重试' })
+        }
+      })
+    }).catch(function () {
+      reject({ error: '图片处理失败' })
+    })
   })
 }
 
-export function analyzePhoto(imagePath, mode, uid) {
-  console.log('[analyze] start mode=' + mode + ' path=' + (imagePath || '').substring(0, 40))
+// ====== 第二步：触发 AI 分析（用 fetch，可以等更久）======
+
+export function analyzePhoto(imageId, mode, uid, thumbUrl) {
+  console.log('[analyze] start mode=' + mode + ' imageId=' + imageId)
   return new Promise(function (resolve, reject) {
-    compressImage(imagePath).then(function (compressedPath) {
-      console.log('[analyze] compressed path=' + (compressedPath || '').substring(0, 40))
-      doUpload(compressedPath, mode, uid, resolve, reject)
-    }).catch(function () {
-      // 压缩失败不阻塞，用原图上传
-      console.log('[analyze] compress failed, using original')
-      doUpload(imagePath, mode, uid, resolve, reject)
+    fetch.fetch({
+      url: BASE_URL + '/api/analyze',
+      method: 'POST',
+      header: { 'Content-Type': 'application/json' },
+      data: JSON.stringify({
+        image_id: imageId,
+        mode: mode,
+        uid: uid || 'device_unknown',
+        thumb_url: thumbUrl || ''
+      }),
+      responseType: 'json',
+      timeout: 120000,
+      success: function (res) {
+        console.log('[analyze] ok')
+        var d = res.data || res
+        if (d && d.ok) resolve(d.data)
+        else reject({ error: (d && d.error) || '分析失败' })
+      },
+      fail: function (err, code) {
+        console.log('[analyze] fail code=' + code + ' err=' + JSON.stringify(err))
+        reject({ error: '分析失败 code=' + code + '，请重试' })
+      }
     })
   })
 }

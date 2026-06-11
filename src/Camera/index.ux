@@ -65,7 +65,7 @@
 import media from '@system.media'
 import router from '@system.router'
 import { store } from '../store/index'
-import { analyzePhoto } from '../services/api'
+import { uploadImage, analyzePhoto } from '../services/api'
 
 export default {
   data: {
@@ -89,9 +89,15 @@ export default {
     media.takePhoto({
       success: function (data) {
         self.loading = true
-        self.loadingText = 'AI 分析场景中...'
+        self.loadingText = '上传中...'
         var uid = store.state.user.uid || 'device_unknown'
-        analyzePhoto(data.uri, 'shooting', uid).then(function (result) {
+
+        // 第一步：上传图片
+        uploadImage(data.uri).then(function (uploadResult) {
+          self.loadingText = 'AI 分析场景中...'
+
+          // 第二步：AI 分析
+          analyzePhoto(uploadResult.image_id, 'shooting', uid, uploadResult.thumb_url).then(function (result) {
             self.scene = result.scene || '未知场景'
             self.params = result.camera_params || {}
             self.compositionTips = result.composition_tips || []
@@ -101,12 +107,19 @@ export default {
             self.loading = false
             self._busy = false
           }).catch(function (e) {
-            console.log('分析失败:', e)
+            console.log('[Camera] step2 fail:', e)
             self.scene = '分析失败'
             self.compositionTips = ['网络异常或服务器错误，请稍后重试']
             self.loading = false
             self._busy = false
           })
+        }).catch(function (e) {
+          console.log('[Camera] step1 fail:', e)
+          self.scene = '上传失败'
+          self.compositionTips = ['图片上传失败，请检查网络后重试']
+          self.loading = false
+          self._busy = false
+        })
       },
       fail: function (err) {
         console.log('拍照失败:', err)

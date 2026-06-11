@@ -49,7 +49,7 @@
 
     <div if="{{loading}}" class="loading-wrap">
       <div class="loading-dot"></div>
-      <text class="loading-text">AI 分析中...</text>
+      <text class="loading-text">{{loadingText}}</text>
       <text class="loading-hint">正在识别场景并生成建议</text>
     </div>
 
@@ -61,14 +61,15 @@
 import router from '@system.router'
 import media from '@system.media'
 import prompt from '@system.prompt'
-import { analyzePhoto } from '../services/api'
+import { uploadImage, analyzePhoto } from '../services/api'
 import { store } from '../store/index'
 
 export default {
   data: {
     selectedImage: null,
     mode: 'shooting',
-    loading: false
+    loading: false,
+    loadingText: '上传中...'
   },
 
   onInit() {},
@@ -83,17 +84,35 @@ export default {
     store.clearAnalysis()
     var self = this
     self.loading = true
-    analyzePhoto(self.selectedImage, self.mode, store.state.user.uid).then(function (result) {
-      store.setAnalysis(result)
-      self.loading = false
-      self._busy = false
-      store.state.localUri = self.selectedImage
-      router.push({ uri: '/Result' })
+    self.loadingText = '上传中...'
+
+    // 第一步：上传图片（快速，不调 AI）
+    uploadImage(self.selectedImage).then(function (uploadResult) {
+      console.log('[Upload] step1 ok imageId=' + uploadResult.image_id)
+      self.loadingText = 'AI 分析中...'
+
+      // 第二步：触发 AI 分析（可以等久一点）
+      analyzePhoto(uploadResult.image_id, self.mode, store.state.user.uid, uploadResult.thumb_url).then(function (result) {
+        console.log('[Upload] step2 ok mode=' + result.mode)
+        // 如果后端没带 thumb_url，用上传阶段的
+        if (!result.thumb_url) result.thumb_url = uploadResult.thumb_url
+        store.setAnalysis(result)
+        self.loading = false
+        self._busy = false
+        store.state.localUri = self.selectedImage
+        router.push({ uri: '/Result' })
+      }).catch(function (e) {
+        self.loading = false
+        self._busy = false
+        var msg = (e && e.error) || '分析失败，请重试'
+        console.log('[Upload] step2 fail: ' + msg)
+        prompt.showToast({ message: msg, duration: 2 })
+      })
     }).catch(function (e) {
       self.loading = false
       self._busy = false
-      var msg = (e && e.error) || '分析失败，请重试'
-      console.log('[Upload] analyze fail: ' + msg)
+      var msg = (e && e.error) || '上传失败，请重试'
+      console.log('[Upload] step1 fail: ' + msg)
       prompt.showToast({ message: msg, duration: 2 })
     })
   },
