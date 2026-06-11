@@ -36,12 +36,19 @@ export function analyzePhoto(imagePath, mode, uid) {
 export function getUserInfo(uid) {
   return new Promise(function (resolve, reject) {
     fetch.fetch({
-      url: BASE_URL + '/user/info?uid=' + uid,
+      url: BASE_URL + '/api/user/info?uid=' + uid,
       method: 'GET',
-      header: { 'Content-Type': 'application/json' },
       responseType: 'json',
-      success: function (res) { var d = res.data; if (d && d.ok) resolve(d.data); else reject({ error: (d && d.error) || '请求失败' }) },
-      fail: function (err, code) { reject({ err: err, code: code }) }
+      success: function (res) {
+        console.log('[user] raw=' + JSON.stringify(res))
+        var d = res.data || res
+        if (d && d.ok) resolve(d.data)
+        else reject({ error: (d && d.error) || '请求失败' })
+      },
+      fail: function (err, code) {
+        console.log('[user] fail code=' + code)
+        reject({ err: err, code: code })
+      }
     })
   })
 }
