@@ -43,11 +43,12 @@ export function uploadImage(imagePath) {
   })
 }
 
-// ====== 第二步：触发 AI 分析（用 fetch，可以等更久）======
+// ====== 第二步：触发 AI 分析（POST 启动 + GET 轮询，不超时）======
 
 export function analyzePhoto(imageId, mode, uid, thumbUrl) {
   console.log('[analyze] start mode=' + mode + ' imageId=' + imageId)
   return new Promise(function (resolve, reject) {
+    // 发 POST 启动分析，立即拿到 task_id
     fetch.fetch({
       url: BASE_URL + '/api/analyze',
       method: 'POST',
@@ -59,19 +60,61 @@ export function analyzePhoto(imageId, mode, uid, thumbUrl) {
         thumb_url: thumbUrl || ''
       }),
       responseType: 'json',
-      timeout: 120000,
       success: function (res) {
-        console.log('[analyze] ok')
         var d = res.data || res
-        if (d && d.ok) resolve(d.data)
-        else reject({ error: (d && d.error) || '分析失败' })
+        if (!d || !d.ok || !d.data || !d.data.task_id) {
+          reject({ error: (d && d.error) || '启动分析失败' })
+          return
+        }
+        var taskId = d.data.task_id
+        console.log('[analyze] taskId=' + taskId + ', start polling...')
+        poll(taskId, resolve, reject)
       },
       fail: function (err, code) {
-        console.log('[analyze] fail code=' + code + ' err=' + JSON.stringify(err))
-        reject({ error: '分析失败 code=' + code + '，请重试' })
+        reject({ error: '启动分析失败 code=' + code })
       }
     })
   })
+}
+
+function poll(taskId, resolve, reject) {
+  var count = 0
+  var maxPolls = 60  // 60 * 2s = 120s
+
+  function tick() {
+    count++
+    fetch.fetch({
+      url: BASE_URL + '/api/analyze/' + taskId,
+      method: 'GET',
+      responseType: 'json',
+      success: function (res) {
+        var r = res.data || res
+        if (!r || !r.ok) {
+          if (r && r.error) { reject({ error: r.error }); return }
+          // 网络小波动，继续
+          if (count >= maxPolls) { reject({ error: '分析超时，请重试' }); return }
+          setTimeout(tick, 2000)
+          return
+        }
+        if (r.data && r.data.status === 'processing') {
+          console.log('[poll] ' + count + ' processing...')
+          if (count >= maxPolls) { reject({ error: '分析超时，请重试' }); return }
+          setTimeout(tick, 2000)
+          return
+        }
+        // done — data 直接就是分析结果
+        console.log('[poll] done at ' + count)
+        resolve(r.data)
+      },
+      fail: function () {
+        console.log('[poll] ' + count + ' network fail, retry...')
+        if (count >= maxPolls) { reject({ error: '分析超时，请重试' }); return }
+        setTimeout(tick, 2000)
+      }
+    })
+  }
+
+  tick()
 }
 
 export function getUserInfo(uid) {

@@ -1,14 +1,17 @@
 # routes/analyze.py
-# POST /api/images — 上传图片，快速返回 image_id（无 AI，不会超时）
-# POST /api/analyze — 接收 image_id + mode，触发 AI 分析
+# POST /api/images        — 上传图片，快速返回 image_id（无 AI，不会超时）
+# POST /api/analyze       — 接收 image_id，后台执行 AI，立即返回 task_id
+# GET  /api/analyze/{id}  — 轮询 AI 结果
 
+import asyncio
 import uuid
 
-from fastapi import APIRouter, UploadFile, Form
+from fastapi import APIRouter, UploadFile
 from pydantic import BaseModel
 
 from services.photo_analysis import shooting, edit, score, AnalysisError
 from services.image_store import put, pop
+from services import task_store
 from utils.image import compress_to_base64, ImageError
 from utils.response import ResponseBuilder
 
@@ -42,7 +45,7 @@ async def upload_image(file: UploadFile = None):
 
 @router.post("/api/analyze")
 async def analyze(body: AnalyzeRequest):
-    """根据已上传的 image_id 触发 AI 分析"""
+    """启动后台 AI 分析，立即返回 task_id"""
     if body.mode not in HANDLERS:
         return ResponseBuilder.error(f"未知模式: {body.mode}")
 
@@ -50,10 +53,30 @@ async def analyze(body: AnalyzeRequest):
     if img_b64 is None:
         return ResponseBuilder.error("图片已过期，请重新上传")
 
-    try:
-        result = await HANDLERS[body.mode](body.uid.strip(), img_b64, body.thumb_url)
-        return ResponseBuilder.ok(result)
-    except AnalysisError as e:
-        return ResponseBuilder.error(str(e))
-    except Exception as e:
-        return ResponseBuilder.error(f"服务器内部错误: {e}")
+    task_id = uuid.uuid4().hex
+    task_store.create(task_id)
+
+    async def run():
+        try:
+            result = await HANDLERS[body.mode](body.uid.strip(), img_b64, body.thumb_url)
+            task_store.complete(task_id, result)
+        except AnalysisError as e:
+            task_store.fail(task_id, str(e))
+        except Exception as e:
+            task_store.fail(task_id, f"服务器内部错误: {e}")
+
+    asyncio.create_task(run())
+    return ResponseBuilder.ok({"task_id": task_id})
+
+
+@router.get("/api/analyze/{task_id}")
+async def get_result(task_id: str):
+    """轮询 AI 分析结果"""
+    task = task_store.get(task_id)
+    if task is None:
+        return ResponseBuilder.error("任务不存在或已过期")
+    if task["status"] == "processing":
+        return ResponseBuilder.ok({"status": "processing"})
+    if task["status"] == "error":
+        return ResponseBuilder.error(task["error"])
+    return ResponseBuilder.ok(task["data"])
