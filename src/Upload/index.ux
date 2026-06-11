@@ -60,6 +60,7 @@
 <script>
 import router from '@system.router'
 import media from '@system.media'
+import file from '@system.file'
 import { analyzePhoto } from '../services/api'
 import { store } from '../store/index'
 
@@ -94,6 +95,7 @@ export default {
   onPickImage: function () {
     var self = this
     media.pickImage({
+      sizeType: ['compressed'],
       success: function (data) { self.selectedImage = data.uri },
       fail: function (err) { console.log('选择图片失败:', err) }
     })

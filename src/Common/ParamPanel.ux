@@ -93,7 +93,7 @@ export default {
 
   .param-row {
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     padding: 16px 4px;
     border-bottom: 1px solid #DCE4F0;
