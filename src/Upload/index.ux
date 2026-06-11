@@ -70,9 +70,7 @@ export default {
     loading: false
   },
 
-  onInit() {
-    store.clearAnalysis()
-  },
+  onInit() {},
 
   pickShooting: function () { this.mode = 'shooting' },
   pickEdit: function () { this.mode = 'edit' },
@@ -80,12 +78,14 @@ export default {
 
   onAnalyze: function () {
     if (!this.selectedImage) return
+    store.clearAnalysis()
     var self = this
     self.loading = true
     analyzePhoto(self.selectedImage, self.mode, store.state.user.uid).then(function (result) {
       store.setAnalysis(result)
       self.loading = false
-      self.$app.navigateTo('Result', { result: result, localUri: self.selectedImage })
+      store.state.localUri = self.selectedImage
+      router.push({ uri: '/Result' })
     }).catch(function (e) {
       self.loading = false
     })

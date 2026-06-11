@@ -18,6 +18,7 @@ export const store = {
     },
 
     analysis: null,
+    localUri: '',
 
     history: []
   },

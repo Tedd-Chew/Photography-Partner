@@ -13,6 +13,7 @@ export function analyzePhoto(imagePath, mode, uid) {
       url: BASE_URL + '/api/analyze?mode=' + mode + '&uid=' + (uid || 'device_unknown'),
       filePath: imagePath,
       name: 'image',
+      timeout: 60000,
       formData: {
         mode: mode,
         uid: uid || 'device_unknown'

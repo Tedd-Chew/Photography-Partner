@@ -25,6 +25,8 @@ class CameraParams(BaseModel):
     iso: str = Field(description="建议 ISO，如 400")
     aperture: str = Field(description="建议光圈，如 f/2.8")
     wb: str = Field(description="建议白平衡，如 5500K")
+    ev: str = Field(description="曝光补偿，如 0 EV")
+    drive: str = Field(description="拍摄模式，如 单次拍摄")
     focus: str = Field(description="对焦建议，如 人物面部单点对焦")
 
 

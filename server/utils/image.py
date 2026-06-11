@@ -21,7 +21,7 @@ async def compress_to_base64(upload_file) -> tuple[str, str]:
     接收 UploadFile → 压缩 → 返回 (base64, thumb_url)。
     非法文件抛出 ImageError。
     """
-    if upload_file.content_type and upload_file.content_type not in ALLOWED_TYPES:
+    if upload_file.content_type and upload_file.content_type.startswith("image/") and upload_file.content_type not in ALLOWED_TYPES:
         raise ImageError(f"不支持的图片格式: {upload_file.content_type}")
 
     contents = await upload_file.read()

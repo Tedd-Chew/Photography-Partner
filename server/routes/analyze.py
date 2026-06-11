@@ -29,7 +29,10 @@ async def analyze(request: Request):
     # multipart/form-data
     if "multipart" in content_type:
         form = await request.form()
-        image = form.get("image")
+        print(f"[analyze] form keys={list(form.keys())}")
+        for k, v in form.items():
+            print(f"[analyze]   {k}={type(v).__name__} filename={getattr(v,'filename','N/A')}")
+        image = form.get("file") or form.get("image")
         mode = form.get("mode")
         uid = form.get("uid")
         if not image or not hasattr(image, 'filename'):

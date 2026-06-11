@@ -21,7 +21,7 @@
           <photo-card
             for="item in items"
             item="{{item}}"
-            @click="onCardClick">
+            @click="onCardClick(item)">
           </photo-card>
         </div>
       </list-item>
@@ -32,8 +32,9 @@
 </template>
 
 <script>
+import router from '@system.router'
 import { store } from '../store/index'
-import { getGallery, getGalleryDetail } from '../services/api'
+import { getGallery } from '../services/api'
 
 export default {
   data: {
@@ -42,23 +43,39 @@ export default {
     total: 0
   },
 
-  async onInit() {
-    await this.loadGallery()
+  onInit: function () {
+    this.loadGallery()
   },
 
-  async loadGallery() {
-    const uid = store.state.user.uid
+  loadGallery: function () {
+    var self = this
+    var uid = store.state.user.uid
     if (!uid) return
-    try {
-      const data = await getGallery(uid, this.page, 20)
-      this.items = data.items || []
-      this.total = data.total || 0
-      store.setHistory(this.items)
-    } catch (e) {}
+    getGallery(uid, self.page, 20).then(function (data) {
+      var items = data.items || []
+      // 解析 result_json 字符串
+      for (var i = 0; i < items.length; i++) {
+        if (typeof items[i].result_json === 'string') {
+          try {
+            items[i].result_json = JSON.parse(items[i].result_json)
+          } catch (e) {}
+        }
+      }
+      self.items = items
+      self.total = data.total || 0
+      store.setHistory(self.items)
+    }).catch(function (e) {
+      console.log('加载历史失败:', e)
+    })
   },
 
-  onCardClick(item) {
-    this.$app.navigateTo('Result')
+  onCardClick: function (item) {
+    store.state.analysis = item
+    router.push({ uri: '/Result' })
+  },
+
+  onShow: function () {
+    this.loadGallery()
   }
 }
 </script>

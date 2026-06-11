@@ -1,6 +1,5 @@
 <import name="camera-box" src="../Common/CameraBox.ux"></import>
 <import name="scene-tag" src="../Common/SceneTag.ux"></import>
-<import name="grid-control" src="../Common/GridControl.ux"></import>
 <import name="shoot-button" src="../Common/ShootButton.ux"></import>
 <import name="param-panel" src="../Common/ParamPanel.ux"></import>
 <import name="loading-overlay" src="../Common/LoadingOverlay.ux"></import>
@@ -41,10 +40,7 @@
 
       <list-item type="camera-preview">
         <div class="preview-section">
-          <camera-box grid-mode="{{gridMode}}"></camera-box>
-          <div class="grid-row">
-            <grid-control value="{{gridMode}}" @change="onGridChange"></grid-control>
-          </div>
+          <camera-box></camera-box>
           <div if="{{scene}}" class="scene-bar">
             <scene-tag name="{{scene}}"></scene-tag>
           </div>
@@ -71,7 +67,7 @@ import { store } from '../store/index'
 import { analyzePhoto } from '../services/api'
 
 const SCENE_PRESETS = {
-  '夜景': { shutter: '1/50', iso: '1600', aperture: 'f/2.8', wb: '4000K', metering: '点测光', ev: '-0.3 EV', drive: '单次拍摄', focus: '画面中心对焦' },
+  '夜景': { shutter: '1/50', iso: '1600', aperture: 'f/2.8', wb: '4000K', ev: '-0.3 EV', drive: '单次拍摄', focus: '画面中心对焦' },
   '人像': { shutter: '1/250', iso: '200', aperture: 'f/2.8', wb: '5500K', metering: '中央重点', ev: '+0.3 EV', drive: '单次拍摄', focus: '人物面部单点对焦' },
   '风景': { shutter: '1/125', iso: '100', aperture: 'f/8', wb: '5500K', metering: '矩阵测光', ev: '0 EV', drive: '单次拍摄', focus: '全域对焦' },
   '街拍': { shutter: '1/500', iso: '400', aperture: 'f/5.6', wb: '5500K', metering: '矩阵测光', ev: '0 EV', drive: '连拍模式', focus: '中央重点对焦' }
@@ -80,8 +76,7 @@ const SCENE_PRESETS = {
 export default {
   data: {
     scene: null,
-    gridMode: 'off',
-    params: { shutter: null, iso: null, aperture: null, wb: null, metering: null, ev: null, drive: null, focus: null },
+    params: { shutter: null, iso: null, aperture: null, wb: null, ev: null, drive: null, focus: null },
     compositionTips: [],
     lightingAdvice: '',
     extraTips: '',
@@ -106,36 +101,41 @@ export default {
     store.setCameraParams(this.scene, this.params)
   },
 
-  onGridChange(evt) {
-    this.gridMode = evt.detail.value
-    store.state.camera.gridMode = evt.detail.value
-  },
-
   onTakePhoto() {
-    const self = this
+    if (this._busy) return
+    this._busy = true
+    var self = this
     media.takePhoto({
-      success: async function (data) {
+      success: function (data) {
         self.loading = true
         self.loadingText = 'AI 分析场景中...'
-        try {
-          const uid = store.state.user.uid || 'device_unknown'
-          const result = await analyzePhoto(data.uri, 'shooting', uid)
-          self.scene = result.scene || '未知场景'
-          self.params = result.camera_params || { shutter: null, iso: null, aperture: null, wb: null, metering: null, ev: null, drive: null, focus: null }
-          self.compositionTips = result.composition_tips || []
-          self.lightingAdvice = result.lighting_advice || ''
-          self.extraTips = result.extra_tips || ''
-          store.setCameraParams(self.scene, self.params)
-        } catch (e) {
-          self.scene = '分析失败'
-          self.compositionTips = ['网络异常或服务器错误，请稍后重试']
-          self.lightingAdvice = ''
-          self.extraTips = ''
-        }
-        self.loading = false
+        var uid = store.state.user.uid || 'device_unknown'
+        analyzePhoto(data.uri, 'shooting', uid).then(function (result) {
+            self.scene = result.scene || '未知场景'
+            self.params = result.camera_params || {}
+            self.compositionTips = result.composition_tips || []
+            self.lightingAdvice = result.lighting_advice || ''
+            self.extraTips = result.extra_tips || ''
+            store.setCameraParams(self.scene, self.params)
+            self.loading = false
+            self._busy = false
+          }).catch(function (e) {
+            console.log('分析失败:', e)
+            self.scene = '分析失败'
+            self.compositionTips = ['网络异常或服务器错误，请稍后重试']
+            self.loading = false
+            self._busy = false
+          })
       },
       fail: function (err) {
         console.log('拍照失败:', err)
+        self.loading = false
+        self._busy = false
+      },
+      cancel: function () {
+        console.log('拍照取消')
+        self.loading = false
+        self._busy = false
       }
     })
   }

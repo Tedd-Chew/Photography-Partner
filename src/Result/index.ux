@@ -130,12 +130,16 @@ export default {
   },
 
   onInit() {
+    console.log('[Result] store.analysis=' + JSON.stringify(store.state.analysis))
     if (store.state.analysis) {
       this.analysis = store.state.analysis || {}
       this.mode = this.analysis.mode || 'score'
+      console.log('[Result] mode=' + this.mode + ' score=' + (this.analysis.score || 0))
       this.scoreVal = this.analysis.score || 0
       this.hasScores = !!this.analysis.scores
       this.hasParams = !!this.analysis.camera_params
+    } else {
+      console.log('[Result] store.analysis is null/undefined')
     }
   }
 }
