@@ -5,21 +5,29 @@ import { API_BASE_URL } from '../config'
 var BASE_URL = API_BASE_URL
 
 export function analyzePhoto(imagePath, mode, uid) {
-  console.log('[analyze] start mode=' + mode + ' path=' + imagePath.substring(imagePath.lastIndexOf('/') + 1))
+  console.log('[analyze] start mode=' + mode)
   return new Promise(function (resolve, reject) {
+    var done = false
+    var timer = setTimeout(function () {
+      if (!done) { done = true; reject({ error: '上传超时，请重试' }) }
+    }, 60000)
+
     uploadtask.uploadFile({
       url: BASE_URL + '/api/analyze',
       filePath: imagePath,
       name: 'file',
       formData: { mode: mode, uid: uid || 'device_unknown' },
       success: function (res) {
+        if (done) return; done = true; clearTimeout(timer)
         var d = res.data
         if (typeof d === 'string') { try { d = JSON.parse(d) } catch(e) {} }
         if (d && d.ok) resolve(d.data)
         else reject({ error: (d && d.error) || '分析失败' })
       },
-      timeout: 120000,
-      fail: function (err, code) { reject({ error: '上传失败 code=' + code }) }
+      fail: function (err, code) {
+        if (done) return; done = true; clearTimeout(timer)
+        reject({ error: '上传失败 code=' + code })
+      }
     })
   })
 }
@@ -44,9 +52,8 @@ export function getGallery(uid, page, size) {
         if (d && d.ok) {
           var items = d.data.items || []
           for (var i = 0; i < items.length; i++) {
-            if (items[i].thumb_url && items[i].thumb_url.indexOf('/') === 0) {
+            if (items[i].thumb_url && items[i].thumb_url.indexOf('/') === 0)
               items[i].thumb_url = BASE_URL + items[i].thumb_url
-            }
           }
           resolve(d.data)
         } else { reject({ error: (d && d.error) || '请求失败' }) }
