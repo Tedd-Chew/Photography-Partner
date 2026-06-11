@@ -19,10 +19,16 @@ export function analyzePhoto(imagePath, mode, uid) {
         uid: uid || 'device_unknown'
       },
       success: function (res) {
-        console.log('[analyzePhoto] success statusCode=' + res.statusCode)
-        console.log('[analyzePhoto] success raw=' + res.data)
-        var d = JSON.parse(res.data)
-        console.log('[analyzePhoto] parsed ok=' + d.ok + ' error=' + (d.error || 'none'))
+        console.log('[analyzePhoto] statusCode=' + res.statusCode)
+        var d = res.data
+        // res.data 可能是字符串也可能是已解析对象
+        if (typeof d === 'string') {
+          try { d = JSON.parse(d) } catch (e) {
+            console.log('[analyzePhoto] parse failed, raw=' + d.substring(0, 100))
+            reject({ error: '服务器返回异常' }); return
+          }
+        }
+        console.log('[analyzePhoto] ok=' + d.ok + ' error=' + (d.error || 'none'))
         if (d && d.ok) {
           resolve(d.data)
         } else {

@@ -102,6 +102,7 @@
 
 <script>
 import { store } from '../store/index'
+import { getCache } from '../helper/storage'
 
 const LEVEL_NAMES = ['', '摄影新手', '摄影学徒', '摄影达人', '摄影专家', '摄影大师', '光影艺术家']
 
@@ -129,18 +130,24 @@ export default {
     }
   },
 
-  onInit() {
-    console.log('[Result] store.analysis=' + JSON.stringify(store.state.analysis))
-    if (store.state.analysis) {
-      this.analysis = store.state.analysis || {}
-      this.mode = this.analysis.mode || 'score'
-      console.log('[Result] mode=' + this.mode + ' score=' + (this.analysis.score || 0))
-      this.scoreVal = this.analysis.score || 0
-      this.hasScores = !!this.analysis.scores
-      this.hasParams = !!this.analysis.camera_params
+  onInit: function () {
+    var data = store.state.analysis
+    if (!data) {
+      var self = this
+      getCache('analysis').then(function (cached) {
+        if (cached) { self.loadData(cached) }
+      })
     } else {
-      console.log('[Result] store.analysis is null/undefined')
+      this.loadData(data)
     }
+  },
+
+  loadData: function (data) {
+    this.analysis = data || {}
+    this.mode = this.analysis.mode || 'score'
+    this.scoreVal = this.analysis.score || 0
+    this.hasScores = !!this.analysis.scores
+    this.hasParams = !!this.analysis.camera_params
   }
 }
 </script>

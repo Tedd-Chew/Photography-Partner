@@ -66,13 +66,6 @@ import router from '@system.router'
 import { store } from '../store/index'
 import { analyzePhoto } from '../services/api'
 
-const SCENE_PRESETS = {
-  '夜景': { shutter: '1/50', iso: '1600', aperture: 'f/2.8', wb: '4000K', ev: '-0.3 EV', drive: '单次拍摄', focus: '画面中心对焦' },
-  '人像': { shutter: '1/250', iso: '200', aperture: 'f/2.8', wb: '5500K', metering: '中央重点', ev: '+0.3 EV', drive: '单次拍摄', focus: '人物面部单点对焦' },
-  '风景': { shutter: '1/125', iso: '100', aperture: 'f/8', wb: '5500K', metering: '矩阵测光', ev: '0 EV', drive: '单次拍摄', focus: '全域对焦' },
-  '街拍': { shutter: '1/500', iso: '400', aperture: 'f/5.6', wb: '5500K', metering: '矩阵测光', ev: '0 EV', drive: '连拍模式', focus: '中央重点对焦' }
-}
-
 export default {
   data: {
     scene: null,
@@ -86,19 +79,6 @@ export default {
 
   onBack() {
     router.replace({ uri: '/Home' })
-  },
-
-  onReady() {
-    this.detectScene()
-  },
-
-  detectScene() {
-    this.scene = '夜景'
-    const preset = SCENE_PRESETS['夜景']
-    if (preset) {
-      this.params = Object.assign({}, preset)
-    }
-    store.setCameraParams(this.scene, this.params)
   },
 
   onTakePhoto() {

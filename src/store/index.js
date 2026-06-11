@@ -35,6 +35,7 @@ export const store = {
 
   setAnalysis(data) {
     this.state.analysis = data
+    saveCache('analysis', data)
     if (data.exp_gained) {
       this.state.user.exp += data.exp_gained
     }
