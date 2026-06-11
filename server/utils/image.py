@@ -43,10 +43,15 @@ async def compress_to_base64(upload_file) -> tuple[str, str]:
         ratio = MAX_IMAGE_SIZE / max(w, h)
         img = img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
 
-    # 保存缩略图
+    # 缩略图 200px 给 Gallery
     os.makedirs(STATIC_DIR, exist_ok=True)
     filename = f"{uuid.uuid4().hex}.jpg"
-    img.save(os.path.join(STATIC_DIR, filename), "JPEG", quality=JPEG_QUALITY)
+    thumb = img.copy()
+    tw, th = thumb.size
+    if max(tw, th) > 200:
+        r = 200 / max(tw, th)
+        thumb = thumb.resize((int(tw * r), int(th * r)), Image.LANCZOS)
+    thumb.save(os.path.join(STATIC_DIR, filename), "JPEG", quality=75)
     thumb_url = f"/static/{filename}"
 
     # base64 给 AI

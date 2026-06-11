@@ -60,6 +60,7 @@
 <script>
 import { store } from '../store/index'
 import { getCache } from '../helper/storage'
+import { getUserInfo } from '../services/api'
 
 const LEVEL_NAMES = ['', '摄影新手', '摄影学徒', '摄影达人', '摄影专家', '摄影大师', '光影艺术家']
 const EXP_THRESHOLDS = [0, 0, 100, 300, 600, 1000, 99999]
@@ -84,13 +85,19 @@ export default {
 
   refresh: function () {
     var self = this
-    var u = store.state.user
-    if (u && u.uid) {
+    var uid = store.state.user.uid || 'device_unknown'
+    // 从后端拉最新用户数据
+    getUserInfo(uid).then(function (u) {
+      store.setUser(u)
       self.applyUser(u)
-      return
-    }
-    getCache('user').then(function (u) {
+    }).catch(function () {
+      var u = store.state.user
       if (u && u.uid) { self.applyUser(u) }
+      else {
+        getCache('user').then(function (c) {
+          if (c && c.uid) { self.applyUser(c) }
+        })
+      }
     })
   },
 
