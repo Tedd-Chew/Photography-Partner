@@ -59,6 +59,7 @@
 
 <script>
 import { store } from '../store/index'
+import { getCache } from '../helper/storage'
 
 const LEVEL_NAMES = ['', '摄影新手', '摄影学徒', '摄影达人', '摄影专家', '摄影大师', '光影艺术家']
 const EXP_THRESHOLDS = [0, 0, 100, 300, 600, 1000, 99999]
@@ -82,14 +83,17 @@ export default {
   },
 
   refresh: function () {
-    var u = store.state.user
-    this.level = u.level || 1
-    this.levelName = LEVEL_NAMES[u.level] || '摄影新手'
-    this.exp = u.exp || 0
-    this.totalAnalyses = u.totalAnalyses || 0
-    this.badges = u.badges || []
-    var nextLevel = this.level < 6 ? this.level + 1 : 6
-    this.expToNext = EXP_THRESHOLDS[nextLevel] || 99999
+    var self = this
+    getCache('user').then(function (u) {
+      if (!u) { u = store.state.user }
+      self.level = u.level || 1
+      self.levelName = LEVEL_NAMES[u.level] || '摄影新手'
+      self.exp = u.exp || 0
+      self.totalAnalyses = u.totalAnalyses || 0
+      self.badges = u.badges || []
+      var nextLevel = self.level < 6 ? self.level + 1 : 6
+      self.expToNext = EXP_THRESHOLDS[nextLevel] || 99999
+    })
   }
 }
 </script>
